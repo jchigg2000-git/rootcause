@@ -16,8 +16,8 @@ import type { MachineRecord, ServiceEntry } from "../api/inventory/contract.ts";
  * Machine Inventory — a page of its own, reached from the intake stage and
  * never from the header, which is reserved for account details.
  *
- * Full-width expandable cards: the header row is
- * year/make/model, then the operator's label, with Edit pinned far right;
+ * Full-width expandable cards: the header row is year/make/model, then the
+ * operator's label, with Edit pinned far right;
  * expanding shows dated maintenance history, the machine's diagnostics, and
  * the actions. Machines also arrive here automatically — running a diagnostic
  * auto-saves its intake machine.

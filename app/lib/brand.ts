@@ -8,12 +8,14 @@
  *   app/api/diagnose/report-template.ts ... the downloadable document
  *
  * **The shell and the reports are deliberately different colours.** The shell
- * is blue/orange (see `globals.css`), each report
- * wears its machine's livery (`THEMES` below), and only an unrecognised make
+ * is blue/orange (see `globals.css`) regardless of make, while each report
+ * wears its machine's livery (`THEMES` below); only an unrecognised make
  * falls back to the shell's colours.
  *
  * This supersedes the 2026-08-05 brand-board application, which put near-black
- * + amber + Rajdhani across both surfaces, which was rejected.
+ * + amber + Rajdhani across both surfaces. It was rejected because a condensed
+ * display face set as body prose made the reports read as posters rather than
+ * field documents.
  * The board's mark and icon set survive; its palette and typeface do not.
  */
 
@@ -76,7 +78,8 @@ export const SEMANTIC = {
 /**
  * Per-manufacturer report chrome.
  *
- * Reports are coloured by the equipment manufacturer.
+ * A report wears the livery of the machine it diagnoses, so a Deere report is
+ * distinguishable from a Cat report at a glance across a cab.
  * Only the chrome moves — masthead, hazard stripe, rails, chips. Body surface,
  * type and every semantic above stay fixed, so two reports are comparable at a
  * glance and only their livery differs.

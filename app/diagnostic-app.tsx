@@ -365,7 +365,7 @@ export function DiagnosticApp({
    * Focus follows the turn lifecycle. Into awaiting-model with a sent turn
    * mounted: the frozen view's heading — sending disabled the control focus
    * was on, which otherwise drops focus to <body> for the whole call
-   *, and the heading text announces the wait. Out of awaiting-model:
+   * — and the heading text announces the wait. Out of awaiting-model:
    * the new question, the failure heading, or the readiness line — on success
    * *and* failure, exactly as before. An effect rather than a timeout in
    * runInterview's finally, so it runs after the target has actually rendered.
@@ -393,7 +393,7 @@ export function DiagnosticApp({
       // aria-live: announcing from the scrolling container re-read older
       // bubbles whenever stripComposedQuestions changed their rendered text,
       // and its aria-busy deferred the pending bubble into silence
-      //. The dedicated hidden node announces just the new
+      // entirely. The dedicated hidden node announces just the new
       // content; the question itself is announced by the focus move.
       const last = machine.transcript.at(-1);
       if (last?.role === "assistant") {
@@ -407,8 +407,8 @@ export function DiagnosticApp({
   // has reached, so a state swap — the review replacing a tall five-chip
   // question, the rail unmounting at send — can grow the panel but never
   // shrink it under a thumb mid-tap. The static CSS floor cannot know how
-  // tall a turn's tallest state was, and the mobile override zeroed it on
-  // the claim of a bottom anchor that does not exist. The floor
+  // tall a turn's tallest state was, and the mobile override zeroed it on the
+  // assumption of a bottom anchor this layout never had. The floor
   // CARRIES ACROSS question turns: it originally reset on every new turn's
   // questions, and that reset was measured as the biggest between-turns jump
   // — the block reshuffled to its new natural height the moment a reply
@@ -795,8 +795,8 @@ export function DiagnosticApp({
    *
    *  Opening the soft keyboard here is intended, and is the one place in this
    *  panel where it is: every other focus path avoids the textarea precisely
-   *  because the keyboard covers the unread question. This is an
-   *  explicit tap that asks for it. */
+   *  because the keyboard covers the unread question. This is an explicit tap
+   *  that asks for it. */
   function typeInsteadOfChip() {
     if (!panelLive || !openQuestion) return;
     interviewInputRef.current?.focus();
@@ -848,7 +848,7 @@ export function DiagnosticApp({
     if (event.key === "Enter" && !event.shiftKey) {
       // On a touch keyboard Return means "new line": Shift+Enter does not
       // exist there, and committing mid-sentence also collapses the keyboard
-      //. Enter-to-answer stays a hardware-keyboard shortcut.
+      // under the operator. Enter-to-answer stays a hardware-keyboard shortcut.
       if (window.matchMedia("(pointer: coarse)").matches) return;
       event.preventDefault();
       event.currentTarget.form?.requestSubmit();
@@ -882,7 +882,7 @@ export function DiagnosticApp({
     //
     // Scoped to `.ask-chip` rather than the `.ask-options` group it lives in:
     // the group also holds the unnumbered "None of these — type it" escape
-    //, and a digit pressed there is the first character of the value
+    // hatch, and a digit pressed there is the first character of the value
     // the operator came to type — committing a chip would be the exact
     // substitution that control exists to prevent.
     if (/^[1-9]$/.test(event.key) && target?.closest(".ask-chip")) {

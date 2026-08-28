@@ -329,8 +329,7 @@ const SCRIPT = `
   // parent page's URL — so a bare "#section" href resolves to the site URL
   // and navigates the frame into the app's own anti-framing refusal
   // (the browser's "refused to connect" frame error). Scroll in place
-  // instead. A
-  // downloaded copy (file:/blob:) keeps native fragment navigation.
+  // instead. A downloaded copy (file:/blob:) keeps native fragment navigation.
   if (location.href === "about:srcdoc") {
     document.addEventListener("click", function (event) {
       var anchor = event.target.closest ? event.target.closest('a[href^="#"]') : null;

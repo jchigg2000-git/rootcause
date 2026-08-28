@@ -3,8 +3,8 @@
  *
  * Admin-only via ADMIN_API_PREFIXES — the "Randomize machine" button is a
  * demo/testing affordance for admins, not an operator feature. Pinned to
- * Haiku: this is a
- * $-per-click surface that needs one short paragraph, not report-grade depth.
+ * Haiku: this is a $-per-click surface that needs one short paragraph, not
+ * report-grade depth.
  */
 import { env } from "../../lib/server-env.ts";
 import { currentUser, jsonError, jsonResponse } from "../../lib/auth/current-user.ts";

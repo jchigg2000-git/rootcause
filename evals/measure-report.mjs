@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Offline layout instrument for the §20 UXT experiments.
+// Offline layout instrument for the UXT report-layout experiments.
 //
 // Every UXT pass criterion that is stated in pixels ("within the first 660px",
 // "~915px below the card top", "#jump matches at 12/12 anchors") needs a real
@@ -32,7 +32,7 @@ const ROOT = path.resolve(HERE, "..");
 const RUNS = path.join(HERE, "runs");
 const OUT_DIR = path.join(HERE, "measurements");
 
-// The roadmap's baselines were taken at 390x660 — an iPhone-class viewport with
+// The baselines were taken at 390x660 — an iPhone-class viewport with
 // the browser chrome subtracted. "Above the fold" means y < FOLD.
 const VIEWPORT = { width: 390, height: 660 };
 const FOLD = VIEWPORT.height;

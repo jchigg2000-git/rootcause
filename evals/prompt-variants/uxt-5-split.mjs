@@ -22,8 +22,8 @@
  * amended arms rank "boom cylinder internal bypass" over the true boom-circuit
  * relief valve.
  *
- * The mechanism is not mysterious, and the roadmap predicted it before the
- * score existed. The ready message is the last thing the model says to itself
+ * The mechanism is not mysterious, and it was predicted before the score
+ * existed. The ready message is the last thing the model says to itself
  * before the report call reads the transcript. The amendment deleted the
  * eliminative sentences ("that points away from a general pump problem") from
  * it — and with them, the eliminations the report was carrying forward.

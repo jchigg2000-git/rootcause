@@ -5,6 +5,30 @@ between look-alike root causes — not whether the report reads well. Ten scenar
 each with one hidden true cause whose surface symptoms overlap 3+ plausible
 alternatives; only the right interview question separates them.
 
+## A note on the shorthand, and on run directories
+
+Two things in this document will otherwise read as references to something you
+cannot see.
+
+**`UI-*` and `UXT-*` are local shorthand for experiments**, not links to another
+file. The ones that appear below:
+
+- **UI-7** — whether the interview asks the operator to *read fault codes off the
+  machine*, and whether the chips it offers can hold the answer. Its parts: (a) a
+  code ask must not carry chips, (b) a prompt-only rule does not bind, (c) some
+  runs never ask for codes at all.
+- **UXT-1 … UXT-12** — report-layout and interview usability experiments, scored
+  offline by `measure-report.mjs`: shortlist prominence, safety-item ordering,
+  sort direction, the mobile jump menu, and so on. The `prompt-variants/uxt-*.mjs`
+  files are the prompt arms for these.
+
+**`evals/runs/` is not in this repository.** Run output is a local artifact: it is
+large, it is specific to the account that paid for it, and it is not something a
+reader can meaningfully diff against their own. Every run directory named in this
+document is one the maintainer produced; the scenarios, the harness and the
+scoring code all ship, so you can regenerate equivalents. Anything below that
+reads a banked directory expects one you generated yourself.
+
 ## Files
 
 - `scenarios.json` — the ground truth, written **before** any run. Per scenario:
@@ -110,7 +134,7 @@ alternatives; only the right interview question separates them.
   pump connector all stay ask-only. Its `knownEffects` field names, per case, what got easier by
   construction; read it before scoring, and note **c3's red-herring shape is only half-tested**
   here (the intake string carries the stale code's provenance, which is nearly the discriminator
-  itself). The instrument for ROADMAP §0's owed intake-field arm; **no run against it exists yet.**
+  itself). The instrument for the owed intake-field arm; **no run against it exists yet.**
 > # ⛔ FREEZE BREAK — 2026-08-20. THE OPERATOR NOW GOES AND LOOKS.
 >
 > **No run from 2026-08-20 onward is comparable to any banked run** unless it passes
@@ -177,7 +201,7 @@ Scoring is judgment (prose matching), done by reading, not automated.
 
 ## ⚠ Accuracy cannot compare two prompts on this set. Measured 2026-08-15.
 
-Nine arms were run to test the §20 UXT prompt experiments, each scored by two
+Nine arms were run to test the UXT prompt experiments, each scored by two
 independent judges. The governing result is about the **instrument**, not any arm:
 
 - `control` scored **10/10**. `control-2`, the **identical prompt** re-run, scored
@@ -431,7 +455,7 @@ correction. **c5 is the only case that is 0/4.**
 
 ### Pricing the round-1 fix, before building it
 
-§0 names a deterministic round-1 code question as the obvious candidate and warns it lengthens
+A deterministic round-1 code question is the obvious candidate, but it lengthens
 every interview. Both halves are now measured off banked data, with no model spend:
 
 - **When the interview asks for codes it asks in round 1** — 59 of the 80 runs that ever ask,
@@ -443,7 +467,7 @@ every interview. Both halves are now measured off banked data, with no model spe
   the split is 551 × 3, 49 × 2, 13 × 1. `parseInterview` slices at 3, so **there is no free slot
   in round 1, ever**: an injected question must displace a model-chosen discriminating question or
   widen the turn past the stated cap. That is the real price, and it is not the "it makes
-  interviews longer" cost the roadmap anticipated.
+  interviews longer" cost originally anticipated.
 
 ### A shipped predicate was under-firing, and the fix's own target shape leaked
 

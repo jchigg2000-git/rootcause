@@ -32,12 +32,17 @@ could be established. The full specification is in
 
 Requires Node.js 22.13 or newer.
 
-    cp .env.example .env
-    npm install
-    npm run dev
+```bash
+cp .env.example .env
+npm install
+npm run dev
+```
 
 Then open `http://localhost:5211`. The port is pinned with `strictPort`, so it is
 either 5211 or a startup failure — never a silent reassignment.
+
+The app will send you to `/login`, and there is no signup. First boot writes a key to
+`db/skeleton.key` and prints it once — see [Signing in](#signing-in).
 
 You need **at least one** provider key in `.env` before a diagnosis will run. The app
 starts and renders without one; only the model call fails, and it says so plainly.
@@ -57,9 +62,11 @@ for the provider you actually select is required.
 Every key is read **server-side only**, by `app/lib/server-env.ts`. None is ever
 exposed through a `NEXT_PUBLIC_*` or `VITE_*` variable — they are billable.
 
-Two more, both optional: `COOKIE_SECURE=false` for plain-HTTP local development, and
+Three more, all optional: `COOKIE_SECURE=false` for plain-HTTP local development;
 `DB_DIR` to move the SQLite files off the default `./db` (required in any deployment,
-or the database is lost on every restart).
+or the database is lost on every restart); and `ENVIRONMENT=production`, which turns on
+HSTS and nothing else.
+
 ## Signing in
 
 The app requires sign-in — `/api/diagnose` drives billable inference, so it sits behind
@@ -70,7 +77,9 @@ exist, and both go in the same box on `/login`:
 `db/skeleton.key` (`$DB_DIR/skeleton.key` when that is set), mode `0600`. It is printed to
 the log exactly once, on the boot that creates it:
 
-    cat db/skeleton.key
+```bash
+cat db/skeleton.key
+```
 
 Rotate it by deleting the file and restarting. The owner account and everything it owns
 survive, because the account is keyed on a fixed id rather than the key.
@@ -167,21 +176,29 @@ Changes to the prompts or the interview loop are measured, not argued about. The
 in [`evals/`](evals/) replays scripted equipment scenarios through the real pipeline and
 scores the result.
 
-    node evals/run-eval.mjs                 # the full set — bills your provider key
-    node evals/run-eval.mjs --only 03,07    # a subset
-    node evals/run-eval.mjs --sim-free-text # the chips-hidden control arm
+```bash
+node evals/run-eval.mjs                 # the full set — bills your provider key
+node evals/run-eval.mjs --only 03,07    # a subset
+node evals/run-eval.mjs --sim-free-text # the chips-hidden control arm
+```
 
 - `evals/scenarios*.json` — the scenario sets. Each is a machine plus a fault whose
   correct diagnosis is known, written so that one variable decides the answer.
 - `evals/prompt-variants/*.mjs` — prompt arms to compare against the shipped control.
-- `evals/interview-metrics.mjs` — scores banked runs without spending a single token,
-  which is how a predicate change gets checked for false positives before it ships.
+- `evals/interview-metrics.mjs` — re-scores run directories you have already generated,
+  without spending a single token, which is how a predicate change gets checked for
+  false positives before it ships. Run output lives in `evals/runs/` and is a local
+  artifact — it is not in this repository, so generate a run before scoring one.
 - `evals/measure-report.mjs` — report-side measurements.
 
 Read [`evals/README.md`](evals/README.md) first — it documents the rules that keep a
 result honest. The sharpest one: the operator simulator takes an offered chip verbatim
-96% of the time (`evals/run-eval.mjs:337`), so an arm that removes chips from the app
+96% of the time (`evals/run-eval.mjs:489`), so an arm that removes chips from the app
 improves its own score by construction. That is what `--sim-free-text` is for.
+
+## Security
+
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md).
 
 ## License
 

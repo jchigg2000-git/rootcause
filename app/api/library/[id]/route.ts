@@ -11,7 +11,8 @@ type Context = { params: Promise<{ id: string }> };
  *
  * The store holds JSON, not HTML, and `renderReport` is a pure function of it,
  * so this rebuilds the document at the *current* template — a report saved
- * before it comes back wearing its manufacturer's livery. `parseReportJson`
+ * before the livery work landed comes back in its manufacturer's colours.
+ * `parseReportJson`
  * is run again rather than trusting the stored blob: it is the same defensive
  * coercion the model output goes through, it is idempotent over its own
  * output, and it means a row written by an older schema cannot reach the

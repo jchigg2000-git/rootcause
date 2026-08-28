@@ -8,13 +8,13 @@ import type { PartsData } from "../api/parts-lookup/schema";
 
 /**
  * Cheap-parts lookup, scoped to one of the caller's own machines. Reached
- * from a machine card's "Find parts" —
- * `/parts-lookup?machine=<id>` — or bare, in which case it offers the
- * caller's machines to pick from.
+ * from a machine card's "Find parts" — `/parts-lookup?machine=<id>` — or bare,
+ * in which case it offers the caller's machines to pick from.
  *
- * The lookup is grounded web search on a pinned model (`claude-sonnet-5` —
- * his call, "always on sonnet"), so it takes a couple of minutes and the wait
- * borrows the report's generating treatment, exactly as spec lookup does.
+ * The lookup is grounded web search on a model pinned to `claude-sonnet-5`, so
+ * a $-per-click surface cannot follow the admin's report model up to Opus. It
+ * takes a couple of minutes, and the wait borrows the report's generating
+ * treatment, exactly as spec lookup does.
  */
 
 /** Drives the progress bar only; mirrors the route's 3+2 search budget. */

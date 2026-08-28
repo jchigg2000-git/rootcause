@@ -3,7 +3,7 @@
  *
  * SUPERSEDES the brand-board palette of 2026-08-05 (near-black + amber +
  * Rajdhani), which was rejected in favour of the earlier blue-with-orange
- * scheme. These are the values from `af97427`, restored verbatim.
+ * scheme. These are the pre-brand-board values, restored verbatim.
  *
  * The shell and the report are deliberately NOT the same colour. Reports stay
  * liveried by equipment manufacturer (`app/lib/brand.ts` THEMES); the shell is

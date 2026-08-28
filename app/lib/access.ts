@@ -9,15 +9,15 @@
  * - a **redeemed access token**, role `viewer` — a LIFETIME allowance, not a
  *   monthly one, held in `token_grant`.
  *
- * **What a code buys is N generated reports**, decided 2026-08-19: a code is
- * good for 1-n uses. `runs_used` is the headline limit and the
- * number quoted to a holder: "this code is good for three field reports."
+ * **What a code buys is N generated reports**, decided 2026-08-19. `runs_used`
+ * is the headline limit and the number quoted to a holder: "this code is good
+ * for three field reports."
  *
  * Two ceilings sit behind it, because a run count alone bounds nothing:
  *
  * - **`token_cap`** — the lifetime backstop. A code can never spend more than
  *   this in total, however few reports it produced. Demoted from headline to
- *   backstop, not deleted (*"I don't mind having a spend cap on them too"*).
+ *   backstop, not deleted: a run count bounds report volume, never spend.
  * - **the per-case ceiling** — `perCaseTokenCeiling`, enforced in the diagnose
  *   route against `diagnostic_case.tokens_spent`. A run is only counted when a
  *   report is delivered, so without this an interview that never converges

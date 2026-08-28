@@ -4,11 +4,12 @@
  * A convenience, never a constraint. Every field stays a free-text input with
  * a combobox attached (app/components/combobox.tsx), so an unlisted make or a
  * model nobody thought of is typed straight in — which matters, because the
- * whole app is aimed at old and odd machines. Nothing here validates, and nothing reaches the server as an
- * enum: the model receives whatever the operator typed.
+ * whole app is aimed at old and odd machines. Nothing here validates, and
+ * nothing reaches the server as an enum: the model receives whatever the
+ * operator typed.
  *
- * Deliberately not exhaustive: the standard catalog of manufacturers, with
- * models only for the top three makes. Broad on makes, deep on three, shallow
+ * Deliberately not exhaustive: the makes an operator is plausibly holding, with
+ * models only for the top three. Broad on makes, deep on three, shallow
  * everywhere else.
  */
 

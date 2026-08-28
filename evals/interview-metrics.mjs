@@ -3,7 +3,7 @@
 //
 // Scoring this eval is judgment ("prose matching, done by reading" —
 // evals/README.md), and it stays that way for anything about whether a question
-// was decisive or a diagnosis was right. But several of the §20 UXT criteria are
+// was decisive or a diagnosis was right. But several of the UXT criteria are
 // not judgment calls at all — questions per turn, rounds, forcedReport, whether
 // a fact was asked twice — and counting those by reading ten transcripts is how
 // a scorecard ends up with a number nobody can reproduce.
@@ -268,7 +268,7 @@ const rollup = {
   // asked in 0/12 runs, and two reports asserted a status nobody established.
   "codeStatusGaps (code ask, status not asked)": sum(cases.map((c) => c.codeStatusGaps.length)),
   "codeMentions (not a status gap)": sum(cases.map((c) => c.codeStatusDrawn.length)),
-  // ROADMAP §5 UI-7 (c): runs where the interview never asked for codes at all.
+  // UI-7 (c): runs where the interview never asked for codes at all.
   // The ONLY code metric here that can actually move -- the two above are pinned
   // to 0 by the parser and are regression pins. Read `codeAsks` via --json to
   // audit the predicate; read this line for the endpoint.

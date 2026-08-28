@@ -52,9 +52,8 @@ export type Equipment = {
    * fault codes at all**, and when the interview does ask it asks in round 1
    * (59 of the 80 that ever ask) or never. Collecting it at intake beats a
    * deterministic round-1 question because every round-1 turn already carries
-   * the maximum three questions — 256 of
-   * 256 — so inside the interview there is no free slot at any price. A form
-   * field costs zero interview turns.
+   * the maximum three questions — 256 of 256 — so inside the interview there is
+   * no free slot at any price. A form field costs zero interview turns.
    *
    * Unbounded, like every other optional string here; `MAX_REQUEST_BYTES` is
    * the ceiling. Deliberately NOT part of `IntakeEquipment` — a fault code is
@@ -133,7 +132,8 @@ const MAX_OPTIONS_PER_QUESTION = 5;
  * tidy-up. It must never fire on an ordinary categorical ask ("constant or
  * intermittent?", "how long has it done this?") — stripping the chips off those
  * costs the operator a keyboard and buys nothing. Re-run
- * `evals/interview-metrics.mjs` over the banked run dirs after any edit here;
+ * `evals/interview-metrics.mjs` over your own run directories after any edit
+ * here;
  * it prints every question this fires on, so a false positive is visible
  * without billing a model.
  *
@@ -163,28 +163,6 @@ const VALUE_ASK_PATTERNS: readonly RegExp[] = [
   /\bexact(?:ly)? (?:reading|number|value|figure|pressure|temperature|voltage|hours)\b/i,
 ];
 
-/**
- * Does this question ask for a value rather than a category?
- *
- * Measured 2026-08-15 (`evals/runs/2026-08-15-codes-1/scorecard.md`): the
- * operator simulator takes an offered chip verbatim **96% of the time (77/80)**,
- * so an option set that omits the machine's true state does not merely fail to
- * help — it substitutes a wrong answer that the report then reasons correctly
- * from. Two of twelve runs asked a categorical dash question, took the
- * category, and never obtained the fault code; across the campaign, asking for
- * a code *as a value* and obtaining it were the same event, 6/6 in both
- * directions.
- *
- * `prompts.ts` already carries this rule ("Leave `options` empty for anything
- * that needs free text, such as a serial number, an exact reading, or an open
- * description") and the model ignores it. A settled negative result stands
- * behind this: restating a prompt rule harder — as a pre-emit check, with a
- * worked counter-example — does not bind on this model. So the
- * enforcement lives here instead, in the one place options are cleaned, which
- * both `app/api/diagnose/route.ts` and `evals/run-eval.mjs` import.
- *
- * Exported for `tests/diagnose-contract.test.mjs` and `evals/interview-metrics.mjs`.
- */
 /**
  * Chip labels that mean "I have not gone and looked", which the app must never
  * offer as a tap target.
@@ -232,6 +210,28 @@ export function isUncheckedOption(label: string): boolean {
   return UNCHECKED_OPTION_PATTERNS.some((pattern) => pattern.test(label));
 }
 
+/**
+ * Does this question ask for a value rather than a category?
+ *
+ * Measured 2026-08-15 over a banked eval campaign: the
+ * operator simulator takes an offered chip verbatim **96% of the time (77/80)**,
+ * so an option set that omits the machine's true state does not merely fail to
+ * help — it substitutes a wrong answer that the report then reasons correctly
+ * from. Two of twelve runs asked a categorical dash question, took the
+ * category, and never obtained the fault code; across the campaign, asking for
+ * a code *as a value* and obtaining it were the same event, 6/6 in both
+ * directions.
+ *
+ * `prompts.ts` already carries this rule ("Leave `options` empty for anything
+ * that needs free text, such as a serial number, an exact reading, or an open
+ * description") and the model ignores it. A settled negative result stands
+ * behind this: restating a prompt rule harder — as a pre-emit check, with a
+ * worked counter-example — does not bind on this model. So the enforcement
+ * lives here instead, in the one place options are cleaned, which
+ * both `app/api/diagnose/route.ts` and `evals/run-eval.mjs` import.
+ *
+ * Exported for `tests/diagnose-contract.test.mjs` and `evals/interview-metrics.mjs`.
+ */
 export function seeksExactValue(text: string): boolean {
   return VALUE_ASK_PATTERNS.some((pattern) => pattern.test(text));
 }
@@ -312,9 +312,8 @@ const CODE_STATUS_CLAUSE =
  *
  * The enforcement lives here rather than in `prompts.ts` for the same settled
  * reason the chip-strip rule does: restating a rule harder does not bind on
- * this model,
- * and this is the one place questions are cleaned before either production or
- * the eval harness sees them.
+ * this model, and this is the one place questions are cleaned before either
+ * production or the eval harness sees them.
  *
  * ⚠ This is the ONLY place the server authors question text rather than
  * cleaning it. Keep it to one appended sentence, keep the patterns narrow, and

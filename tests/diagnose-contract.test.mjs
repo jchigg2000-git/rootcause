@@ -140,8 +140,8 @@ test("interview questions carry chip options, capped and defensively coerced", (
 });
 
 test("a question that asks for a value is stripped of its chips", () => {
-  // Measured 2026-08-15: the operator takes an offered chip
-  // verbatim 96% of the time, so a chip set that cannot hold the reading
+  // Measured 2026-08-15: the operator takes an offered chip verbatim 96% of
+  // the time, so a chip set that cannot hold the reading
   // SUBSTITUTES a wrong one. The two real shapes from the codes campaign:
   const parsed = parseInterview(
     JSON.stringify({
@@ -307,7 +307,7 @@ test("parseInterview appends the code-status clause without disturbing the chip 
     }),
   );
 
-  // A code ask is a value ask, so it also loses its chips). Both rules
+  // A code ask is also a value ask, so it loses its chips too. Both rules
   // fire on the same question and neither swallows the other.
   assert.match(parsed.questions[0].text, / For each code, say whether it is showing now or stored from earlier\.$/);
   assert.deepEqual(parsed.questions[0].options, []);

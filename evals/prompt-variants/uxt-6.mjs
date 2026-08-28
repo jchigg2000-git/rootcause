@@ -12,8 +12,7 @@
  * client still composes one combined reply, and `interview-machine.ts` already
  * renders one- and two-question turns. This is a value gate, not a format change.
  *
- * UXT-5's budget is included deliberately — the roadmap makes it the
- * prerequisite. Told "ask fewer questions" without a visible turn ceiling, the
+ * UXT-5's budget is included deliberately, as its prerequisite. Told "ask fewer questions" without a visible turn ceiling, the
  * model has every reason to spread the same questions over more rounds.
  */
 

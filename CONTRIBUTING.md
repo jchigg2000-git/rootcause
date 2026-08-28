@@ -22,13 +22,17 @@ assignment.
 
 Add a `Signed-off-by` line to each commit as a record of the two points above:
 
-    git commit -s -m "your message"
+```bash
+git commit -s -m "your message"
+```
 
 ## Before you open a PR
 
-    npm run lint
-    npm run typecheck
-    npm test
+```bash
+npm run lint
+npm run typecheck
+npm test
+```
 
 All three should be clean. `npm test` runs pure contract and logic tests — no network, no
 database, no build step.
@@ -46,6 +50,10 @@ the whole test suite run fine without one.
 
 A few things about this codebase are deliberate and will look like bugs if you don't know
 them.
+
+[`CLAUDE.md`](CLAUDE.md) is the long form of this list — every constraint in the
+codebase with the reason attached, including the `npm audit` finding that is expected
+and why the offered fix is not one.
 
 **The port is 5211 and it is pinned.** `vite.config.ts` sets `strictPort: true`, and the
 `dev` and `start` scripts both name the port. If 5211 is busy the app fails to start

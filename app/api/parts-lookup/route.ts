@@ -22,9 +22,8 @@ const MAX_REQUEST_BYTES = 16 * 1024;
 
 /**
  * Pinned, not `settings.activeModel` — parts lookup always runs on Sonnet.
- * Grounded search is Anthropic-only anyway, and this keeps
- * a $-per-click surface from silently following the admin's report model up to
- * Opus pricing.
+ * Grounded search is Anthropic-only anyway, and this keeps a $-per-click
+ * surface from silently following the admin's report model up to Opus pricing.
  */
 const PARTS_MODEL = "claude-sonnet-5";
 

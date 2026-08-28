@@ -12,8 +12,8 @@
  *
  * Security headers ride on EVERY response, not just rejections. Returning
  * `undefined` continues to the route but drops them, which is what the Worker
- * removal regressed. The fix is vinext's continue-with-
- * headers signal: a response carrying `x-middleware-next: 1` means "keep
+ * removal regressed. The fix is vinext's continue-with-headers signal: a
+ * response carrying `x-middleware-next: 1` means "keep
  * routing", and `mergeMiddlewareResponseHeaders` copies the rest of its headers
  * onto whatever the route eventually returns. Verified against
  * `node_modules/vinext/dist/server/middleware-runtime.js` (the
