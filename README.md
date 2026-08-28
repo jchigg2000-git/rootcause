@@ -185,18 +185,17 @@ improves its own score by construction. That is what `--sim-free-text` is for.
 
 ## License
 
-RootCause is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md) (`PolyForm-Noncommercial-1.0.0`).
+RootCause is licensed under the [Apache License 2.0](LICENSE) (`Apache-2.0`).
 
-In plain terms: you may read, run, modify, and redistribute this software freely for any **noncommercial** purpose — personal study, hobby projects, research and testing, and use by charities, educational institutions, public research organizations, and government bodies.
-
-**Any commercial use requires a separate paid license from the copyright holder.** There is no automatic conversion to an open-source license after a set period.
-
-Commercial licenses are available and priced case by case. To arrange one, open an issue on this repository titled `Commercial license request`, or contact the copyright holder (Justin Higgins, [@jchigg2000-git](https://github.com/jchigg2000-git)) through GitHub.
+You may use, modify and redistribute it, including commercially, provided you keep the
+copyright and license notices and state what you changed. The license also grants a patent
+license from every contributor, and terminates that grant for anyone who brings a patent
+suit over the software. It is provided as-is, with no warranty.
 
 ### Trademarks and brand assets
 
-The license above covers copyright and patents in the software only. It grants **no rights** to the *RootCause* and *RootCause HME* names, the wordmark, or the brand assets in [`public/icons/`](public/icons/) and [`docs/brand-board.png`](docs/brand-board.png). Those are reserved. A modified or redistributed copy must not use them to identify itself.
+The license above covers copyright and patents in the software only — Apache-2.0 §6 expressly grants no trademark rights. It grants **no rights** to the *RootCause* and *RootCause HME* names, the wordmark, or the brand assets in [`public/icons/`](public/icons/) and [`docs/brand-board.png`](docs/brand-board.png). Those are reserved. A modified or redistributed copy must not use them to identify itself.
 
 ### Contributions
 
-By submitting a contribution you agree that it is licensed to the project under the terms above, and that the copyright holder may also license it commercially. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Under Apache-2.0 §5, a contribution you deliberately submit is licensed under these same terms unless you say otherwise. See [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -4,27 +4,23 @@ Issues, bug reports and pull requests are welcome.
 
 ## Licensing of contributions
 
-RootCause is released under the [PolyForm Noncommercial License 1.0.0](LICENSE.md), and
-commercial licenses are sold separately by the copyright holder. For that to work, every
-contribution has to be something the copyright holder is free to include in a commercially
-licensed copy.
+RootCause is released under the [Apache License 2.0](LICENSE).
 
-**By opening a pull request you agree that:**
+Under section 5 of that license, a contribution you deliberately submit for inclusion is
+licensed under the same terms as the rest of the software, unless you explicitly say
+otherwise. There is no separate contributor license agreement to sign and no copyright
+assignment.
 
-1. You wrote the contribution yourself, or you have the right to submit it under these terms.
-2. Your contribution is licensed to the project under the PolyForm Noncommercial License 1.0.0,
-   the same terms as the rest of the software.
-3. You additionally grant Justin Higgins a perpetual, worldwide, irrevocable, royalty-free,
-   non-exclusive right to use, modify, sublicense and relicense your contribution — including
-   under commercial license terms — without further permission or compensation.
-4. You retain your own copyright in your contribution. This grant is not an assignment; you may
-   continue to use your own work however you like.
+**By opening a pull request you confirm that:**
 
-If you cannot agree to point 3, open an issue describing the change instead of a pull request.
+1. You wrote the contribution yourself, or you otherwise have the right to submit it under
+   the Apache License 2.0.
+2. You retain your own copyright in your contribution — nothing here is an assignment, and
+   you may continue to use your own work however you like.
 
 ## Sign your commits
 
-Add a `Signed-off-by` line to each commit as a record of the above:
+Add a `Signed-off-by` line to each commit as a record of the two points above:
 
     git commit -s -m "your message"
 

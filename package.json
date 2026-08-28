@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Heavy-equipment diagnostic intake and field reporting: an operator describes a machine and a symptom, answers a short model-led interview, and downloads a standalone HTML field report.",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "Apache-2.0",
   "author": "Justin Higgins",
   "repository": {
     "type": "git",
