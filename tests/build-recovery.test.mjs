@@ -18,7 +18,7 @@ import {
 test("recognises a dead chunk in every engine's wording", () => {
   const real = [
     // Chromium
-    "Failed to fetch dynamically imported module: https://rootcausehme.com/assets/library-view-C_RtQ9cU.js",
+    "Failed to fetch dynamically imported module: https://rootcause.example/assets/library-view-C_RtQ9cU.js",
     // Firefox
     "error loading dynamically imported module",
     // Safari / WebKit
@@ -53,7 +53,7 @@ test("does not reload the page for an ordinary application error", () => {
 
 test("matches a failed build asset only for our own script and link tags", () => {
   assert.equal(isStaleBuildAsset("SCRIPT", "/assets/diagnostic-app-B2ErXVZV.js"), true);
-  assert.equal(isStaleBuildAsset("link", "https://rootcausehme.com/assets/index-C_EMfXIj.css"), true);
+  assert.equal(isStaleBuildAsset("link", "https://rootcause.example/assets/index-C_EMfXIj.css"), true);
   // Not a build artifact: an <img> that 404s must never reload the page.
   assert.equal(isStaleBuildAsset("IMG", "/assets/photo.png"), false);
   // Not our assets: a third-party script failing is not our deploy.

@@ -1,4 +1,4 @@
-Required Notice: Copyright 2026 Justin Higgins (https://rootcausehme.com)
+Required Notice: Copyright 2026 Justin Higgins (https://github.com/jchigg2000-git)
 
 # PolyForm Noncommercial License 1.0.0
 

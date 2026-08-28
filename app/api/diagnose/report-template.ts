@@ -328,7 +328,8 @@ const SCRIPT = `
   // Hosted as the SPA preview's srcdoc, this document's base URL is the
   // parent page's URL — so a bare "#section" href resolves to the site URL
   // and navigates the frame into the app's own anti-framing refusal
-  // ("rootcausehme.com refused to connect"). Scroll in place instead. A
+  // (the browser's "refused to connect" frame error). Scroll in place
+  // instead. A
   // downloaded copy (file:/blob:) keeps native fragment navigation.
   if (location.href === "about:srcdoc") {
     document.addEventListener("click", function (event) {
