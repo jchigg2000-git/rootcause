@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>RootCause HME — Brand system</title>
+<style>
+@font-face{font-family:"Rajdhani";font-style:normal;font-weight:400;font-display:swap;src:url("../public/fonts/rajdhani-400.woff2") format("woff2")}
+@font-face{font-family:"Rajdhani";font-style:normal;font-weight:600;font-display:swap;src:url("../public/fonts/rajdhani-600.woff2") format("woff2")}
+@font-face{font-family:"Rajdhani";font-style:normal;font-weight:700;font-display:swap;src:url("../public/fonts/rajdhani-700.woff2") format("woff2")}
+:root{
+  --ink:#1a1a1a;--amber:#ffc107;--grey:#6b7280;--paper:#f7f7f7;
+  --panel:#fff;--panel-2:#f1f1f1;--line:#d6d6d6;--line-heavy:#9a9a9a;
+  --chrome:#1a1a1a;--chrome-deep:#0d0d0d;
+  --danger:#a3271d;--warn:#7c5c00;--ok:#245c3c;--info:#2a566b;
+  --sans:"Rajdhani","Roboto Condensed","Oswald","Arial Narrow",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 var(--sans)}
+h1,h2,h3{margin-top:0;letter-spacing:-.015em}
+h1{font-weight:700;font-size:clamp(1.7rem,4.5vw,2.8rem);line-height:1.03;margin-bottom:10px}
+h2{font-weight:700;font-size:clamp(1.15rem,2.4vw,1.5rem);margin-bottom:12px}
+h3{font-weight:600;font-size:1rem;margin-bottom:6px}
+code,.mono{font-family:var(--mono);font-size:.86em}
+a{color:#8a5a00}
+a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* masthead */
+.mast{background:var(--chrome);color:#fff;position:relative}
+.mast::after{content:"";display:block;height:7px;background:repeating-linear-gradient(-45deg,var(--amber) 0 11px,var(--chrome-deep) 11px 22px)}
+.mast-in{width:min(1180px,calc(100% - 28px));margin:auto;padding:26px 0 22px}
+.eyebrow{font:700 .68rem/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.mast p{max-width:900px;color:#cfcfcf;font-size:.98rem;margin:.3rem 0 0}
+.lockup{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.lockup .wm{display:flex;align-items:baseline;gap:9px;line-height:1}
+.lockup .wm strong{font-size:2.1rem;font-style:italic;font-weight:700;letter-spacing:-.01em}
+.lockup .wm em{border-bottom:3px solid var(--amber);color:var(--amber);font-style:normal;font-weight:700;font-size:1.3rem;letter-spacing:.1em;padding-bottom:3px}
+
+/* layout */
+.layout{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:232px minmax(0,1fr);gap:18px;padding:18px 14px 60px}
+.toc{position:sticky;top:12px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:8px;max-height:calc(100vh - 24px);overflow:auto}
+.toc h2{margin:4px 8px 8px;color:var(--grey);font:700 .66rem var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.toc a{display:block;color:#39393a;text-decoration:none;border-left:3px solid transparent;padding:8px 9px;font-size:.86rem;font-weight:600}
+.toc a:hover{background:var(--panel-2)}
+main{min-width:0}
+section{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:18px 20px;margin:0 0 14px}
+section>h2{border-left:4px solid var(--amber);padding-left:10px}
+
+/* swatches */
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sw{border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.sw .chip{height:84px}
+.sw .meta{padding:8px 10px;font:600 .78rem var(--mono)}
+.sw .meta b{display:block;font-family:var(--sans);font-size:.92rem;letter-spacing:.01em}
+.sw .meta span{color:var(--grey);display:block;font-size:.72rem;margin-top:3px}
+
+/* type scale */
+.scale div{border-bottom:1px dashed var(--line);padding:10px 0}
+.scale div:last-child{border-bottom:0}
+.scale span{color:var(--grey);font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:2px}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--panel-2);font:700 .72rem var(--mono);text-transform:uppercase;letter-spacing:.05em}
+td code{background:var(--panel-2);padding:1px 4px;border-radius:2px}
+
+.rule{border-left:4px solid var(--amber);background:#fffaf0;padding:10px 12px;margin:12px 0}
+.rule.no{border-left-color:var(--danger);background:#fdf3f2}
+.rule b{display:block;margin-bottom:3px}
+
+.chevrons{height:14px;background:repeating-linear-gradient(-60deg,var(--amber) 0 14px,transparent 14px 28px,var(--grey) 28px 42px,transparent 42px 56px)}
+.themes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.theme{border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.theme .bar{padding:10px 12px;color:#fff;font:700 .82rem var(--sans)}
+.theme .bar em{display:block;font-style:normal;font-size:.66rem;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.theme .stripe{height:6px}
+.theme .val{padding:7px 10px;font:600 .68rem var(--mono);color:var(--grey)}
+.footer{background:var(--chrome);color:#cfcfcf;margin-top:30px}
+.footer-in{width:min(1180px,calc(100% - 28px));margin:auto;padding:18px 0;font-size:.86rem}
+@media(max-width:800px){.layout{grid-template-columns:1fr;padding:12px 8px 50px}.toc{display:none}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <p class="eyebrow">Brand system · carved from brand-board.png</p>
+    <div class="lockup">
+      <svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true">
+        <g fill="none" stroke="#fff" stroke-width="11" stroke-dasharray="30 11" stroke-dashoffset="15">
+          <polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/>
+        </g>
+        <path d="M2 50 H26 L34 50 L40 26 L48 74 L56 38 L62 58 L68 50 H98" fill="none" stroke="#ffc107" stroke-width="7" stroke-linecap="square"/>
+      </svg>
+      <span class="wm"><strong>Root<span>Cause</span></strong><em>HME</em></span>
+    </div>
+    <h1 style="margin:.4rem 0 .2rem">Find the real problem. Fix it right.</h1>
+    <p>The implementable half of the brand board: tokens, type scale, marks, and the rules that
+       decide where each colour is allowed to appear. The image it was carved from is
+       <code>docs/brand-board.png</code>; the authoritative machine-readable copy is
+       <code>app/lib/brand.ts</code>, which both the app shell and the report template read.</p>
+  </div>
+</header>
+<div class="chevrons"></div>
+
+<div class="layout">
+  <aside class="toc">
+    <h2>Contents</h2>
+    <nav>
+      <a href="#palette">1. Palette</a>
+      <a href="#type">2. Typography</a>
+      <a href="#mark">3. The mark</a>
+      <a href="#rules">4. Colour rules</a>
+      <a href="#themes">5. Manufacturer livery</a>
+      <a href="#where">6. Where it lives</a>
+    </nav>
+  </aside>
+
+  <main>
+    <section id="palette">
+      <h2>1. Palette</h2>
+      <p>Four swatches. Everything else in the product is derived from them or is a fixed
+         evidence semantic that never changes.</p>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1a1a1a"></div>
+          <div class="meta"><b>Ink</b>#1A1A1A<span>Masthead, footer, body type</span></div></div>
+        <div class="sw"><div class="chip" style="background:#ffc107"></div>
+          <div class="meta"><b>Amber</b>#FFC107<span>The pulse. Accent only</span></div></div>
+        <div class="sw"><div class="chip" style="background:#6b7280"></div>
+          <div class="meta"><b>Grey</b>#6B7280<span>Secondary type, hairlines</span></div></div>
+        <div class="sw"><div class="chip" style="background:#f7f7f7;border-bottom:1px solid #d6d6d6"></div>
+          <div class="meta"><b>Paper</b>#F7F7F7<span>Page surface</span></div></div>
+      </div>
+
+      <h3 style="margin-top:18px">Evidence semantics — fixed</h3>
+      <p>These are shared byte-for-byte between the app and the generated report, and they do
+         <strong>not</strong> vary by manufacturer. A report where “stop work” reads differently on a
+         Deere than on a Cat is a safety regression dressed up as branding.</p>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#a3271d;height:52px"></div><div class="meta"><b>Danger</b>#A3271D</div></div>
+        <div class="sw"><div class="chip" style="background:#7c5c00;height:52px"></div><div class="meta"><b>Warn</b>#7C5C00</div></div>
+        <div class="sw"><div class="chip" style="background:#245c3c;height:52px"></div><div class="meta"><b>OK</b>#245C3C</div></div>
+        <div class="sw"><div class="chip" style="background:#2a566b;height:52px"></div><div class="meta"><b>Info</b>#2A566B</div></div>
+      </div>
+    </section>
+
+    <section id="type">
+      <h2>2. Typography</h2>
+      <p><strong>Rajdhani</strong> — Bold / SemiBold / Regular. Technical, reliable,
+         straightforward. Self-hosted at <code>public/fonts/</code> (latin subset, ~9&nbsp;KB per
+         weight) so there is no third-party request and no <code>font-src</code> exemption is needed
+         in the report’s CSP.</p>
+      <div class="scale">
+        <div><span>Display · 700 · clamp(1.6rem, 4.5vw, 2.7rem)</span>
+          <div style="font-weight:700;font-size:2.7rem;line-height:1.03;letter-spacing:-.02em">Find the real problem.</div></div>
+        <div><span>Section · 700 · clamp(1.1rem, 2.4vw, 1.45rem)</span>
+          <div style="font-weight:700;font-size:1.45rem">Ranked most likely problems</div></div>
+        <div><span>Body · 400 · 17px / 1.55</span>
+          <div>Long regeneration cycles with a derate after roughly twenty minutes of digging.</div></div>
+        <div><span>Eyebrow · mono 700 · 0.68rem · 0.12em · uppercase</span>
+          <div style="font:700 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#8a5a00">Field diagnostic assistant</div></div>
+      </div>
+      <div class="rule"><b>Why a mono eyebrow against a Rajdhani headline</b>
+        Rajdhani is already condensed and technical; setting the small caps in it too makes labels
+        and headlines blur together. Mono keeps the instrument-panel read and separates label from
+        content at a glance.</div>
+    </section>
+
+    <section id="mark">
+      <h2>3. The mark</h2>
+      <p>A segmented hexagon — socket, bolt head — with a diagnostic pulse crossing it. Inline SVG
+         (<code>app/components/logo.tsx</code>), never a raster asset: it inherits colour, scales,
+         and costs no request. The ring is <code>currentColor</code> so it works on the dark
+         masthead and on light surfaces; the pulse is always amber, because it is the one element
+         that must not recede.</p>
+      <div style="display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:12px">
+        <div style="background:#1a1a1a;padding:16px;border-radius:2px;display:flex;align-items:center;gap:12px;color:#fff">
+          <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="11" stroke-dasharray="30 11" stroke-dashoffset="15"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/></g>
+            <path d="M2 50 H26 L34 50 L40 26 L48 74 L56 38 L62 58 L68 50 H98" fill="none" stroke="#ffc107" stroke-width="7" stroke-linecap="square"/></svg>
+          <span class="wm" style="display:flex;align-items:baseline;gap:8px"><strong style="font-size:1.3rem;font-style:italic;font-weight:700">Root<span>Cause</span></strong><em style="border-bottom:2px solid #ffc107;color:#ffc107;font-style:normal;font-weight:700;font-size:.95rem;letter-spacing:.1em;padding-bottom:2px">HME</em></span>
+        </div>
+        <div style="padding:16px;border:1px solid var(--line);border-radius:2px;color:#1a1a1a">
+          <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="11" stroke-dasharray="30 11" stroke-dashoffset="15"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/></g>
+            <path d="M2 50 H26 L34 50 L40 26 L48 74 L56 38 L62 58 L68 50 H98" fill="none" stroke="#ffc107" stroke-width="7" stroke-linecap="square"/></svg>
+        </div>
+      </div>
+      <p style="margin-top:12px"><strong>Favicon / app icon:</strong> <code>public/icon.svg</code> —
+         same geometry on an ink tile, ring in white so it survives at 16&nbsp;px.</p>
+    </section>
+
+    <section id="rules">
+      <h2>4. Colour rules</h2>
+      <div class="rule"><b>Amber is a signal, not a surface</b>
+        #FFC107 carries black, not white. Use it for rules, marks, active states, small type on
+        dark, and the hazard stripe. Never as a background behind body copy.</div>
+      <div class="rule no"><b>Never recolour an evidence semantic</b>
+        Danger / warn / ok / info are fixed. They are the only colours in the product that carry
+        meaning a reader acts on.</div>
+      <div class="rule"><b>Chrome may vary; content may not</b>
+        Manufacturer livery moves the masthead, stripe, rails and chips. Body surface, type and
+        semantics stay put, so two reports are comparable at a glance.</div>
+      <div class="rule"><b>Contrast floor is 4.5:1</b>
+        <code>--muted:#5c636e</code> measures 4.83:1 on paper. Do not lighten it. The two values
+        that failed this before — helper text at 3.79:1 and placeholder at 3.14:1 — are fixed.</div>
+    </section>
+
+    <section id="themes">
+      <h2>5. Manufacturer livery</h2>
+      <p>Reports are coloured by the equipment manufacturer. The theme is resolved server-side from
+         the intake <em>Make</em> field and is never model-supplied — it is document chrome, like
+         section numbering. An unrecognised make falls back to house livery.</p>
+      <div class="themes">
+        <div class="theme"><div class="bar" style="background:#1a1a1a"><em>Default</em>RootCause HME</div><div class="stripe" style="background:#ffc107"></div><div class="val">#1A1A1A · #FFC107</div></div>
+        <div class="theme"><div class="bar" style="background:#1c1c1a"><em>Caterpillar</em>Cat</div><div class="stripe" style="background:#ffcd11"></div><div class="val">#1C1C1A · #FFCD11</div></div>
+        <div class="theme"><div class="bar" style="background:#1c231d"><em>John Deere</em>Deere</div><div class="stripe" style="background:#dfa900"></div><div class="val">#1C231D · #DFA900</div></div>
+        <div class="theme"><div class="bar" style="background:#10243a"><em>Komatsu</em>Komatsu</div><div class="stripe" style="background:#1e9ad6"></div><div class="val">#10243A · #1E9AD6</div></div>
+        <div class="theme"><div class="bar" style="background:#2a1c14"><em>Hitachi</em>Hitachi</div><div class="stripe" style="background:#e8730a"></div><div class="val">#2A1C14 · #E8730A</div></div>
+        <div class="theme"><div class="bar" style="background:#2a1a12"><em>Case</em>Case</div><div class="stripe" style="background:#eb6209"></div><div class="val">#2A1A12 · #EB6209</div></div>
+      </div>
+      <p style="margin-top:12px;color:var(--grey);font-size:.9rem">Twenty-two makes are mapped in
+         <code>app/lib/brand.ts</code>. Matching is normalised, so “john deere”, “John Deere” and
+         “CAT 320” all resolve.</p>
+    </section>
+
+    <section id="where">
+      <h2>6. Where it lives</h2>
+      <table>
+        <thead><tr><th>Artefact</th><th>File</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>Source image</td><td><code>docs/brand-board.png</code></td><td>The board this was carved from. Reference, not a build input.</td></tr>
+          <tr><td>Tokens</td><td><code>app/lib/brand.ts</code></td><td><strong>Authoritative.</strong> Palette, type stacks, semantics, manufacturer themes.</td></tr>
+          <tr><td>App shell</td><td><code>app/globals.css</code></td><td>Mirrors the tokens into <code>:root</code>. Keep in step with brand.ts.</td></tr>
+          <tr><td>Report</td><td><code>app/api/diagnose/report-template.ts</code></td><td>Imports brand.ts directly and themes per make.</td></tr>
+          <tr><td>Mark</td><td><code>app/components/logo.tsx</code></td><td>Inline SVG hexagon + pulse; wordmark lockup.</td></tr>
+          <tr><td>Icon</td><td><code>public/icon.svg</code></td><td>Favicon / app icon.</td></tr>
+          <tr><td>Type</td><td><code>public/fonts/rajdhani-{400,600,700}.woff2</code></td><td>Self-hosted latin subset.</td></tr>
+        </tbody>
+      </table>
+      <div class="rule" style="margin-top:14px"><b>Two copies, one truth</b>
+        <code>brand.ts</code> and the <code>:root</code> block in <code>globals.css</code> hold the
+        same values. CSS custom properties cannot be imported from TypeScript without a build step,
+        and adding one for four hex values is not worth it — so they are mirrored deliberately, and
+        this row is the reminder to change both.</div>
+    </section>
+  </main>
+</div>
+
+<footer class="footer"><div class="footer-in">RootCause HME — brand system · carved from <code>brand-board.png</code>, 2026-08-05</div></footer>
+</body>
+</html>

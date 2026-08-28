@@ -1,0 +1,430 @@
+{
+  "version": 4,
+  "created": "2026-08-15",
+  "purpose": "The v2 scenarios (same machines, true causes, alternatives and discriminators as scenarios.json) with an added `intake` block per scenario: the fields an operator would realistically have already typed on the intake form before the interview starts — recent service/fluid changes, a fuel-source change, jobsite/duty-cycle context, serial/PIN — written short and plain, in the operator's own voice. Used ONLY for the UXT-11 arm (evals/prompt-variants/uxt-11.mjs), which tests whether the interview stops re-asking what intake already collected. Every fact moved into `intake` was deleted from that scenario's `hiddenFacts` so it can never be 'revealed' twice by the operator simulator; every alternative's discriminator, and the true-root-cause tell itself, stayed in `hiddenFacts` and remains reachable only by asking. Deliberately NOT comparable to the frozen `scenarios.json` baseline — the simulated operator here starts by handing over evidence the baseline runs never had. DECONTAMINATED 2026-08-15: an intake string may set up a specific follow-up but must never contain the operative clause of trueRootCause or of any alternative discriminator. Cases 05 and 10 violated that and were rewritten; their tells moved back into hiddenFacts. Runs before this change are NOT comparable to runs after it.",
+  "categories": [
+    "temperature-correlation",
+    "service-history",
+    "symptom-detail",
+    "fault-codes",
+    "gauge-readings",
+    "maintenance-checks",
+    "load-dependence",
+    "fluid-condition",
+    "symptom-scope",
+    "visual-inspection",
+    "rate-trend",
+    "operating-conditions",
+    "symptom-onset"
+  ],
+  "scenarios": [
+    {
+      "id": "01-kubota-m7060-hard-cold-start",
+      "machine": {
+        "year": "2017",
+        "make": "Kubota",
+        "model": "M7060",
+        "machineType": "Utility tractor",
+        "hours": "2810"
+      },
+      "intake": {
+        "serialPin": "M7060HD52810"
+      },
+      "surfaceProblem": "Hard to start in the morning — cranks a long time with a bunch of white smoke before it catches. Once it's running it's fine all day, and warm restarts are instant.",
+      "trueRootCause": "Failed glow plugs (two of four dead) — long cranks with white smoke when cold, instant starts warm.",
+      "alternatives": [
+        {
+          "cause": "Weak battery / slow cranking",
+          "discriminator": "Cranking speed is strong and normal; lights stay bright while cranking.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Fuel problem (gelling, water, bad fuel)",
+          "discriminator": "Happens even on mild 50°F mornings, fuel from the same co-op source for years, no filter issues.",
+          "category": "operating-conditions"
+        },
+        {
+          "cause": "Worn engine / low compression",
+          "discriminator": "Instant warm starts, full power once running, no blow-by or oil use — a compression problem doesn't vanish when warm.",
+          "category": "temperature-correlation"
+        }
+      ],
+      "hiddenFacts": [
+        "Cranks fast and strong — battery and starter sound healthy, lights stay bright.",
+        "Lots of white smoke while cranking cold; smoke clears once it finally catches.",
+        "Happens even on mild mornings around 50°F, worse when colder.",
+        "Warm restarts are instant all day. Full power, no oil consumption, no blow-by.",
+        "Fuel from the same farm co-op for years; filter changed at last service 150 hours ago.",
+        "The glow plug indicator light on the dash goes out after a few seconds like always.",
+        "No fault codes."
+      ]
+    },
+    {
+      "id": "02-bobcat-s650-overheat-under-load",
+      "machine": {
+        "year": "2018",
+        "make": "Bobcat",
+        "model": "S650",
+        "machineType": "Skid steer loader",
+        "hours": "2960"
+      },
+      "intake": {
+        "operatingConditions": "Working a grain elevator site — real dusty this time of year.",
+        "recentWork": "Coolant and belts are original. We keep up with the regular service on it, nothing skipped.",
+        "serialPin": "S650ALJ82960"
+      },
+      "surfaceProblem": "Engine temp climbs into the red after 30-45 minutes of hard pushing. If I back off and idle a few minutes it comes right back down. Getting worse the last few weeks.",
+      "trueRootCause": "Radiator and hydraulic cooler fins packed with dust and chaff — heat rejection fine at low load, overwhelmed under sustained load.",
+      "alternatives": [
+        {
+          "cause": "Thermostat stuck partially closed",
+          "discriminator": "A stuck thermostat overheats quickly regardless of load, even idling — this machine idles cool all day and only climbs under sustained hard work, then recovers at idle.",
+          "category": "load-dependence"
+        },
+        {
+          "cause": "Water pump failing",
+          "discriminator": "Coolant level never drops, no leaks, no coolant smell — and idle temperature is normal.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Head gasket",
+          "discriminator": "No coolant loss, no white exhaust, no bubbles in the reservoir, oil clean.",
+          "category": "symptom-detail"
+        }
+      ],
+      "hiddenFacts": [
+        "Only overheats under sustained heavy pushing; idles and light work stay at normal temp; recovers within minutes at idle.",
+        "Coolant level has not dropped all month; reservoir at the same mark every morning.",
+        "The radiator screen and fins are visibly caked with dust — never blown out.",
+        "Oil is clean, no white smoke, no sweet smell, no bubbles in the reservoir.",
+        "No fault codes read."
+      ]
+    },
+    {
+      "id": "03-case-sr210-battery-dead-morning",
+      "machine": {
+        "year": "2016",
+        "make": "Case",
+        "model": "SR210",
+        "machineType": "Skid steer loader",
+        "hours": "3650"
+      },
+      "intake": {
+        "operatingConditions": "Sits locked up in the yard overnight.",
+        "serialPin": "NHK316502"
+      },
+      "surfaceProblem": "Battery's stone dead every morning. Jump it and it runs perfect all day, charges up, starts fine at lunch. Park it overnight and it's dead again.",
+      "trueRootCause": "Parasitic draw — an aftermarket LED beacon/work-light kit wired unswitched (always hot) about two months ago drains the battery overnight.",
+      "alternatives": [
+        {
+          "cause": "Alternator not charging",
+          "discriminator": "Voltmeter shows ~14V running and the battery recovers enough during the day for a warm restart — charging is happening.",
+          "category": "gauge-readings"
+        },
+        {
+          "cause": "Battery worn out / dead cell",
+          "discriminator": "Battery is 6 months old and load-tested good at the parts store last week.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Operator leaving the key/lights on",
+          "discriminator": "Key comes out every night, panel dark when parked — but the beacon kit added two months ago is wired straight to the battery.",
+          "category": "service-history"
+        }
+      ],
+      "hiddenFacts": [
+        "Dash voltmeter reads about 14V while running; battery recharges during the day and restarts fine at lunch.",
+        "Battery is 6 months old, load-tested good at the parts store last week.",
+        "Key removed every night; panel and lights off when parked.",
+        "An LED beacon and extra work-light kit was installed by a helper about two months ago, wired straight to the battery — the drain started around then.",
+        "No other electrical work ever done. No blown fuses."
+      ]
+    },
+    {
+      "id": "04-komatsu-wa270-black-smoke",
+      "machine": {
+        "year": "2014",
+        "make": "Komatsu",
+        "model": "WA270-7",
+        "machineType": "Wheel loader",
+        "hours": "8930"
+      },
+      "intake": {
+        "operatingConditions": "Loads out of a dusty limestone pit all day. Same fuel supplier for years, no issues there.",
+        "serialPin": "KMTWA270C08930"
+      },
+      "surfaceProblem": "Down on power the last month or so, and it rolls black smoke when I get into the pile. Uses a little more fuel than it used to.",
+      "trueRootCause": "Severely plugged air filter — machine loads out of a dusty pit, filter far past its service interval, restriction indicator showing red.",
+      "alternatives": [
+        {
+          "cause": "Worn injectors",
+          "discriminator": "The air filter restriction indicator is locked red and the filter hasn't been changed in over a year in a dusty pit — check the free/cheap cause first; injector wear at 8,900 hours is plausible but the onset tracks the filter, not gradual years-long decline.",
+          "category": "maintenance-checks"
+        },
+        {
+          "cause": "Turbo failing",
+          "discriminator": "No whistle or whine change, no oil consumption, no blue smoke, no boost-related surging.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Plugged fuel filter",
+          "discriminator": "A fuel restriction starves the engine — low power with little or no smoke — it doesn't roll black smoke; fuel filter was changed on schedule 300 hours ago.",
+          "category": "service-history"
+        }
+      ],
+      "hiddenFacts": [
+        "The air filter restriction indicator on the dash has been showing red for a while; operator wasn't sure what it meant.",
+        "Air filter hasn't been changed in over a year.",
+        "Black smoke only under load, heaviest digging into the pile.",
+        "No whistle or turbo noise change, no oil use, no blue or white smoke.",
+        "Fuel filter changed on schedule about 300 hours ago.",
+        "No fault codes read out."
+      ]
+    },
+    {
+      "id": "05-cat-259d3-cold-slow-hydraulics",
+      "machine": {
+        "year": "2021",
+        "make": "Caterpillar",
+        "model": "259D3",
+        "machineType": "Compact track loader",
+        "hours": "1410"
+      },
+      "intake": {
+        "recentWork": "Had it in an outside shop about a month back for some routine work — I'd have to dig out the invoice for what all they did.",
+        "serialPin": "CAT259D3C51410"
+      },
+      "surfaceProblem": "Hydraulics are sluggish for the first 15 or 20 minutes on cool mornings — loader arms and bucket move slow, drive feels doughy. Once it warms up it's 100% normal the rest of the day.",
+      "trueRootCause": "Wrong (too thick) hydraulic oil — an independent shop did a hydraulic service a month ago and filled with a heavier non-spec oil; cold viscosity is far too high until it warms.",
+      "alternatives": [
+        {
+          "cause": "Hydraulic pump wearing out",
+          "discriminator": "Pump wear gets WORSE warm (clearances open, oil thins) — this machine is perfect once warm. And the symptom started right after the recent hydraulic service.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "Normal cold-weather behavior",
+          "discriminator": "It never did this in colder weather before the service; 15-20 minutes of sluggishness on a 50°F morning is far beyond normal warm-up.",
+          "category": "symptom-onset"
+        },
+        {
+          "cause": "Clogged filter / restriction",
+          "discriminator": "A restriction doesn't clear with temperature this cleanly and typically worsens over weeks — this is stable, purely temperature-keyed, and dates exactly to the service.",
+          "category": "service-history"
+        }
+      ],
+      "hiddenFacts": [
+        "The shop did a hydraulic oil and filter service — that is what the invoice line covers.",
+        "First cool mornings since the service were when the sluggishness first appeared.",
+        "The invoice just says 'hydraulic oil' — operator doesn't know what spec was used; there's a drum at the shop labeled for older machines.",
+        "Perfectly normal once warm, every single day, full speed and power.",
+        "Last winter it worked in colder weather with no morning sluggishness at all.",
+        "No unusual noises cold or warm, no foam in the sight glass, level correct.",
+        "No warning lights."
+      ]
+    },
+    {
+      "id": "06-hitachi-zx210-boom-slow-loaded",
+      "machine": {
+        "year": "2016",
+        "make": "Hitachi",
+        "model": "ZX210LC-6",
+        "machineType": "Excavator",
+        "hours": "7240"
+      },
+      "intake": {
+        "recentWork": "No hydraulic work done on it recently.",
+        "serialPin": "HCMZX210P07240"
+      },
+      "surfaceProblem": "Boom is slow coming up with a loaded bucket — really struggles on a full bucket of wet clay. Swing, stick, bucket and travel are all normal speed. Empty, the boom moves close to normal.",
+      "trueRootCause": "Boom circuit relief valve stuck/set low (debris or worn spring) — relieves early under load; every other function normal, boom holds with no drift.",
+      "alternatives": [
+        {
+          "cause": "Main pump worn",
+          "discriminator": "A weak pump slows EVERYTHING, not just boom-up — swing, stick, travel are all full speed.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Boom cylinder seals bypassing",
+          "discriminator": "Boom holds rock-steady with a loaded bucket parked — no drift at all — and neither cylinder runs hotter than the other; bypassing seals drift and make heat.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Machine simply overloaded / operator expectation",
+          "discriminator": "Same buckets of the same clay it handled at normal speed last season.",
+          "category": "rate-trend"
+        }
+      ],
+      "hiddenFacts": [
+        "Only boom-up is weak, and mainly under load; swing, stick, bucket, travel all completely normal.",
+        "Boom holds position perfectly with a loaded bucket — parked five minutes, no drift.",
+        "Neither boom cylinder is hotter than the other after work; no external leaks.",
+        "Same bucket, same material, same jobs as last season when it was fine.",
+        "It got gradually worse over a couple of months.",
+        "Oil level correct, looks clean. No codes."
+      ]
+    },
+    {
+      "id": "07-newholland-l228-weak-drive-both-sides",
+      "machine": {
+        "year": "2017",
+        "make": "New Holland",
+        "model": "L228",
+        "machineType": "Skid steer loader",
+        "hours": "2540"
+      },
+      "intake": {
+        "serialPin": "NHL22802540"
+      },
+      "surfaceProblem": "All of a sudden the machine barely moves — both sides are weak, it creeps up a trailer ramp it used to climb easily. Loader arms and bucket work fine at normal speed.",
+      "trueRootCause": "Hydrostatic tow/bypass valve left partially open — the machine was winched onto a trailer and moved to a new site last week and the valve was never fully reseated.",
+      "alternatives": [
+        {
+          "cause": "Drive pump failing",
+          "discriminator": "It went from perfect to weak overnight — pump wear is gradual. And it happened immediately after the machine was towed/winched onto a trailer.",
+          "category": "symptom-onset"
+        },
+        {
+          "cause": "Charge pressure low (clogged charge filter)",
+          "discriminator": "No filter or fluid service recently; the only event between 'fine' and 'weak' was the trailer move where the tow valve was opened.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Low hydraulic oil",
+          "discriminator": "Level correct in the sight glass, and the loader/bucket circuit works at full speed and power.",
+          "category": "symptom-scope"
+        }
+      ],
+      "hiddenFacts": [
+        "Machine wouldn't start at the old site (dead battery), so it was winched onto a trailer — the helper opened the tow valve to free the wheels — and moved to this site last week.",
+        "It has been weak ever since arriving; before the move it drove perfectly.",
+        "Both sides equally weak, forward and reverse; loader arms and bucket full speed.",
+        "Hydraulic oil level correct; no filter or fluid work done recently.",
+        "No unusual noises, no warning lights."
+      ]
+    },
+    {
+      "id": "08-deere-310sl-dies-under-load",
+      "machine": {
+        "year": "2018",
+        "make": "John Deere",
+        "model": "310SL",
+        "machineType": "Backhoe loader",
+        "hours": "4720"
+      },
+      "intake": {
+        "operatingConditions": "Been running off the on-site bulk fuel tank for a couple months now.",
+        "serialPin": "1T0310SLC04720"
+      },
+      "surfaceProblem": "Idles all day no problem, but when I get on it hard — full-depth digging or roading uphill — it bogs down over 10 or 20 seconds and dies. Restarts right away and idles fine.",
+      "trueRootCause": "Clogged primary fuel filter — bulk fuel from an on-site tank with sediment; filter overdue; flow fine at idle demand, starves under load.",
+      "alternatives": [
+        {
+          "cause": "Blocked fuel tank vent",
+          "discriminator": "No hiss or vacuum release when the fuel cap is opened after it dies, and it dies within seconds of high demand — a vent blockage takes much longer and cures instantly with the cap cracked.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Electrical shutdown (sensor/relay cutting out)",
+          "discriminator": "It bogs down gradually over 10-20 seconds like it's starving — an electrical cut is instant, like the key turned off. No codes, no warning lights at the moment it dies.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Lift/transfer pump failing",
+          "discriminator": "The machine started sipping from an on-site bulk tank two months ago and the filter is past its interval — the cheap, probable cause sits ahead of the pump; sediment visible in the filter bowl.",
+          "category": "service-history"
+        }
+      ],
+      "hiddenFacts": [
+        "There's visible sediment in the bottom of the filter bowl.",
+        "Fuel filter is past its service interval — skipped at the last service to save time.",
+        "It bogs gradually over 10-20 seconds under high load, like running out of fuel — not an instant cut.",
+        "Opening the fuel cap after it dies: no hiss, no whoosh. Restarts immediately every time.",
+        "No warning lights or codes when it happens."
+      ]
+    },
+    {
+      "id": "09-kubota-l3901-silent-no-crank",
+      "machine": {
+        "year": "2019",
+        "make": "Kubota",
+        "model": "L3901",
+        "machineType": "Compact tractor",
+        "hours": "820"
+      },
+      "intake": {
+        "operatingConditions": "Always kept under a shed.",
+        "recentWork": "No electrical or starter work done on it recently.",
+        "serialPin": "KBTL390100820"
+      },
+      "surfaceProblem": "Every so often I turn the key and get absolutely nothing — no click, no crank, dead silence, but all the lights and gauges are on bright. Fiddle around a bit and it starts like nothing happened.",
+      "trueRootCause": "Clutch pedal safety-interlock switch out of adjustment — pressing the pedal extra hard to the floor makes it start every single time.",
+      "alternatives": [
+        {
+          "cause": "Weak battery or bad connection",
+          "discriminator": "Dash and lights stay full-bright at the failed attempt and cranking is strong when it does start — and there's no click at all, where a supply-side problem clicks or dims.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Starter or solenoid failing",
+          "discriminator": "Total silence — a failing solenoid clicks or grinds. And pushing the clutch pedal harder to the floor makes it start every time, which no starter fault does.",
+          "category": "operating-conditions"
+        },
+        {
+          "cause": "Ignition switch worn",
+          "discriminator": "Jiggling the key does nothing; only clutch pedal pressure changes the outcome.",
+          "category": "operating-conditions"
+        }
+      ],
+      "hiddenFacts": [
+        "When it fails: dead silence, no click, lights and gauges full brightness.",
+        "Operator noticed that stomping the clutch pedal hard to the floor makes it start every single time; a light pedal press is when it acts up.",
+        "Jiggling the key changes nothing.",
+        "Battery is original but cranks strong whenever it does engage; terminals clean."
+      ]
+    },
+    {
+      "id": "10-doosan-dx140-milky-oil",
+      "machine": {
+        "year": "2014",
+        "make": "Doosan",
+        "model": "DX140LC-3",
+        "machineType": "Excavator",
+        "hours": "6870"
+      },
+      "intake": {
+        "operatingConditions": "General site work — digging and loading, nothing unusual.",
+        "recentWork": "No recent engine or cooling work done on it.",
+        "serialPin": "DHKDX140T06870"
+      },
+      "surfaceProblem": "Found the engine oil looking milky on the dipstick this week, like coffee with cream. Coolant's been dropping a little too. Machine runs strong, no smoke I can see.",
+      "trueRootCause": "Engine oil cooler internal failure — coolant leaking into the oil under pressure; coolant loss tracks the oil contamination, engine runs perfectly otherwise.",
+      "alternatives": [
+        {
+          "cause": "Head gasket failure",
+          "discriminator": "No white exhaust smoke, no misfire or rough running, no overheating, no bubbles in the coolant reservoir — combustion is untouched; the exchange is happening somewhere pressure-to-pressure, not in a cylinder.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Condensation from short runs / weather",
+          "discriminator": "Machine works full 8-hour days — and condensation doesn't make the coolant level drop in step with the oil going milky.",
+          "category": "operating-conditions"
+        },
+        {
+          "cause": "Pressure-washer water in the oil fill",
+          "discriminator": "Machine hasn't been washed in a month; contamination appeared this week and grows daily while coolant keeps dropping.",
+          "category": "rate-trend"
+        }
+      ],
+      "hiddenFacts": [
+        "Works full 8-hour days, every day — never short runs or idling cycles.",
+        "Coolant level drops a little every day — roughly in step with the oil looking worse.",
+        "Runs strong: no white smoke, no misfire, no rough running, no overheating.",
+        "No bubbles or oil film in the coolant reservoir; coolant looks clean on its side.",
+        "Not washed in over a month.",
+        "The milkiness showed up this week and gets a bit worse each day.",
+        "No codes."
+      ]
+    }
+  ]
+}

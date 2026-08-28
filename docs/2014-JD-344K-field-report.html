@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="light" name="color-scheme"/>
+<title>2014 John Deere 344K Diagnostic Field Report — Long Regeneration</title>
+<style>
+:root{
+  --ink:#181b18;--muted:#535b53;--paper:#e9eae5;--panel:#ffffff;--panel-2:#f4f4f0;
+  --line:#c6c9c1;--line-heavy:#8f958a;--chrome:#1c231d;--chrome-2:#242c25;
+  --amber:#dfa900;
+  --danger:#a3271d;--danger-bg:#f6e9e7;--warn:#7c5c00;--warn-bg:#f4eeda;
+  --ok:#245c3c;--ok-bg:#e9efe9;--info:#2a566b;--info-bg:#e8eef1;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --content:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px;-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);background:var(--paper);font-family:var(--sans);font-size:16px;line-height:1.5}
+a{color:#1d4f6d;text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #0a66a8;outline-offset:2px;border-radius:2px}
+
+/* ---- header ---- */
+.topbar{position:relative;background:var(--chrome);color:#fff}
+.topbar::after{content:"";display:block;height:7px;background:repeating-linear-gradient(-45deg,var(--amber) 0 11px,#15190f 11px 22px)}
+.topbar-inner{max-width:var(--content);margin:auto;padding:18px 16px 18px}
+.eyebrow{display:flex;flex-wrap:wrap;gap:.4rem 1rem;align-items:center;font:700 .68rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:#b9c0b6}
+.report-mark{color:var(--amber);display:inline-flex;align-items:center;gap:.45rem}
+.report-mark::before{content:"";width:.7rem;height:.7rem;border:2px solid var(--amber);display:inline-block}
+h1{font-size:clamp(1.45rem,4.2vw,2.4rem);line-height:1.08;margin:.5rem 0 .5rem;letter-spacing:-.01em}
+.subtitle{max-width:900px;color:#cfd5cd;font-size:.95rem;margin:.2rem 0 .8rem}
+.hero-meta{display:flex;flex-wrap:wrap;gap:6px}
+.hero-chip{background:#12170f;border:1px solid #39412f;border-left:3px solid var(--amber);padding:5px 9px;border-radius:2px;font:600 .72rem var(--mono);color:#dfe3da}
+.hero-chip strong{color:var(--amber);font-weight:700;margin-right:.3rem;text-transform:uppercase;letter-spacing:.04em;font-size:.66rem}
+.pin{font-family:var(--mono);letter-spacing:.02em}
+
+/* ---- mobile controls ---- */
+.mobile-controls{display:none;position:sticky;top:0;z-index:30;background:var(--chrome);border-bottom:1px solid #000;padding:6px 8px;gap:8px;align-items:center}
+.mobile-controls .small{color:#b9c0b6;font:700 .68rem var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.mobile-controls select{min-width:0;flex:1;min-height:44px;padding:0 10px;border:1px solid #4a534b;background:var(--chrome-2);color:#fff;border-radius:2px;font:700 .85rem var(--mono)}
+
+/* ---- buttons ---- */
+.button{display:inline-block;border:1px solid #4a534b;background:var(--chrome-2);color:#fff;padding:0 14px;min-height:44px;line-height:42px;border-radius:2px;font:700 .78rem var(--mono);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center}
+.button:hover{background:#31392f;border-color:var(--amber)}
+.button.secondary{background:#fff;color:var(--ink);border-color:var(--line-heavy)}
+.button.secondary:hover{background:var(--panel-2);border-color:var(--ink)}
+
+/* ---- layout ---- */
+.layout{max-width:var(--content);margin:0 auto;display:grid;grid-template-columns:232px minmax(0,1fr);gap:18px;padding:18px 14px 60px}
+.toc{position:sticky;top:12px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:8px;max-height:calc(100vh - 24px);overflow:auto}
+.toc h2{margin:4px 8px 8px;color:var(--muted);font:700 .66rem var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.toc nav{display:block}
+.toc a{display:block;color:#39413a;text-decoration:none;border-left:3px solid transparent;padding:8px 9px;font-size:.84rem;font-weight:600}
+.toc a:hover{background:var(--panel-2)}
+.toc a.active{border-left-color:var(--amber);background:var(--panel-2);color:var(--ink);font-weight:800}
+.toc-actions{display:grid;gap:6px;margin-top:10px;padding:0 4px 4px}
+.toc-actions .button{line-height:normal;display:grid;place-items:center}
+main{min-width:0}
+section{scroll-margin-top:64px;margin-bottom:14px;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:clamp(14px,2.5vw,24px)}
+section > h2{margin:-2px 0 14px;color:var(--ink);font-size:clamp(1.12rem,2.4vw,1.5rem);line-height:1.2;border-bottom:1px solid var(--line);padding:0 0 9px 12px;border-left:4px solid var(--amber);letter-spacing:-.01em}
+h3{color:var(--ink);margin:22px 0 8px;font-size:1.02rem}
+h4{margin:16px 0 6px;color:var(--ink);font-size:.92rem}
+p{margin:.5rem 0 .9rem}
+.lead{font-size:1rem;color:#2c342d}
+.small{font-size:.82rem;color:var(--muted)}
+.mono{font-family:var(--mono);font-size:.92em}
+ul,ol{padding-left:1.2rem}
+li{margin:.34rem 0}
+ul.tight,ol.tight{margin:.4rem 0}
+ul.tight li,ol.tight li{margin:.22rem 0}
+
+/* ---- cards ---- */
+.grid{display:grid;gap:10px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:13px 14px}
+.card h3,.card h4{margin-top:0}
+.card.highlight{border-top:3px solid var(--amber)}
+.card.danger{border-top:3px solid var(--danger)}
+.card.warn{border-top:3px solid var(--warn)}
+.card.info{border-top:3px solid var(--info)}
+.card.ok{border-top:3px solid var(--ok)}
+.kicker{font:700 .64rem var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.metric{font:700 1.05rem var(--mono);color:var(--ink);margin:.25rem 0;letter-spacing:-.01em}
+
+/* ---- callouts ---- */
+.callout{border:1px solid var(--line);border-left:4px solid var(--info);background:var(--info-bg);padding:12px 14px;border-radius:2px;margin:14px 0;font-size:.93rem}
+.callout.warning{border-left-color:var(--warn);background:var(--warn-bg)}
+.callout.danger{border-left-color:var(--danger);background:var(--danger-bg)}
+.callout.success{border-left-color:var(--ok);background:var(--ok-bg)}
+.callout h3,.callout h4{margin-top:0}
+
+/* ---- evidence labels ---- */
+.label{display:inline-block;border:1px solid currentColor;border-radius:2px;padding:1px 6px;font:700 .6rem var(--mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;background:#fff}
+.confirmed{color:var(--ok)}
+.component{color:var(--info)}
+.inference{color:var(--warn)}
+.family{color:#4f4770}
+.field{color:#7c3f22}
+.gap{color:var(--danger)}
+.na{color:#5b5f5b}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin:10px 0 2px}
+.legend-item{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted)}
+
+/* ---- priority list ---- */
+.priority-list{list-style:none;counter-reset:item;padding:0;display:grid;gap:8px}
+.priority-item{counter-increment:item;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;background:var(--panel-2);border:1px solid var(--line);border-radius:2px;padding:10px 12px}
+.priority-item::before{content:counter(item,decimal-leading-zero);display:grid;place-items:center;width:30px;height:24px;background:var(--chrome);color:#fff;font:700 .74rem var(--mono);border-radius:2px;margin-top:2px}
+
+/* ---- tables ---- */
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:2px;background:var(--panel);margin:12px 0 18px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.85rem}
+table.compact{min-width:640px;font-size:.83rem}
+th,td{padding:8px 10px;border-bottom:1px solid #e3e5df;vertical-align:top;text-align:left}
+th{background:var(--panel-2);color:var(--ink);font:700 .66rem var(--mono);text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line)}
+tbody tr:nth-child(even){background:#fbfbf9}
+tbody tr:hover{background:#f6f6f2}
+td:first-child,th:first-child{padding-left:12px}
+.sort-button{all:unset;cursor:pointer;font:inherit;color:inherit;display:inline-flex;align-items:center;gap:.3rem}
+.sort-button::after{content:"↕";font-size:.9em;color:#7d857c}
+th[aria-sort="ascending"] .sort-button::after{content:"↑";color:var(--ink)}
+th[aria-sort="descending"] .sort-button::after{content:"↓";color:var(--ink)}
+.nowrap{white-space:nowrap}
+.status{display:inline-block;border-radius:2px;padding:1px 6px;font:700 .68rem var(--mono);border:1px solid currentColor;text-transform:uppercase;letter-spacing:.03em;background:#fff}
+.high{color:var(--danger)}
+.medium{color:var(--warn)}
+.low{color:var(--ok)}
+
+/* ---- diagrams ---- */
+.architecture{background:var(--panel-2);border:1px solid var(--line);border-radius:2px;padding:12px;margin:12px 0}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(125px,1fr));gap:1.5rem;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:.4rem .2rem .8rem}
+.node{position:relative;border:1px solid var(--line-heavy);border-radius:2px;background:#fff;padding:9px;text-align:center;font-size:.78rem}
+.node small{display:block;color:var(--muted);margin-top:.25rem}
+.node:not(:last-child)::after{content:"→";position:absolute;right:-1.3rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.15rem;font-weight:800}
+.control-map{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:.9rem;align-items:center;margin-top:.9rem}
+.control-map .node{min-height:96px;display:grid;place-content:center}
+.control-map .node::after{display:none}
+.sensor-list{display:grid;gap:.4rem}
+.sensor{border:1px dashed var(--line-heavy);border-radius:2px;padding:.5rem;background:#fff;font-size:.8rem}
+.arrow-note{font-size:.78rem;color:var(--muted);margin-top:.5rem}
+
+/* ---- decision ---- */
+.decision{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.decision .card{border-top:3px solid var(--ok)}
+.decision .card:nth-child(2){border-top-color:var(--warn)}
+.decision .card:nth-child(3){border-top-color:var(--info)}
+
+/* ---- collapsible paths ---- */
+details{border:1px solid var(--line);border-radius:2px;background:#fff;margin:.6rem 0;overflow:hidden}
+summary{cursor:pointer;padding:12px 14px;min-height:44px;font-weight:700;color:var(--ink);background:var(--panel-2);font-size:.92rem;list-style-position:inside}
+summary:hover{background:#eeeee9}
+details[open] summary{border-bottom:1px solid var(--line)}
+details > div{padding:.2rem 1rem .9rem}
+
+/* ---- steps ---- */
+.steps{counter-reset:step;list-style:none;padding:0;display:grid;gap:8px}
+.step{counter-increment:step;position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:2px}
+.step::before{content:counter(step,decimal-leading-zero);width:30px;height:24px;display:grid;place-items:center;background:var(--chrome);color:#fff;font:700 .74rem var(--mono);border-radius:2px;margin-top:2px}
+
+/* ---- checklist ---- */
+.checklist{list-style:none;padding:0}
+.checklist li{position:relative;padding-left:26px;min-height:24px}
+.checklist li::before{content:"☐";position:absolute;left:2px;top:-1px;font:800 1rem var(--mono);color:var(--line-heavy)}
+
+/* ---- sources ---- */
+.source-ref{font-family:var(--mono);font-weight:700;text-decoration:none;font-size:.76em;vertical-align:super}
+.source-list{display:grid;gap:8px}
+.source{border:1px solid var(--line);border-radius:2px;background:#fff;padding:11px 12px;overflow-wrap:anywhere}
+.source h3{margin:0 0 .25rem;font-size:.92rem}
+.source-meta{font-size:.78rem;color:var(--muted)}
+.url{font-family:var(--mono);font-size:.72rem;word-break:break-all}
+.footer-note{max-width:var(--content);margin:auto;padding:0 16px 34px;color:var(--muted);font-size:.78rem}
+.no-break{break-inside:avoid}
+.screen-only{display:block}
+.print-only{display:none}
+
+/* ---- tablet ---- */
+@media (max-width:1100px){
+  .layout{grid-template-columns:208px minmax(0,1fr)}
+  .grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .decision{grid-template-columns:1fr}
+}
+@media (max-width:800px){
+  .mobile-controls{display:flex}
+  .layout{grid-template-columns:1fr;padding:12px 8px 50px}
+  .toc{display:none}
+  .topbar-inner{padding:14px 12px}
+  .grid.two,.grid.three,.grid.four{grid-template-columns:1fr}
+  .control-map{grid-template-columns:1fr}
+}
+
+/* ---- phone: stacked tables, vertical flow ---- */
+@media (max-width:720px){
+  section{padding:13px 12px;border-left:0;border-right:0;border-radius:0;margin-bottom:10px}
+  .hero-chip{font-size:.68rem}
+
+  .table-wrap{overflow:visible;border:0;background:none}
+  .table-wrap table,.table-wrap tbody{display:block;min-width:0;width:100%}
+  .table-wrap thead{display:none}
+  .table-wrap tr{display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line-heavy);border-radius:2px;margin:0 0 10px;padding:2px 0}
+  tbody tr:nth-child(even){background:#fff}
+  .table-wrap td{display:block;padding:8px 10px 7px;border-bottom:1px solid #ebece7;font-size:.88rem;overflow-wrap:anywhere}
+  .table-wrap td:first-child{padding-left:10px}
+  .table-wrap td:last-child{border-bottom:0}
+  .table-wrap td::before{content:attr(data-label);display:block;font:700 .6rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+  .table-wrap td[data-label="Rank"],.table-wrap td[data-label="Priority"]{background:var(--panel-2);border-bottom:1px solid var(--line);padding:6px 10px}
+  .table-wrap td[data-label="Rank"]::before,.table-wrap td[data-label="Priority"]::before{display:inline;margin:0 8px 0 0}
+  .table-wrap td[data-label="Problem"],.table-wrap td[data-label="Practice or condition"],.table-wrap td[data-label="Issue"]{font-weight:700}
+
+  .flow{grid-template-columns:1fr;gap:1.4rem;overflow:visible}
+  .node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-1.25rem;transform:translateX(-50%)}
+}
+@media (max-width:430px){
+  h1{font-size:1.35rem}
+  .mobile-controls .small{display:none}
+}
+
+/* ---- print ---- */
+@page{size:auto;margin:12mm}
+@media print{
+  body{background:#fff;font-size:9.5pt;color:#000}
+  .topbar{background:#fff!important;color:#000}
+  .topbar::after{display:none}
+  .topbar-inner{padding:0 0 10px;border-bottom:2px solid #000}
+  .eyebrow,.subtitle{color:#222}
+  .report-mark{color:#000}.report-mark::before{border-color:#000}
+  .hero-chip{border:1px solid #777;border-left:3px solid #000;background:#fff;color:#000}
+  .hero-chip strong{color:#000}
+  .mobile-controls,.toc,.screen-only,.sort-button::after{display:none!important}
+  .print-only{display:block}
+  .layout{display:block;max-width:none;padding:0}
+  main{width:100%}
+  section{border:0;border-radius:0;padding:10px 0;margin:0 0 12px;break-inside:auto}
+  section > h2{break-after:avoid;border-left:0;padding-left:0;border-bottom:1px solid #000}
+  h3,h4{break-after:avoid}
+  .card,.callout,.architecture,details,.source{break-inside:avoid}
+  details > div{display:block}
+  summary{background:#fff;color:#000;border-bottom:1px solid #aaa}
+  .table-wrap{overflow:visible;border:0}
+  table{min-width:0;width:100%;font-size:7.3pt}
+  th,td{padding:4px 5px}
+  th{position:static;background:#eee!important}
+  table:not(.print-cards) tr{break-inside:avoid}
+  .print-cards,.print-cards tbody{display:block!important;width:100%!important;font-size:8pt!important}
+  .print-cards thead{display:none!important}
+  .print-cards tbody tr{display:block!important;border:1px solid #999;border-radius:2px;margin:0 0 8px;padding:3px 5px;break-inside:avoid;background:#fff}
+  .print-cards tbody td{display:grid!important;grid-template-columns:112px minmax(0,1fr);gap:7px;width:100%!important;padding:3px 4px;border-bottom:1px solid #ddd;font-size:8pt;overflow-wrap:anywhere}
+  .print-cards tbody td:last-child{border-bottom:0}
+  .print-cards tbody td::before{content:attr(data-label);font-weight:800;text-transform:uppercase;color:#000;font-size:6.8pt;letter-spacing:.025em}
+  .flow{grid-template-columns:repeat(5,1fr);gap:9mm;overflow:visible}
+  .node:not(:last-child)::after{right:-7mm}
+  .control-map{grid-template-columns:repeat(3,1fr)}
+  a.ext::after{content:" (" attr(href) ")";font-size:6.5pt;color:#333}
+  a.source-ref::after,.toc a::after,.url::after{content:none}
+  .grid.two,.grid.three,.grid.four,.decision{grid-template-columns:repeat(2,1fr)}
+  .decision .card:last-child{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="topbar-inner">
+<div class="eyebrow">
+<span class="report-mark">Independent technical field report</span>
+<span>Generated 3 August 2026</span>
+</div>
+<h1>2014 John Deere 344K<br/>Long-Regeneration Diagnostic Report</h1>
+<p class="subtitle">Machine-specific applicability, aftertreatment operation, ranked causes, confirmation tests, and a cost-controlled diagnostic sequence.</p>
+<div aria-label="Report scope" class="hero-meta">
+<span class="hero-chip"><strong>PIN</strong> <span class="pin">1LU344KXLZB035000</span></span>
+<span class="hero-chip"><strong>Serial range</strong> B030077 and later</span>
+<span class="hero-chip"><strong>Complaint</strong> Regeneration takes unusually long</span>
+<span class="hero-chip"><strong>Market</strong> Not supplied</span>
+<span class="hero-chip"><strong>Hours</strong> Not supplied</span>
+</div>
+</div>
+</header>
+<div aria-label="Mobile report controls" class="mobile-controls">
+<label class="small" for="jumpSelect">Jump</label>
+<select aria-label="Jump to report section" id="jumpSelect">
+<option value="">Choose section…</option>
+<option value="identity">1. Machine identity</option>
+<option value="safety">2. Safety</option>
+<option value="applicability">3. Applicability matrix</option>
+<option value="systems">4. How the system works</option>
+<option value="ranked-problems">5. Most likely problems</option>
+<option value="operation-maintenance">6. Operation &amp; maintenance</option>
+<option value="known-issues">7. Documented issues</option>
+<option value="diagnostic-paths">8. Diagnostic paths</option>
+<option value="normal-values">9. Normal values</option>
+<option value="repair-plan">10. Repair-priority plan</option>
+<option value="evidence-ledger">11. Evidence ledger</option>
+<option value="sources">12. Sources</option>
+</select>
+<button class="button" onclick="window.print()" type="button">Print</button>
+</div>
+<div class="layout">
+<aside aria-label="Table of contents" class="toc">
+<h2>Field report</h2>
+<nav id="tocNav">
+<a href="#identity">1. Machine identity</a>
+<a href="#safety">2. Safety &amp; stop-work</a>
+<a href="#applicability">3. Applicability matrix</a>
+<a href="#systems">4. System operation</a>
+<a href="#ranked-problems">5. Ranked problems</a>
+<a href="#operation-maintenance">6. Operation &amp; maintenance</a>
+<a href="#known-issues">7. Documented issues</a>
+<a href="#diagnostic-paths">8. Diagnostic paths</a>
+<a href="#normal-values">9. Normal values</a>
+<a href="#repair-plan">10. Repair-priority plan</a>
+<a href="#evidence-ledger">11. Evidence ledger</a>
+<a href="#sources">12. Sources</a>
+</nav>
+<div class="toc-actions">
+<button class="button" onclick="window.print()" type="button">Print / save as PDF</button>
+<a class="button secondary" href="#field-action">Go to immediate checks</a>
+</div>
+</aside>
+<main id="main-content">
+<noscript>
+<div class="callout warning"><strong>JavaScript is disabled.</strong> All report content remains readable, but table sorting and active-section highlighting are unavailable.</div>
+</noscript>
+<section aria-labelledby="identity-heading" id="identity">
+<h2 id="identity-heading">1. Machine identity and core finding</h2>
+<div class="grid four no-break">
+<div class="card highlight">
+<div class="kicker">Machine</div>
+<div class="metric">344K</div>
+<p>Compact four-wheel-drive wheel loader; year reported by owner as 2014.</p>
+<span class="label confirmed">CONFIRMED MACHINE FACT</span>
+</div>
+<div class="card highlight">
+<div class="kicker">Applicable documentation</div>
+<div class="metric">B030077+</div>
+<p>Serial sequence <span class="mono">B035000</span> is above Deere’s published B030077 breakpoint.</p>
+<span class="label confirmed">CONFIRMED MACHINE FACT</span>
+</div>
+<div class="card highlight">
+<div class="kicker">Engine platform</div>
+<div class="metric">4.42 L</div>
+<p>John Deere PowerTech 4045T, turbocharged, 72.3 kW (97 hp), Interim Tier 4 / Stage IIIB.</p>
+<span class="label confirmed">CONFIRMED MACHINE FACT</span>
+</div>
+<div class="card highlight">
+<div class="kicker">Research confidence</div>
+<div class="metric">Medium–High</div>
+<p>High for model and serial range; medium for exact engine suffix, calibration, and proprietary thresholds.</p>
+<span class="label gap">PROPRIETARY-DOCUMENT GAP</span>
+</div>
+</div>
+<div class="callout warning" id="field-action">
+<h3>Core finding: first determine whether regeneration has actually started</h3>
+<p>A normal active or parked cleaning event is characterized by <strong>ECU-controlled elevated idle</strong> and a high-exhaust-temperature indication. Deere engine-family guidance describes roughly 30 minutes at elevated idle; total elapsed time can be longer while the machine warms up or waits for permissive conditions. If this loader remains at ordinary low idle, it is probably <strong>waiting or inhibited</strong>, not spending hours actively burning soot. <a class="source-ref" href="#src-s3">S3</a> <a class="source-ref" href="#src-s5">S5</a></p>
+</div>
+<div aria-label="Immediate decision guide" class="decision">
+<div class="card">
+<h3>RPM stays low</h3>
+<p><strong>Most likely state:</strong> cleaning has not entered the active phase.</p>
+<ul class="tight">
+<li>Confirm coolant is fully warm.</li>
+<li>Confirm automatic cleaning is enabled.</li>
+<li>Confirm neutral, park brake, zero travel command, and no active blocking code.</li>
+<li>Do not manually hold the throttle high to “force” it.</li>
+</ul>
+</div>
+<div class="card">
+<h3>RPM rises; hot-exhaust indicator is on</h3>
+<p><strong>Most likely state:</strong> active cleaning is underway.</p>
+<ul class="tight">
+<li>Time the active phase separately from warm-up.</li>
+<li>If it repeatedly runs far beyond the normal family guidance or aborts, capture codes and live data.</li>
+<li>Prioritize ash load, differential-pressure sensing, temperature sensing, and heat generation.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Regens complete but return frequently</h3>
+<p><strong>Most likely state:</strong> soot is being produced or inferred too quickly, or ash has reduced usable filter volume.</p>
+<ul class="tight">
+<li>Check DPF service history and machine hours.</li>
+<li>Inspect pressure tubes/sensor and intake/boost system.</li>
+<li>Review EGR/VGT, fuel, injector, and temperature data before replacing the DPF.</li>
+</ul>
+</div>
+</div>
+<h3>Most likely causes, in order</h3>
+<div class="priority-list">
+<div class="priority-item"><div><strong>Cleaning permissive not met or automatic cleaning inhibited</strong>—especially if RPM never rises.</div></div>
+<div class="priority-item"><div><strong>DPF ash loading / overdue exhaust-filter service</strong>—especially if hours are near or above the engine-family service window or service history is unknown.</div></div>
+<div class="priority-item"><div><strong>Slow engine warm-up or biased coolant-temperature signal</strong>—a thermostat, sensor, or fan-control issue can keep the ECU below the cleaning threshold.</div></div>
+<div class="priority-item"><div><strong>DPF differential-pressure tubing or sensor error</strong>—a restricted, cracked, wet, reversed, or biased pressure circuit can falsely report restriction.</div></div>
+<div class="priority-item"><div><strong>Exhaust-temperature sensor or heat-generation problem</strong>—active cleaning cannot complete if the DOC/DPF never reaches and maintains the commanded temperature.</div></div>
+</div>
+<div class="grid two">
+<div class="card info">
+<h3>Configuration conclusion</h3>
+<p>The machine-specific brochure confirms a DPF-equipped Interim Tier 4 engine. Deere’s Interim Tier 4 architecture for this power class uses cooled EGR and DOC/DPF, with active heat generated by engine-controlled fuel dosing; it does not use DEF/SCR. The exact 4045 engine suffix must still be confirmed from the engine serial plate before applying component pinouts or calibration-specific thresholds. <a class="source-ref" href="#src-s2">S2</a> <a class="source-ref" href="#src-s7">S7</a> <a class="source-ref" href="#src-s8">S8</a></p>
+<span class="label family">MODEL-FAMILY GUIDANCE</span>
+</div>
+<div class="card warn">
+<h3>Year/PIN caution</h3>
+<p>The owner reports 2014. A preview of Deere repair manual TM12930 states that the tenth PIN character <span class="mono">Z</span> is not used as a calendar-year code, so the PIN alone should not be used to confirm or dispute the stated year. Obtain the build record and engine serial number from Deere to close this gap. <a class="source-ref" href="#src-s11">S11</a></p>
+<span class="label gap">PROPRIETARY-DOCUMENT GAP</span>
+</div>
+</div>
+<h3>Evidence-label legend</h3>
+<div aria-label="Evidence label legend" class="legend">
+<div class="legend-item"><span class="label confirmed">CONFIRMED MACHINE FACT</span><span>Authoritative evidence specific to this machine or applicable serial range.</span></div>
+<div class="legend-item"><span class="label component">DOCUMENTED COMPONENT FACT</span><span>Authoritative component evidence; exact installation still needs confirmation.</span></div>
+<div class="legend-item"><span class="label inference">REASONABLE INFERENCE</span><span>Supported by credible cross-references but not directly confirmed in a machine-specific primary document.</span></div>
+<div class="legend-item"><span class="label family">MODEL-FAMILY GUIDANCE</span><span>Reliable information for the broader Deere platform, engine, or aftertreatment family.</span></div>
+<div class="legend-item"><span class="label field">FIELD PATTERN</span><span>Repeated technician/owner reports without an official defect finding.</span></div>
+<div class="legend-item"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span><span>Likely resolved by Deere manuals, Service ADVISOR, dealer records, or unavailable bulletins.</span></div>
+<div class="legend-item"><span class="label na">NOT APPLICABLE</span><span>Evidence indicates the component or procedure does not apply to this configuration.</span></div>
+</div>
+</section>
+<section aria-labelledby="safety-heading" id="safety">
+<h2 id="safety-heading">2. Safety and stop-work warnings</h2>
+<div class="callout danger">
+<h3>Regeneration creates an ignition and burn hazard</h3>
+<p>Deere guidance warns that exhaust-filter cleaning can produce exhaust temperatures as high as approximately <strong>550°C (1022°F)</strong>. Park outdoors or in a properly ventilated area on a noncombustible surface, clear dry grass, chaff, oil, fuel, paper, and other combustibles from the exhaust area, and keep people away from the outlet. <a class="source-ref" href="#src-s4">S4</a></p>
+</div>
+<div class="grid two">
+<div class="card danger">
+<h3>Stop the diagnostic attempt immediately if</h3>
+<ul class="tight">
+<li>The red STOP lamp, shutdown, or severe derate appears.</li>
+<li>There is a fuel, engine-oil, hydraulic-oil, or coolant leak near the exhaust.</li>
+<li>Smoke or flame is visible from insulation, wiring, debris, or the aftertreatment housing.</li>
+<li>Raw-fuel odor or heavy white/gray smoke increases during a cleaning attempt.</li>
+<li>Coolant or exhaust temperature rises abnormally or the event repeatedly aborts.</li>
+<li>A DPF pressure or temperature circuit is open/shorted and the machine requests repeated cleaning.</li>
+</ul>
+</div>
+<div class="card warn">
+<h3>Before inspecting the machine</h3>
+<ul class="tight">
+<li>Park on level ground, lower the bucket/attachment fully, select neutral, and apply the park brake.</li>
+<li>Shut down, remove the key, and allow exhaust, coolant, oil, and hydraulic components to cool.</li>
+<li>Use the articulation lock before entering the articulation area.</li>
+<li>Use the approved loader-boom support if work requires a raised boom; never rely on hydraulics alone.</li>
+<li>Relieve stored hydraulic pressure and disconnect battery power where the service procedure requires it.</li>
+<li>Wear eye protection, gloves, and suitable heat-resistant PPE.</li>
+</ul>
+</div>
+</div>
+<div class="callout warning">
+<h3>Do not bypass protective or emissions functions</h3>
+<p>Do not defeat regeneration interlocks, unplug sensors to force a fallback mode, drill or remove the DPF substrate, alter ECU calibration, or use undocumented “forced regen” sequences. Preserve fault codes and event history before clearing them. DPF ash removal should be performed with controlled equipment by a qualified service provider; compressed-air cleaning without containment can expose personnel to hazardous particulate.</p>
+</div>
+</section>
+<section aria-labelledby="applicability-heading" id="applicability">
+<h2 id="applicability-heading">3. Applicability and configuration matrix</h2>
+<p class="lead">The supplied PIN is sufficient to select the B030077-and-later 344K manual family, but not sufficient to identify the exact engine suffix, ECU calibration, market emissions label, or installed software level.</p>
+<div class="table-wrap">
+<table aria-label="Applicability and configuration matrix" class="sortable compact print-cards">
+<thead>
+<tr>
+<th><button class="sort-button" data-index="0">Year/build date</button></th>
+<th><button class="sort-button" data-index="1">Serial/PIN range</button></th>
+<th><button class="sort-button" data-index="2">Market</button></th>
+<th><button class="sort-button" data-index="3">Engine/powertrain</button></th>
+<th><button class="sort-button" data-index="4">Major configuration</button></th>
+<th><button class="sort-button" data-index="5">Evidence level</button></th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Year/build date">2014 reported; exact build date not independently verified</td>
+<td data-label="Serial/PIN range"><span class="pin">1LU344KXLZB035000</span>; sequence B035000</td>
+<td data-label="Market">Not supplied</td>
+<td data-label="Engine/powertrain">PowerTech 4045T, 4.42 L, 72.3 kW (97 hp); hydrostatic two-range drive</td>
+<td data-label="Major configuration">344K compact 4WD loader; EPA Interim Tier 4 / EU Stage IIIB; DPF-equipped</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span> except build year</td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+<tr>
+<td data-label="Year/build date">B030077 and later</td>
+<td data-label="Serial/PIN range"><span class="mono">1LU344K___B030077—</span></td>
+<td data-label="Market">Worldwide Construction &amp; Forestry documentation</td>
+<td data-label="Engine/powertrain">Serial-specific maintenance and parts family</td>
+<td data-label="Major configuration">Operator manual OMT313329; repair TM12930; diagnostic/operation/test TM12927; parts PC11203</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s11">S11</a> <a class="source-ref" href="#src-s12">S12</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Year/build date">Interim Tier 4 era</td>
+<td data-label="Serial/PIN range">Exact engine ESN/suffix needed</td>
+<td data-label="Market">US EPA / EU Stage IIIB configuration shown in brochure</td>
+<td data-label="Engine/powertrain">Likely PowerTech PVX-family cooled EGR + VGT + DOC/DPF; in-cylinder fuel dosing below 130 kW</td>
+<td data-label="Major configuration">No DEF/SCR expected on this documented IT4 configuration</td>
+<td data-label="Evidence level"><span class="label family">MODEL-FAMILY GUIDANCE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s7">S7</a> <a class="source-ref" href="#src-s8">S8</a></td>
+</tr>
+<tr>
+<td data-label="Year/build date">Later 344L / 344 P-Tier machines</td>
+<td data-label="Serial/PIN range">Different model and documentation</td>
+<td data-label="Market">Market-dependent Final Tier 4 / Stage IV/V</td>
+<td data-label="Engine/powertrain">Different 4045 variants and aftertreatment strategies</td>
+<td data-label="Major configuration">Do not transfer procedures, fault thresholds, or parts to the 344K without verification</td>
+<td data-label="Evidence level"><span class="label na">NOT APPLICABLE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s18">S18</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="grid two">
+<div class="card">
+<h3>What the PIN establishes</h3>
+<ul class="tight">
+<li>John Deere/Liebherr-built 344K model designation.</li>
+<li>Serial sequence B035000.</li>
+<li>Applicability of B030077-and-later parts and technical-manual family.</li>
+</ul>
+</div>
+<div class="card">
+<h3>What still requires the machine or dealer record</h3>
+<ul class="tight">
+<li>Engine serial number and complete engine model suffix.</li>
+<li>Actual build date and original sales market.</li>
+<li>ECU and vehicle-controller software/calibration numbers.</li>
+<li>Any Product Improvement Program, field campaign, or serial-specific bulletin.</li>
+<li>DPF replacement/cleaning history and reset history.</li>
+</ul>
+</div>
+</div>
+</section>
+<section aria-labelledby="systems-heading" id="systems">
+<h2 id="systems-heading">4. How the relevant systems work</h2>
+<h3>Machine-confirmed configuration</h3>
+<p>The 344K brochure identifies a turbocharged John Deere PowerTech 4045T, 4.42 L, four-cylinder engine rated at 72.3 kW (97 hp), certified to EPA Interim Tier 4 / EU Stage IIIB. It explicitly states that diesel-particulate-filter cleaning is automatic and that the filter is removable for dealer service. <a class="source-ref" href="#src-s2">S2</a> <span class="label confirmed">CONFIRMED MACHINE FACT</span></p>
+<h3>Probable exhaust and regeneration architecture</h3>
+<div aria-label="Probable Deere Interim Tier 4 exhaust flow from engine through turbocharger, diesel oxidation catalyst, diesel particulate filter, and tailpipe" class="architecture" role="img">
+<div class="flow">
+<div class="node">Engine combustion<small>HPCR fuel injection; cooled EGR reduces NOx</small></div>
+<div class="node">Turbo / VGT<small>Controls boost and helps manage exhaust heat</small></div>
+<div class="node">DOC<small>Oxidizes hydrocarbons; converts dosing heat into temperature rise</small></div>
+<div class="node">DPF<small>Traps soot; ash remains after soot is burned</small></div>
+<div class="node">Tailpipe<small>Very hot during active cleaning</small></div>
+</div>
+<div class="control-map">
+<div class="sensor-list">
+<div class="sensor">Coolant-temperature sensor</div>
+<div class="sensor">Intake/boost/airflow signals</div>
+<div class="sensor">Fuel pressure and engine-speed signals</div>
+</div>
+<div class="node">Engine control unit (ECU)<small>Estimates soot load, checks permissives, commands EGR/VGT and in-cylinder post injection, records faults and derate stages</small></div>
+<div class="sensor-list">
+<div class="sensor">Exhaust-temperature sensors / temperature module</div>
+<div class="sensor">DPF differential-pressure sensor and tubes</div>
+<div class="sensor">Machine controller, park brake, neutral and display inputs</div>
+</div>
+</div>
+<p class="arrow-note">Detailed component arrangement is <strong>model-family guidance</strong> until the engine serial number identifies the exact engine manual and wiring diagram.</p>
+</div>
+<div class="grid three">
+<div class="card">
+<h3>Passive regeneration</h3>
+<p>When normal work keeps exhaust temperature high enough, soot oxidizes gradually without a noticeable parked event. Light-load or short-cycle operation provides less passive cleaning.</p>
+<span class="label family">MODEL-FAMILY GUIDANCE</span>
+</div>
+<div class="card">
+<h3>Active regeneration</h3>
+<p>The ECU raises exhaust temperature by coordinating air handling and engine-controlled fuel dosing. Deere family documentation for engines below 130 kW uses in-cylinder dosing rather than a separate external fuel doser. <a class="source-ref" href="#src-s8">S8</a></p>
+<span class="label component">DOCUMENTED COMPONENT FACT</span>
+</div>
+<div class="card">
+<h3>Ash service</h3>
+<p>Regeneration burns soot but not noncombustible ash from oil additives and normal wear. Ash slowly occupies DPF volume and increases restriction; the filter eventually requires controlled off-machine service. <a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s16">S16</a></p>
+<span class="label family">MODEL-FAMILY GUIDANCE</span>
+</div>
+</div>
+<h3>Why a regeneration can appear to take “forever”</h3>
+<ol class="tight">
+<li><strong>Warm-up time is being counted as regeneration time.</strong> The machine can sit at low idle waiting for coolant and exhaust conditions; low idle itself produces little heat.</li>
+<li><strong>A permissive is not met.</strong> Neutral, park brake, zero travel command, coolant temperature, automatic-cleaning mode, or an active DTC can prevent the ECU from elevating speed.</li>
+<li><strong>The DPF contains too much ash.</strong> Soot may burn, but the baseline restriction remains high, causing repeated or prolonged requests.</li>
+<li><strong>The ECU is receiving false pressure or temperature data.</strong> Plugged pressure tubes, moisture, sensor bias, wiring resistance, or temperature-module faults can make a healthy filter look restricted or prevent confirmation of heat.</li>
+<li><strong>The engine or DOC cannot create enough heat.</strong> Low rail pressure, intake/boost leak, EGR/VGT fault, exhaust leak, weak DOC, or fueling fault can stall the temperature rise.</li>
+<li><strong>The engine is producing excessive soot.</strong> Air restriction, charge-air leak, injector issue, low boost, EGR/VGT fault, or prolonged low-load operation can refill the filter faster than expected.</li>
+</ol>
+<div class="callout">
+<h3>Low idle versus high idle</h3>
+<p>Begin a parked-cleaning request at the procedure’s specified low-idle state. Once the ECU accepts the request, it should take control and raise engine speed after a delay. <strong>If the engine never transitions to ECU-controlled elevated idle, do not interpret the elapsed time as an active regen.</strong> Check permissives and DTCs instead of holding the accelerator. <a class="source-ref" href="#src-s3">S3</a> <a class="source-ref" href="#src-s5">S5</a></p>
+</div>
+</section>
+<section aria-labelledby="ranked-heading" id="ranked-problems">
+<h2 id="ranked-heading">5. Ranked most likely problems</h2>
+<p class="lead">Ranking reflects the reported symptom, this serial range, diagnostic value, safety, likely age-related conditions, and the cost of confirmation. Machine hours, codes, duty cycle, and whether RPM rises were not supplied; those missing facts can change the order.</p>
+<div class="table-wrap">
+<table aria-label="Ranked most likely problems" class="sortable print-cards">
+<thead>
+<tr>
+<th><button class="sort-button" data-index="0" data-type="number">Rank</button></th>
+<th><button class="sort-button" data-index="1">Problem</button></th>
+<th><button class="sort-button" data-index="2">Likelihood</button></th>
+<th><button class="sort-button" data-index="3">Confidence</button></th>
+<th>Applicable variant</th>
+<th>Why it happens</th>
+<th>What the operator notices</th>
+<th>Controller / fault-code evidence</th>
+<th>Confirmation tests</th>
+<th>Corrective action</th>
+<th>Do not replace until…</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Rank" data-sort="1">1</td>
+<td data-label="Problem"><strong>Cleaning not actually active: low temperature, unmet permissive, disabled AUTO mode, or blocking DTC</strong></td>
+<td data-label="Likelihood" data-sort="3"><span class="status high">High</span>, especially if RPM stays low</td>
+<td data-label="Confidence" data-sort="3"><span class="status high">High</span> for diagnostic priority</td>
+<td data-label="Applicable variant">All DPF-equipped B030077+ machines; exact menu wording may vary</td>
+<td data-label="Why it happens">Low-load idling creates little exhaust heat. The ECU will not start/continue cleaning if coolant, neutral, park-brake, travel, mode, or fault conditions are unacceptable.</td>
+<td data-label="What the operator notices">Long wait at ordinary idle; request lamp persists; no distinct elevated-idle phase; event may never start or may abort.</td>
+<td data-label="Controller / fault-code evidence">Preserve all ECU/vehicle DTCs. Look for status showing cleaning inhibited, disabled, waiting, or service required. Generic Deere examples include aftertreatment status and DPF restriction codes; verify exact 344K definitions in TM12927.</td>
+<td data-label="Confirmation tests">1) Separate warm-up time from active time. 2) Verify coolant live data is above the applicable threshold; Deere family procedures commonly require &gt;60°C/140°F. 3) Confirm neutral, park brake, zero travel command, AUTO enabled, no active blocking code. 4) Verify ECU commands elevated idle after request.</td>
+<td data-label="Corrective action">Correct the unmet input, restore AUTO mode, repair the blocking fault, and complete one procedure exactly as OMT313329 directs. Work the machine under legitimate load rather than prolonged idle when conditions permit.</td>
+<td data-label="Do not replace until…">Any DPF, temperature sensor, pressure sensor, or ECU is replaced. First prove that the ECU accepted the request and commanded the active phase.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s3">S3</a> <a class="source-ref" href="#src-s5">S5</a> <a class="source-ref" href="#src-s17">S17</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="2">2</td>
+<td data-label="Problem"><strong>DPF ash loading / overdue exhaust-filter service</strong></td>
+<td data-label="Likelihood" data-sort="3"><span class="status high">High</span> if hours are near/above family service window or history unknown</td>
+<td data-label="Confidence" data-sort="2"><span class="status medium">Medium–High</span></td>
+<td data-label="Applicable variant">DPF-equipped 344K; exact service trigger is ECU/condition dependent</td>
+<td data-label="Why it happens">Regeneration removes soot but leaves mineral ash. Ash consumes filter volume and raises baseline differential pressure, so regens become longer, more frequent, or unable to restore low restriction.</td>
+<td data-label="What the operator notices">Frequent requests, successful-looking regens that return soon, high restriction after cleaning, derate or service-cleaning message.</td>
+<td data-label="Controller / fault-code evidence">Compare calculated soot load, ash/service status, pressure before and after a completed cleaning, and hours since last professional DPF service. Generic Deere DTC families include DPF differential-pressure signal and exhaust-filter restriction statuses.</td>
+<td data-label="Confirmation tests">1) Obtain total hours and DPF service records. 2) Verify pressure tubes/sensor first. 3) Record differential pressure at specified idle/high-idle/load points from TM12927. 4) If restriction remains high after a verified successful cleaning, remove for professional weight/flow inspection.</td>
+<td data-label="Corrective action">Professional off-machine cleaning or exchange, flow verification, inspection for cracks/melting, new seals/hardware as specified, and correct service reset/adaptation with Deere diagnostic software.</td>
+<td data-label="Do not replace until…">The differential-pressure circuit is proven accurate and the removed filter fails flow/weight/visual inspection.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s15">S15</a> <a class="source-ref" href="#src-s16">S16</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="3">3</td>
+<td data-label="Problem"><strong>Slow warm-up: thermostat, coolant sensor, or fan-control problem</strong></td>
+<td data-label="Likelihood" data-sort="2"><span class="status medium">Medium–High</span> if temperature stays low</td>
+<td data-label="Confidence" data-sort="2"><span class="status medium">Medium</span> without live data</td>
+<td data-label="Applicable variant">All variants; exact thermostat specification requires engine manual</td>
+<td data-label="Why it happens">A thermostat stuck open, biased coolant-temperature sensor, or fan commanded too aggressively can keep coolant/exhaust below a regeneration permissive or make warm-up exceptionally long.</td>
+<td data-label="What the operator notices">Cab heat weak, temperature gauge remains low, long warm-up, cleaning request accepted only after heavy work, elevated idle delayed indefinitely.</td>
+<td data-label="Controller / fault-code evidence">Coolant temperature live data fails to reach normal operating range or disagrees with an independent measurement. A rationality DTC may or may not set.</td>
+<td data-label="Confirmation tests">Cold-soak comparison of ECU coolant reading to ambient; trend temperature during a controlled warm-up; compare thermostat housing temperatures with calibrated contact/IR methods; confirm fan command/actual behavior. Use TM12927/engine CTM for exact values.</td>
+<td data-label="Corrective action">Repair thermostat, sensor circuit, coolant condition, or fan control only after confirming the temperature fault. Refill/bleed with approved coolant and verify stable operating temperature.</td>
+<td data-label="Do not replace until…">The live-data trend and independent temperature measurement demonstrate the fault.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s2">S2</a> <a class="source-ref" href="#src-s5">S5</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="4">4</td>
+<td data-label="Problem"><strong>DPF differential-pressure sensor or tubing fault</strong></td>
+<td data-label="Likelihood" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Confidence" data-sort="3"><span class="status high">High</span> test value</td>
+<td data-label="Applicable variant">DPF system; hose routing and limits are engine-suffix specific</td>
+<td data-label="Why it happens">Soot/condensate can restrict pressure lines; heat can crack or harden tubing; lines can be reversed after repair; sensor bias or wiring faults can falsely indicate restriction.</td>
+<td data-label="What the operator notices">Cleaning requests unrelated to load, immediate high restriction after a completed regen, erratic restriction reading, pressure-signal DTC, derate.</td>
+<td data-label="Controller / fault-code evidence">Generic Deere engine DTC lists identify SPN/code family 3251 as DPF differential-pressure signal. Exact FMI meanings and 344K display text must be read from TM12927/Service ADVISOR.</td>
+<td data-label="Confirmation tests">KOEO plausibility near zero differential; inspect both ports and tubes for cracks, kinks, soot, water, heat damage, or reversal; verify wiring supply/ground/signal; compare sensor output with a calibrated differential manometer under the manual’s test conditions.</td>
+<td data-label="Corrective action">Repair/replace damaged tubing or connector; replace sensor only if electrical/manometer comparison proves error; perform required offset/calibration procedure.</td>
+<td data-label="Do not replace until…">Tube routing, ports, wiring, and independent pressure comparison are verified.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s6">S6</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="5">5</td>
+<td data-label="Problem"><strong>Exhaust-temperature sensor/module drift or wiring fault</strong></td>
+<td data-label="Likelihood" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Confidence" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Applicable variant">Sensor count/location depends on exact engine suffix</td>
+<td data-label="Why it happens">The ECU needs credible temperature feedback to initiate, control, and confirm soot oxidation. Bias, open/short circuits, poor grounds, damaged harnesses, or connector contamination can prevent completion.</td>
+<td data-label="What the operator notices">Active event starts but temperature indication never reaches/holds target; event aborts; high-exhaust-temperature light behaves inconsistently; temperature-related DTCs.</td>
+<td data-label="Controller / fault-code evidence">Review all exhaust-temperature channels and the temperature module. Cold-soaked sensors should be mutually plausible and near ambient; during cleaning they should rise in a physically credible sequence.</td>
+<td data-label="Confirmation tests">Cold-soak correlation; harness wiggle/voltage-drop test; inspect heat-damaged loom and connectors; compare channels during commanded cleaning; use Deere pinouts and resistance/voltage criteria.</td>
+<td data-label="Corrective action">Repair wiring/connector/ground or replace the proven sensor/module; clear only after recording freeze-frame data; run the required verification test.</td>
+<td data-label="Do not replace until…">A specific channel is proven implausible electrically or thermally.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s6">S6</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="6">6</td>
+<td data-label="Problem"><strong>Excess engine-out soot: intake restriction, charge-air leak, EGR/VGT fault, fuel restriction, injector/fueling problem</strong></td>
+<td data-label="Likelihood" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Confidence" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Applicable variant">PowerTech 4045T IT4; exact actuator diagnostics depend on engine suffix</td>
+<td data-label="Why it happens">Too little air, incorrect EGR, poor boost control, weak fuel supply, or poor injection increases particulate production. The DPF fills faster and may be difficult to clean under light load.</td>
+<td data-label="What the operator notices">Low power, black smoke under load, whistle/hiss, high fuel use, frequent cleaning, boost/air/fuel codes, dirty air-filter indicator.</td>
+<td data-label="Controller / fault-code evidence">Compare commanded/actual boost, EGR and VGT positions where available; inspect rail-pressure and injector correction/balance data; review air-filter restriction and fuel-pressure codes.</td>
+<td data-label="Confirmation tests">Inspect air cleaner and dust valve; pressure-test charge-air plumbing; inspect turbo/exhaust leaks; replace overdue fuel/air filters; check fuel quality/water; run Deere EGR/VGT/rail-pressure/injector tests.</td>
+<td data-label="Corrective action">DPF or turbo is replaced. First prove whether restriction is cause or effect and whether boost/fueling data are abnormal.</td>
+<td data-label="Do not replace until…"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s2">S2</a> <a class="source-ref" href="#src-s8">S8</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="7">7</td>
+<td data-label="Problem"><strong>Active heat-generation failure: low fuel pressure, post-injection/dosing problem, DOC inefficiency, or upstream exhaust leak</strong></td>
+<td data-label="Likelihood" data-sort="1"><span class="status low">Medium–Low</span> unless temperatures fail to rise</td>
+<td data-label="Confidence" data-sort="2"><span class="status medium">Medium</span></td>
+<td data-label="Applicable variant">IT4 aftertreatment; exact strategy depends on engine suffix/calibration</td>
+<td data-label="Why it happens">The ECU can command cleaning, but insufficient fuel delivery, poor oxidation in the DOC, or heat loss through an exhaust leak prevents DPF inlet temperature from reaching/holding the target.</td>
+<td data-label="What the operator notices">Elevated idle occurs, but cleaning takes very long or aborts; EGTs rise slowly or plateau; raw-fuel odor/smoke may occur; soot load remains high.</td>
+<td data-label="Controller / fault-code evidence">Requested cleaning active, but EGT trend does not meet the manual’s expected profile. Fuel-pressure or temperature codes may appear.</td>
+<td data-label="Confirmation tests">Check rail pressure command/actual; verify fuel filters and supply; inspect exhaust joints upstream of sensors/DOC; review EGT rise across DOC; perform Deere service tests. Do not repeat failed dosing attempts if raw fuel or oil dilution is suspected.</td>
+<td data-label="Corrective action">Repair the proven fuel, exhaust, sensor, or DOC fault; check engine-oil level/condition for dilution after repeated failed events.</td>
+<td data-label="Do not replace until…">The temperature trend, fuel-pressure data, and leak inspection isolate the failed function.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s7">S7</a> <a class="source-ref" href="#src-s8">S8</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Rank" data-sort="8">8</td>
+<td data-label="Problem"><strong>DPF/DOC physical damage or ECU calibration/software issue</strong></td>
+<td data-label="Likelihood" data-sort="1"><span class="status low">Low</span> until cheaper causes are excluded</td>
+<td data-label="Confidence" data-sort="1"><span class="status low">Low–Medium</span></td>
+<td data-label="Applicable variant">Serial/software dependent</td>
+<td data-label="Why it happens">Thermal cracking, melting, oil/coolant contamination, impact damage, an incorrect replacement assembly, failed reset, or obsolete calibration can cause persistent restriction or control errors.</td>
+<td data-label="What the operator notices">Restriction remains abnormal with verified sensors; unusual temperature pattern; fragments/rattle; recurrent codes immediately after correct service; prior aftertreatment replacement without programming.</td>
+<td data-label="Controller / fault-code evidence">Dealer PIP/software lookup, ECU part/calibration comparison, DPF serial/part validation, off-machine flow and borescope inspection.</td>
+<td data-label="Confirmation tests">Complete all lower-cost checks; query Deere by full PIN and engine serial; inspect removed assembly professionally; verify software and service resets.</td>
+<td data-label="Corrective action">Pressure/temperature sensing, engine soot production, heat generation, and professional filter testing are complete.</td>
+<td data-label="Do not replace until…"><a class="source-ref" href="#src-s9">S9</a> <a class="source-ref" href="#src-s13">S13</a> <a class="source-ref" href="#src-s14">S14</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="callout success">
+<h3>Best first paid diagnostic hour</h3>
+<p>Connect Deere Service ADVISOR before clearing anything and capture: active/stored codes with FMI, freeze-frame/event history, coolant temperature, commanded and actual engine speed, exhaust-cleaning state, soot/ash/service status, DPF differential pressure, all exhaust-temperature channels, boost/EGR/VGT command versus actual, and rail pressure. One clean data capture can prevent replacing a filter, sensor, or turbo without proof.</p>
+</div>
+</section>
+<section aria-labelledby="operation-heading" id="operation-maintenance">
+<h2 id="operation-heading">6. Top operation- and maintenance-related problems</h2>
+<p class="lead">These are conditions that can create or amplify the complaint. They are not evidence of operator fault, and each must be verified against the actual duty cycle and maintenance history.</p>
+<div class="table-wrap">
+<table aria-label="Top operation and maintenance related problems" class="sortable print-cards">
+<thead>
+<tr>
+<th><button class="sort-button" data-index="0">Priority</button></th>
+<th><button class="sort-button" data-index="1">Practice or condition</button></th>
+<th>Damage/fault mechanism</th>
+<th>Typical symptoms</th>
+<th>How to verify</th>
+<th>Correct practice or fix</th>
+<th>Prevention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Priority" data-sort="1">1</td>
+<td data-label="Practice or condition"><strong>Extended low-idle, short cycles, or consistently light load</strong></td>
+<td data-label="Damage/fault mechanism">Low exhaust temperature reduces passive soot oxidation and lengthens warm-up before active cleaning.</td>
+<td data-label="Typical symptoms">Long waiting period, frequent requests, cleaning works better after hard loading.</td>
+<td data-label="How to verify">Review duty cycle and ECU load/idle history if available; distinguish waiting at low idle from active elevated idle.</td>
+<td data-label="Correct practice or fix">Use the machine at legitimate working load when safe; avoid unnecessary prolonged idle; follow Deere cooldown and shutdown guidance.</td>
+<td data-label="Prevention">Plan periodic full-temperature work cycles rather than idling solely to “warm it up.”</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="2">2</td>
+<td data-label="Practice or condition"><strong>AUTO cleaning disabled or events repeatedly interrupted</strong></td>
+<td data-label="Damage/fault mechanism">Soot accumulates until a parked or service cleaning is required; repeated key-off or inhibit use prevents completion.</td>
+<td data-label="Typical symptoms">Cleaning request escalates, derate, parked-cleaning request, event returns quickly.</td>
+<td data-label="How to verify">Check display mode and event history; ask whether hot-exhaust events are routinely stopped.</td>
+<td data-label="Correct practice or fix">Leave AUTO enabled except when a genuine fire-risk condition requires temporary inhibit; complete the next safe event fully.</td>
+<td data-label="Prevention">Train operators on indicator meanings and safe locations for uninterrupted cleaning.</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="3">3</td>
+<td data-label="Practice or condition"><strong>Unknown or overdue DPF ash service</strong></td>
+<td data-label="Damage/fault mechanism">Ash cannot be burned during regen and eventually restricts the filter.</td>
+<td data-label="Typical symptoms">Long/frequent regens, pressure remains high after cleaning, service-cleaning message.</td>
+<td data-label="How to verify">Obtain machine hours, DPF serial, cleaning/exchange invoices, and service-reset record.</td>
+<td data-label="Correct practice or fix">Professional cleaning/exchange after verifying sensor accuracy; perform correct reset.</td>
+<td data-label="Prevention">Track DPF identity and service hours as a separate maintenance item.</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="4">4</td>
+<td data-label="Practice or condition"><strong>Restricted air cleaner, failed dust-unloader valve, dirty cooling package, or damaged intake hose</strong></td>
+<td data-label="Damage/fault mechanism">Air shortage increases soot; cooling-system faults can alter warm-up or trigger protective limits.</td>
+<td data-label="Typical symptoms">Low power, smoke, high fuel use, high or low operating temperature, frequent regen.</td>
+<td data-label="How to verify">Inspect restriction indicator, both intake elements, dust valve, hoses/clamps, and cooling package. Deere lists air elements at 1000 h and cooling-package/intake checks at 500 h.</td>
+<td data-label="Correct practice or fix">Clean cooling package using the approved method; repair leaks; replace filters/valve at condition or interval.</td>
+<td data-label="Prevention">Daily dust-valve inspection and interval-based intake/cooling service.</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="5">5</td>
+<td data-label="Practice or condition"><strong>Fuel contamination or overdue primary/final fuel filters</strong></td>
+<td data-label="Damage/fault mechanism">Low fuel supply pressure or poor combustion can reduce regen heat and raise soot.</td>
+<td data-label="Typical symptoms">Low power, roughness, rail-pressure faults, slow EGT rise, repeated aborts.</td>
+<td data-label="How to verify">Drain water separator, inspect sample, review filter hours, measure supply/rail pressure using Deere procedure.</td>
+<td data-label="Correct practice or fix">Correct contamination source; replace primary and final filters; prime exactly as specified.</td>
+<td data-label="Prevention">Clean transfer practices, water checks, and 500-hour filter service shown in the serial-specific guide.</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="6">6</td>
+<td data-label="Practice or condition"><strong>Incorrect engine oil or excessive oil consumption</strong></td>
+<td data-label="Damage/fault mechanism">High-ash oil or oil consumption accelerates noncombustible ash loading and can contaminate DOC/DPF.</td>
+<td data-label="Typical symptoms">Shortening interval between filter services, blue smoke, rising oil consumption, oily exhaust deposits.</td>
+<td data-label="How to verify">Verify oil specification/viscosity from OMT313329, oil usage, crankcase ventilation, turbo and engine condition.</td>
+<td data-label="Correct practice or fix">Use approved low-ash oil; correct consumption source; service OCV filter at the published interval.</td>
+<td data-label="Prevention">Record oil additions and use analysis; current guide lists oil/filter at 500 h and OCV filter at 2000 h.</td>
+</tr>
+<tr>
+<td data-label="Priority" data-sort="7">7</td>
+<td data-label="Practice or condition"><strong>Replacement sensor/filter installed without required calibration or reset</strong></td>
+<td data-label="Damage/fault mechanism">The ECU may retain an offset, ash/service counter, or learned value inconsistent with the new component.</td>
+<td data-label="Typical symptoms">Immediate recurrence after repair, implausible pressure at key-on, service reminder remains.</td>
+<td data-label="How to verify">Review repair invoice, component part numbers, programming/reset history, and live-data plausibility.</td>
+<td data-label="Correct practice or fix">Perform the exact Deere installation, calibration, and reset routine; never reset an unserviced filter to mask restriction.</td>
+<td data-label="Prevention">Document part serials, software level, baseline readings, and completed service routines.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="small">Sources: serial-specific maintenance guide <a class="source-ref" href="#src-s1">S1</a>; Deere automatic-cleaning and inhibit guidance <a class="source-ref" href="#src-s3">S3</a> <a class="source-ref" href="#src-s17">S17</a>; aftertreatment service guidance <a class="source-ref" href="#src-s16">S16</a>.</p>
+</section>
+<section aria-labelledby="known-heading" id="known-issues">
+<h2 id="known-heading">7. Top documented known issues and fixes</h2>
+<div class="callout">
+<h3>No public 344K-specific long-regeneration defect campaign was found</h3>
+<p>The public research did not identify an authoritative recall, campaign, Product Improvement Program, or service bulletin specifically stating that B030077-and-later 344K loaders have an elevated long-regeneration defect. That does <strong>not</strong> prove none exists: Deere’s PIN-based dealer systems and proprietary technical communications are not fully public. A dealer must query the complete PIN and engine serial number. <a class="source-ref" href="#src-s9">S9</a></p>
+</div>
+<div class="table-wrap">
+<table aria-label="Top documented known issues and fixes" class="sortable print-cards">
+<thead>
+<tr>
+<th><button class="sort-button" data-index="0">Issue</button></th>
+<th><button class="sort-button" data-index="1">Evidence category</button></th>
+<th>Applicable year/serial/PIN</th>
+<th>Symptoms</th>
+<th>Confirmation method</th>
+<th>Official or supported fix</th>
+<th>Parts/software/procedure notes</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Issue"><strong>Exhaust filter requires service as condition demands</strong></td>
+<td data-label="Evidence category">Manufacturer-documented maintenance/service requirement—not a defect</td>
+<td data-label="Applicable year/serial/PIN"><span class="mono">1LU344K___B030077—</span>, including this PIN</td>
+<td data-label="Symptoms">Restriction/service indication, repeated or incomplete cleaning when ash load is high</td>
+<td data-label="Confirmation method">Deere live data plus verified differential-pressure circuit; filter flow/weight inspection after removal</td>
+<td data-label="Official or supported fix">Dealer or qualified professional filter service/exchange and correct ECU service reset</td>
+<td data-label="Parts/software/procedure notes">Serial-specific replacement-parts guide lists “Service exhaust filter — as required.” Exact trigger/limits are in proprietary diagnostics.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Issue"><strong>Automatic cleaning can be delayed by low temperature/load and disabled mode</strong></td>
+<td data-label="Evidence category">Manufacturer-documented operating behavior</td>
+<td data-label="Applicable year/serial/PIN">Deere DPF-equipped engine family; exact 344K display workflow requires OMT313329</td>
+<td data-label="Symptoms">Long low-idle wait, persistent request, no elevated-idle phase</td>
+<td data-label="Confirmation method">Observe cleaning state, AUTO mode, coolant temperature, interlocks, and commanded speed</td>
+<td data-label="Official or supported fix">Restore permissives/AUTO and perform the serial-specific procedure in a safe location</td>
+<td data-label="Parts/software/procedure notes">Do not confuse waiting time with active cleaning time; do not force speed manually.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s3">S3</a> <a class="source-ref" href="#src-s5">S5</a> <a class="source-ref" href="#src-s17">S17</a></td>
+</tr>
+<tr>
+<td data-label="Issue"><strong>DPF differential-pressure and exhaust-temperature circuits are monitored fault families</strong></td>
+<td data-label="Evidence category">Documented component-family diagnostic architecture</td>
+<td data-label="Applicable year/serial/PIN">PowerTech DPF engine family; exact FMI and connector details depend on engine suffix</td>
+<td data-label="Symptoms">False restriction, aborted cleaning, derate, temperature or pressure DTCs</td>
+<td data-label="Confirmation method">Read complete SPN/FMI; perform plausibility, electrical, tubing, manometer, and temperature-correlation tests</td>
+<td data-label="Official or supported fix">Repair only the proven circuit fault, then run verification/calibration</td>
+<td data-label="Parts/software/procedure notes">Generic Deere list identifies DPF differential-pressure signal family 3251 and exhaust-temperature module inputs.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s6">S6</a></td>
+</tr>
+<tr>
+<td data-label="Issue"><strong>Serial breakpoint controls manual and parts applicability</strong></td>
+<td data-label="Evidence category">Documented serial-specific publication applicability</td>
+<td data-label="Applicable year/serial/PIN">B030077 and later</td>
+<td data-label="Symptoms">Wrong diagnostic values, parts, or procedures if pre-break or later-model manuals are used</td>
+<td data-label="Confirmation method">Match complete PIN and engine serial to OMT313329, TM12927, TM12930, and PC11203</td>
+<td data-label="Official or supported fix">Use the correct publication revision and confirm supersessions through Deere</td>
+<td data-label="Parts/software/procedure notes">This machine is B035000 and therefore within the later range.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s11">S11</a> <a class="source-ref" href="#src-s13">S13</a></td>
+</tr>
+<tr>
+<td data-label="Issue"><strong>No public recall/campaign confirmation for this PIN</strong></td>
+<td data-label="Evidence category">Verification gap—not evidence of absence</td>
+<td data-label="Applicable year/serial/PIN">This complete PIN and engine serial</td>
+<td data-label="Symptoms">Any persistent aftertreatment behavior possibly addressed by nonpublic update</td>
+<td data-label="Confirmation method">Authorized dealer PIN/ESN campaign, PIP, DTAC, and software-level lookup</td>
+<td data-label="Official or supported fix">Apply only the official update or campaign if Deere shows applicability</td>
+<td data-label="Parts/software/procedure notes">Public recall portal is a starting point; dealer systems contain more technical actions.</td>
+<td data-label="Source"><a class="source-ref" href="#src-s9">S9</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section aria-labelledby="paths-heading" id="diagnostic-paths">
+<h2 id="paths-heading">8. Symptom-based diagnostic paths</h2>
+<details open="">
+<summary>A. “It sits at low idle forever and never speeds up”</summary>
+<div>
+<div class="steps">
+<div class="step"><div><strong>Make the location safe.</strong> Lower attachment, neutral, park brake, outdoor/noncombustible area, clear combustibles, maintain exclusion zone.</div></div>
+<div class="step"><div><strong>Record the display before touching controls.</strong> Photograph every lamp/message and record all codes, including FMI and occurrence count.</div></div>
+<div class="step"><div><strong>Verify that a parked-cleaning request is actually permitted.</strong> Check AUTO mode, neutral, park brake, zero travel command, hydraulic/attachment state, and any active engine or machine fault.</div></div>
+<div class="step"><div><strong>Verify coolant temperature.</strong> Deere family procedures commonly require more than 60°C (140°F); use live data and compare with independent temperature measurement. Do not assume the dash gauge is precise.</div></div>
+<div class="step"><div><strong>Watch commanded versus actual engine speed and cleaning state.</strong> If the ECU never changes state or commands elevated idle, diagnose the unmet permissive or blocking DTC.</div></div>
+<div class="step"><div><strong>Do not manually hold high throttle.</strong> The ECU must control the event. Obtain OMT313329/TM12927 if the state remains unclear.</div></div>
+</div>
+</div>
+</details>
+<details open="">
+<summary>B. “It goes to elevated idle, but the active regen runs too long or aborts”</summary>
+<div>
+<div class="steps">
+<div class="step"><div><strong>Stop if there is a leak, raw-fuel smoke, fire risk, overtemperature, or red STOP condition.</strong></div></div>
+<div class="step"><div><strong>Time only the elevated-idle/high-temperature phase.</strong> Deere family guidance describes roughly 30 minutes; a modest extension can occur, but repeated substantially longer events require data—not more blind attempts.</div></div>
+<div class="step"><div><strong>Capture temperature channels.</strong> Cold-soak correlation first; then trend DOC/DPF inlet/outlet channels during one controlled attempt. Determine whether heat is generated, transferred, and sustained.</div></div>
+<div class="step"><div><strong>Capture differential pressure.</strong> Check KOEO offset, tubing condition, and pressure at the exact TM12927 test points. Compare with a calibrated manometer before condemning the DPF.</div></div>
+<div class="step"><div><strong>Check fuel and air systems.</strong> Rail-pressure command/actual, fuel filters, charge-air leaks, boost, EGR/VGT command/actual, exhaust leaks, and smoke.</div></div>
+<div class="step"><div><strong>Assess ash.</strong> If a verified cleaning occurs but baseline restriction remains high, remove the filter for professional flow/weight/visual testing and complete the required reset.</div></div>
+</div>
+</div>
+</details>
+<details open="">
+<summary>C. “Regen completes, but it asks again soon”</summary>
+<div>
+<div class="steps">
+<div class="step"><div><strong>Confirm that the prior event actually completed</strong> and did not exit because a permissive was lost.</div></div>
+<div class="step"><div><strong>Compare pre/post differential pressure and soot-load estimate.</strong> A strong soot reduction with persistently high baseline pressure points toward ash or a pressure-circuit bias.</div></div>
+<div class="step"><div><strong>Check machine hours and DPF service history.</strong> Unknown history moves ash loading near the top of the list.</div></div>
+<div class="step"><div><strong>Check engine-out soot causes:</strong> air restriction, boost leak, EGR/VGT control, poor fuel, injectors, oil consumption, and extended idle/low load.</div></div>
+<div class="step"><div><strong>Verify the correct reset was performed</strong> after any previous filter or pressure-sensor replacement.</div></div>
+</div>
+</div>
+</details>
+<details open="">
+<summary>D. “Long regen plus low power, smoke, or derate”</summary>
+<div>
+<div class="steps">
+<div class="step"><div><strong>Do not continue loading the machine under a red STOP or severe derate.</strong> Preserve codes and check fluids/leaks.</div></div>
+<div class="step"><div><strong>Inspect the air path.</strong> Air elements, dust valve, intake hoses, turbo inlet, charge-air boots/clamps, cooler, and exhaust leaks.</div></div>
+<div class="step"><div><strong>Inspect fuel supply.</strong> Water separator, primary/final filter hours, contamination, low-pressure supply and rail-pressure command/actual.</div></div>
+<div class="step"><div><strong>Read boost, EGR, VGT, and temperature data.</strong> A DPF restriction can cause low power, but low air/fueling faults can also create the DPF loading.</div></div>
+<div class="step"><div><strong>Prove restriction independently</strong> before replacing the DPF or turbo.</div></div>
+</div>
+</div>
+</details>
+<details open="">
+<summary>E. “The machine will not permit parked cleaning or requests service cleaning”</summary>
+<div>
+<div class="steps">
+<div class="step"><div><strong>Record the exact message and DTC.</strong> A service-cleaning level can indicate that operator-initiated cleaning is no longer permitted.</div></div>
+<div class="step"><div><strong>Do not cycle keys or clear codes repeatedly.</strong> This can erase useful event context without reducing soot or ash.</div></div>
+<div class="step"><div><strong>Use Deere Service ADVISOR and TM12927.</strong> Confirm soot level, ash/service status, pressure/temperature plausibility, and the approved service procedure.</div></div>
+<div class="step"><div><strong>Inspect for oil/fuel/coolant contamination</strong> before any service cleaning; a contaminated filter can overheat or be damaged.</div></div>
+<div class="step"><div><strong>Dealer/qualified service action:</strong> approved service cleaning, DPF removal and cleaning/exchange, repair of the underlying fault, and correct reset.</div></div>
+</div>
+</div>
+</details>
+</section>
+<section aria-labelledby="values-heading" id="normal-values">
+<h2 id="values-heading">9. Normal values and service information</h2>
+<div class="table-wrap">
+<table aria-label="Confirmed normal values and service information" class="sortable compact print-cards">
+<thead>
+<tr>
+<th><button class="sort-button" data-index="0">Parameter</button></th>
+<th>Confirmed value or range</th>
+<th>Test conditions / location</th>
+<th>Applicability</th>
+<th>Evidence level</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Parameter">Engine</td>
+<td data-label="Confirmed value or range">John Deere PowerTech 4045T; 4 cylinders; 4.42 L</td>
+<td data-label="Test conditions / location">Machine specification</td>
+<td data-label="Applicability">344K brochure configuration</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Net rated power</td>
+<td data-label="Confirmed value or range">72.3 kW (97 hp) at 2400 rpm</td>
+<td data-label="Test conditions / location">ISO 9249 rating</td>
+<td data-label="Applicability">344K brochure configuration</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Emissions level</td>
+<td data-label="Confirmed value or range">EPA Interim Tier 4 / EU Stage IIIB; DPF-equipped</td>
+<td data-label="Test conditions / location">Machine specification</td>
+<td data-label="Applicability">344K brochure configuration</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Typical active-cleaning duration</td>
+<td data-label="Confirmed value or range">Approximately 30 minutes at ECU-controlled elevated idle; field planning range roughly 30–50 minutes, not a hard 344K cutoff</td>
+<td data-label="Test conditions / location">Time the active high-temperature phase only, after permissives are met</td>
+<td data-label="Applicability">Deere DPF engine-family guidance</td>
+<td data-label="Evidence level"><span class="label family">MODEL-FAMILY GUIDANCE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s3">S3</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Parked-cleaning coolant permissive</td>
+<td data-label="Confirmed value or range">Common Deere family threshold: above 60°C (140°F)</td>
+<td data-label="Test conditions / location">Live ECU temperature before request; verify exact 344K value in OMT313329/TM12927</td>
+<td data-label="Applicability">Comparable Deere DPF machines, not yet confirmed in public 344K manual</td>
+<td data-label="Evidence level"><span class="label family">MODEL-FAMILY GUIDANCE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s5">S5</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Maximum cited exhaust temperature during cleaning</td>
+<td data-label="Confirmed value or range">As high as about 550°C (1022°F)</td>
+<td data-label="Test conditions / location">Safety envelope, not a diagnostic target</td>
+<td data-label="Applicability">Deere exhaust-filter cleaning guidance</td>
+<td data-label="Evidence level"><span class="label family">MODEL-FAMILY GUIDANCE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s4">S4</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Engine oil with filter</td>
+<td data-label="Confirmed value or range">13.0 L (3.4 gal)</td>
+<td data-label="Test conditions / location">Refill; verify dipstick and operator manual</td>
+<td data-label="Applicability">B030077+ replacement-parts guide</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Engine oil and filter interval</td>
+<td data-label="Confirmed value or range">500 hours under guide assumptions</td>
+<td data-label="Test conditions / location">Adjust for operating conditions and fluid analysis</td>
+<td data-label="Applicability">B030077+</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Primary and final fuel filters</td>
+<td data-label="Confirmed value or range">500 hours</td>
+<td data-label="Test conditions / location">Drain water as required; verify actual service history</td>
+<td data-label="Applicability">B030077+</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Primary/secondary air-cleaner elements</td>
+<td data-label="Confirmed value or range">1000 hours</td>
+<td data-label="Test conditions / location">Condition and environment can require earlier service</td>
+<td data-label="Applicability">B030077+</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Open crankcase ventilation filter</td>
+<td data-label="Confirmed value or range">2000 hours</td>
+<td data-label="Test conditions / location">Replace at service interval</td>
+<td data-label="Applicability">B030077+</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Cooling system refill</td>
+<td data-label="Confirmed value or range">27.0 L in 2022 replacement guide; 26.6 L in brochure</td>
+<td data-label="Test conditions / location">Difference likely rounding/publication revision; use serial-specific operator manual and level check</td>
+<td data-label="Applicability">B030077+; unresolved minor publication difference</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span> with contradiction noted</td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Cooling-system service</td>
+<td data-label="Confirmed value or range">Check/clean cooling package at 500 h; coolant drain/refill at 6000 h in current guide</td>
+<td data-label="Test conditions / location">Condition and coolant analysis may alter work</td>
+<td data-label="Applicability">B030077+</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Exhaust-filter service</td>
+<td data-label="Confirmed value or range">As required; Deere family literature often places initial DPF ash service near 3000 h for lower-horsepower engines, varying with operation</td>
+<td data-label="Test conditions / location">Use ECU service status, pressure tests, service history, and filter inspection—not hours alone</td>
+<td data-label="Applicability">“As required” is machine-specific; hours are family guidance</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span> / <span class="label family">MODEL-FAMILY GUIDANCE</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s1">S1</a> <a class="source-ref" href="#src-s15">S15</a></td>
+</tr>
+<tr>
+<td data-label="Parameter">Electrical system</td>
+<td data-label="Confirmed value or range">12 V; 90 A alternator; battery system listed at 1700 CCA and 176 min reserve</td>
+<td data-label="Test conditions / location">Machine specification</td>
+<td data-label="Applicability">344K brochure configuration</td>
+<td data-label="Evidence level"><span class="label confirmed">CONFIRMED MACHINE FACT</span></td>
+<td data-label="Source"><a class="source-ref" href="#src-s2">S2</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Important values unavailable in public machine-specific material</h3>
+<div class="table-wrap">
+<table aria-label="Unavailable values requiring proprietary information" class="compact">
+<thead>
+<tr>
+<th>Parameter needed</th>
+<th>Why it matters</th>
+<th>Verification source needed</th>
+</tr>
+</thead>
+<tbody>
+<tr><td data-label="Parameter needed">Exact DPF differential-pressure limits at key-on, idle, high idle, and load</td><td data-label="Why it matters">Separates sensor/tube error, soot load, ash load, and physical restriction</td><td data-label="Verification source needed">TM12927 plus exact engine CTM and Service ADVISOR test</td></tr>
+<tr><td data-label="Parameter needed">Exact exhaust-temperature targets, ramp rate, and abort thresholds</td><td data-label="Why it matters">Determines whether heat generation, DOC conversion, or sensor feedback is failing</td><td data-label="Verification source needed">TM12927, engine CTM, live-data test plan</td></tr>
+<tr><td data-label="Parameter needed">Exact 4045 engine model suffix and aftertreatment arrangement</td><td data-label="Why it matters">Controls connector pinouts, sensor count, parts, test values, and fault definitions</td><td data-label="Verification source needed">Engine serial plate and Deere build record</td></tr>
+<tr><td data-label="Parameter needed">Thermostat opening/control specification and fan-control logic</td><td data-label="Why it matters">Confirms slow warm-up rather than guessing from a dash gauge</td><td data-label="Verification source needed">Exact engine CTM / TM12927</td></tr>
+<tr><td data-label="Parameter needed">Soot/ash calculation, service-cleaning eligibility, and reset procedure</td><td data-label="Why it matters">Prevents an unsafe or false reset and distinguishes soot from ash</td><td data-label="Verification source needed">Service ADVISOR and TM12927</td></tr>
+<tr><td data-label="Parameter needed">Applicable ECU/vehicle-controller software and Product Improvement Programs</td><td data-label="Why it matters">Identifies calibration fixes or serial-specific actions</td><td data-label="Verification source needed">Authorized Deere dealer PIN/ESN lookup</td></tr>
+<tr><td data-label="Parameter needed">Exact meaning of any current codes</td><td data-label="Why it matters">No codes were supplied; SPN without FMI is incomplete</td><td data-label="Verification source needed">Photograph/display record, Service ADVISOR, TM12927</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section aria-labelledby="plan-heading" id="repair-plan">
+<h2 id="plan-heading">10. Repair-priority plan</h2>
+<div class="grid two">
+<div class="card danger">
+<h3>Owner/operator scope</h3>
+<p>Safe visual checks, recording messages/codes, checking fluid levels and leaks, confirming service history, cleaning accessible debris, checking AUTO mode, and observing whether RPM rises—only as permitted by OMT313329.</p>
+</div>
+<div class="card info">
+<h3>Technician/dealer scope</h3>
+<p>Service ADVISOR data capture, electrical measurements, calibrated pressure/temperature tests, forced/service cleaning, software checks, DPF removal, articulation/boom blocking, and any work around hot or pressurized systems.</p>
+</div>
+</div>
+<div class="steps">
+<div class="step"><div><strong>Immediate safety and damage prevention.</strong> Stop on red warning, leak, fire risk, severe smoke, overtemperature, or repeated abort. Check oil level for unexplained rise and inspect for fuel dilution before further repeated active-cleaning attempts.</div></div>
+<div class="step"><div><strong>Free visual and operator checks.</strong> Photograph display and codes; confirm AUTO mode, neutral, park brake, zero travel command, clean exhaust area, coolant level, intake hoses, air restriction, fuel-filter water, and whether engine speed ever becomes ECU-controlled elevated idle.</div></div>
+<div class="step"><div><strong>Basic maintenance and contamination checks.</strong> Record hours on oil, fuel filters, air filters, OCV filter, coolant, and DPF; inspect cooling package, dust unloader, charge-air connections, exhaust joints, fuel sample, and oil consumption history.</div></div>
+<div class="step"><div><strong>Fault-code and live-data review.</strong> Before clearing: codes/FMI, freeze frames, cleaning state, coolant temperature, commanded/actual rpm, soot/ash status, differential pressure, EGT channels, boost, EGR/VGT, rail pressure, and relevant interlocks.</div></div>
+<div class="step"><div><strong>Targeted tests.</strong> KOEO pressure offset; pressure tubes/ports; calibrated manometer comparison; cold-soak sensor correlation; independent coolant temperature; controlled EGT trend; charge-air pressure test; fuel-supply/rail test; exhaust-leak inspection.</div></div>
+<div class="step"><div><strong>Calibration, software, and service-information checks.</strong> Match engine suffix and manual, confirm software level, check Deere campaign/PIP/DTAC applicability, verify sensor offsets and prior DPF reset history.</div></div>
+<div class="step"><div><strong>Component removal or major repair.</strong> Remove DPF only after sensing is proven. Have it professionally flow/weight/visually tested. Replace DOC/DPF, turbo, EGR/VGT, injector, sensor, or ECU only when the preceding data isolates that component.</div></div>
+</div>
+<h3>Recommended data sheet for the next regeneration attempt</h3>
+<ul class="checklist">
+<li>Ambient temperature</li>
+<li>Machine hours</li>
+<li>Time from cold start to coolant &gt; applicable threshold</li>
+<li>Time request was initiated</li>
+<li>Time ECU elevated engine speed</li>
+<li>Active-phase duration</li>
+<li>Coolant temperature start/end</li>
+<li>All EGT channels at 5-minute intervals</li>
+<li>DPF differential pressure before/during/after</li>
+<li>Soot/ash/service status before/after</li>
+<li>Commanded/actual rpm</li>
+<li>Commanded/actual boost, EGR, VGT, rail pressure</li>
+<li>Exact lamps/messages/codes/FMI</li>
+<li>Reason event ended: completed, aborted, key-off, fault, operator cancel</li>
+</ul>
+</section>
+<section aria-labelledby="ledger-heading" id="evidence-ledger">
+<h2 id="ledger-heading">11. Evidence ledger and remaining gaps</h2>
+<h3>Searches performed</h3>
+<ul class="tight">
+<li>John Deere 344K B030077-and-later official replacement-parts and maintenance guide.</li>
+<li>Manufacturer-produced 344K product brochure and engine specification.</li>
+<li>John Deere operator, repair, diagnostic, and parts-publication identifiers for this serial range.</li>
+<li>John Deere PowerTech Interim Tier 4 aftertreatment architecture, active/passive regeneration, in-cylinder dosing, and DPF service guidance.</li>
+<li>John Deere parked-cleaning permissives, duration, safety, indicator behavior, DTC families, and automatic-cleaning inhibit guidance.</li>
+<li>Public Deere recall/campaign entry point and searches for 344K regeneration bulletins, campaigns, recalls, supersessions, and recurring field reports.</li>
+</ul>
+<h3>Source-quality decisions</h3>
+<div class="table-wrap">
+<table aria-label="Source quality decisions" class="compact">
+<thead><tr><th>Source class</th><th>Decision</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td data-label="Source class">Official Deere serial-specific maintenance guide</td><td data-label="Decision">Accepted as primary machine evidence</td><td data-label="Reason">Directly states model/PIN range, capacities, intervals, and exhaust-filter service.</td></tr>
+<tr><td data-label="Source class">Manufacturer-produced 344K brochure hosted by a Deere dealer</td><td data-label="Decision">Accepted with publication-context note</td><td data-label="Reason">Machine-specific Deere publication with engine/emissions/DPF specifications; marketing document, not a diagnostic manual.</td></tr>
+<tr><td data-label="Source class">Official Deere engine/manual HTML and aftertreatment PDFs</td><td data-label="Decision">Accepted as component/model-family guidance</td><td data-label="Reason">Authoritative Deere information, but exact 344K engine suffix has not been confirmed.</td></tr>
+<tr><td data-label="Source class">Third-party manual sellers and TM12930 preview</td><td data-label="Decision">Accepted only for publication metadata and visible applicability</td><td data-label="Reason">Useful to identify OMT/TM/PC numbers and serial range; not used as sole proof for hidden specifications or repair values.</td></tr>
+<tr><td data-label="Source class">Dealer inventory, auction pages, generic parts resellers</td><td data-label="Decision">Rejected as proof</td><td data-label="Reason">Can identify leads but do not establish failure frequency or diagnostic criteria.</td></tr>
+<tr><td data-label="Source class">Forums/social media</td><td data-label="Decision">Not used to elevate a failure to a known defect</td><td data-label="Reason">Isolated experiences lack verified configuration, diagnosis, and denominator data.</td></tr>
+</tbody>
+</table>
+</div>
+<h3>Contradictions and unresolved items</h3>
+<ul class="tight">
+<li><strong>Year encoding:</strong> owner reports 2014, while the tenth PIN character is Z. The visible TM12930 preview describes Z as “not used for calendar year”; exact build date therefore requires Deere’s build record.</li>
+<li><strong>Cooling capacity:</strong> Deere brochure lists 26.6 L; the later B030077+ maintenance guide lists 27.0 L. This is likely rounding or revision difference; use OMT313329 and final level check.</li>
+<li><strong>Engine suffix:</strong> public machine material says PowerTech 4045T but does not expose the full suffix. Detailed PVX architecture is highly plausible, but exact component count and pinouts remain unconfirmed.</li>
+<li><strong>Regen duration:</strong> Deere family material gives approximately 30 minutes at elevated idle, while broader Deere educational material allows a wider operating range. Neither is a hard 344K abort limit without TM12927.</li>
+</ul>
+<h3>Exact items needed to close the case</h3>
+<div class="grid two">
+<div class="card">
+<h3>From the machine</h3>
+<ul class="tight">
+<li>Engine-hours reading.</li>
+<li>Photo of engine serial/emissions label.</li>
+<li>All current and stored codes with FMI.</li>
+<li>Video showing display, RPM, and lamps during the “long regen.”</li>
+<li>DPF cleaning/replacement and reset history.</li>
+<li>Typical duty cycle, ambient temperature, and load.</li>
+</ul>
+</div>
+<div class="card">
+<h3>From Deere service information</h3>
+<ul class="tight">
+<li>OMT313329 operator procedure for this display.</li>
+<li>TM12927 diagnostic values, test steps, and schematics.</li>
+<li>Exact 4045 engine CTM from engine serial.</li>
+<li>Service ADVISOR snapshot and event log.</li>
+<li>PIN/ESN lookup for PIPs, DTAC solutions, software, and part supersessions.</li>
+</ul>
+</div>
+</div>
+</section>
+<section aria-labelledby="sources-heading" id="sources">
+<h2 id="sources-heading">12. Sources</h2>
+<p class="lead">Sources are organized by authority and applicability. Access dates: 3 August 2026. Public URLs were selected in preference to search-result links. Proprietary manuals are identified as gaps rather than quoted as though they were available.</p>
+<h3>Primary machine-specific and official Deere sources</h3>
+<div class="source-list">
+<article class="source" id="src-s1">
+<h3>S1 — John Deere, “Replacement Parts Guide — 344K Loader (PIN: 1LU344K___B030077—)”</h3>
+<p>Publication T317714 (17SEP20), release date May 2022, 3 pages. Relevant pages: 1–3. Establishes serial applicability, filters, capacities, maintenance intervals, and “Service exhaust filter — as required.”</p>
+<p class="source-meta"><span class="label confirmed">CONFIRMED MACHINE FACT</span> Official Deere PDF.</p>
+<a class="ext url" href="https://www.deere.com/assets/pdfs/common/qrg/4wd/344kb030077.pdf" rel="noopener noreferrer" target="_blank">https://www.deere.com/assets/pdfs/common/qrg/4wd/344kb030077.pdf</a>
+</article>
+<article class="source" id="src-s2">
+<h3>S2 — John Deere, “344K Loader” product brochure</h3>
+<p>Publication DKA344K, Litho in U.S.A. (15-06), 16 pages. Relevant pages: 3, 9–12. Identifies PowerTech 4045T, 4.42 L, 72.3 kW/97 hp, Interim Tier 4 / Stage IIIB, automatic DPF cleaning, and machine specifications. Hosted by an authorized Deere dealer; document itself is Deere-branded.</p>
+<p class="source-meta"><span class="label confirmed">CONFIRMED MACHINE FACT</span> Manufacturer-produced brochure; diagnostic claims are limited to what it expressly states.</p>
+<a class="ext url" href="https://www.doggett.com/images/doggett-johndeere/03_Compact-Equipment/Wheel-Loaders/344K/344K.pdf" rel="noopener noreferrer" target="_blank">https://www.doggett.com/images/doggett-johndeere/03_Compact-Equipment/Wheel-Loaders/344K/344K.pdf</a>
+</article>
+<article class="source" id="src-s9">
+<h3>S9 — John Deere, Recall Information</h3>
+<p>Official PIN-based recall-information entry point. Public search did not reveal a 344K long-regeneration campaign; authorized dealer lookup is still required for nonpublic PIPs, DTAC solutions, and software actions.</p>
+<p class="source-meta"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span></p>
+<a class="ext url" href="https://www.deere.com/en-us/parts-owner-support/recall-information" rel="noopener noreferrer" target="_blank">https://www.deere.com/en-us/parts-owner-support/recall-information</a>
+</article>
+<article class="source" id="src-s10">
+<h3>S10 — John Deere, 344K Owner Support</h3>
+<p>Official owner-support landing page for parts, manuals, maintenance schedules, and support resources.</p>
+<a class="ext url" href="https://shop.deere.com/us/ownersupport/344K" rel="noopener noreferrer" target="_blank">https://shop.deere.com/us/ownersupport/344K</a>
+</article>
+</div>
+<h3>Official Deere engine and aftertreatment sources</h3>
+<div class="source-list">
+<article class="source" id="src-s3">
+<h3>S3 — John Deere OMRG38059, “Automatic (AUTO) Exhaust Filter Cleaning”</h3>
+<p>Official Deere engine-operator content. States that automatic or stationary cleaning operates at elevated idle and hot temperature for approximately 30 minutes.</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span> Exact 344K operator workflow must be confirmed in OMT313329.</p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E7_19_20160321.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E7_19_20160321.html</a>
+</article>
+<article class="source" id="src-s4">
+<h3>S4 — John Deere OMRG38059, exhaust-filter cleaning safety</h3>
+<p>Official Deere engine safety guidance for elevated exhaust temperature during filter cleaning; related Deere operator material cites temperatures as high as approximately 550°C (1022°F).</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C000026E_19_20160509.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C000026E_19_20160509.html</a>
+</article>
+<article class="source" id="src-s5">
+<h3>S5 — John Deere, “Parked Exhaust Filter Cleaning” operator guidance</h3>
+<p>Official Deere guidance for comparable DPF-equipped equipment. Requires engine at low idle initially, coolant above 60°C (140°F), transmission neutral, zero ground-speed command, and park brake applied. Used only as model-family guidance.</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMLVU31185_19/WS68074%2C00016B6_19_20171221.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMLVU31185_19/WS68074%2C00016B6_19_20171221.html</a>
+</article>
+<article class="source" id="src-s6">
+<h3>S6 — John Deere OMRG38059, “Listing of Diagnostic Trouble Codes (DTCs)”</h3>
+<p>Official Deere engine-family DTC index. Identifies DPF differential-pressure signal family 3251 and exhaust-temperature-module/sensor categories. Exact 344K SPN/FMI interpretation requires TM12927 and exact engine suffix.</p>
+<p class="source-meta"><span class="label component">DOCUMENTED COMPONENT FACT</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMRG38059_19/HS01721A%2C00000D7_19_20100412.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMRG38059_19/HS01721A%2C00000D7_19_20100412.html</a>
+</article>
+<article class="source" id="src-s7">
+<h3>S7 — John Deere Power Systems, “Aftertreatment Solutions”</h3>
+<p>Official Deere technical brochure describing DOC/DPF architecture, active/passive regeneration, soot versus ash, and power-class-dependent configurations.</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/brochures/Aftertreatment_Solutions.pdf?sf94767743=1" rel="noopener noreferrer" target="_blank">https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/brochures/Aftertreatment_Solutions.pdf</a>
+</article>
+<article class="source" id="src-s8">
+<h3>S8 — John Deere PowerTech PVX 4045HFC93 specification sheet</h3>
+<p>Official component-family specification illustrating cooled EGR, VGT, DOC/DPF, HPCR, and in-cylinder dosing below 130 kW. It is not proof that HFC93 is the exact engine suffix installed in this loader.</p>
+<p class="source-meta"><span class="label component">DOCUMENTED COMPONENT FACT</span> / <span class="label gap">PROPRIETARY-DOCUMENT GAP</span></p>
+<a class="ext url" href="https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/specsheets/4045hfc93_a.pdf" rel="noopener noreferrer" target="_blank">https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/specsheets/4045hfc93_a.pdf</a>
+</article>
+<article class="source" id="src-s15">
+<h3>S15 — John Deere operator guidance, DPF ash-service interval context</h3>
+<p>Official Deere engine-family material for engines below 175 hp places initial exhaust-filter ash service around 3000 hours, subject to application and condition. The 344K serial-specific guide remains controlling and states “as required.”</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMSU41643_19/JZ81662%2C0000E86_19_20120830.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMSU41643_19/JZ81662%2C0000E86_19_20120830.html</a>
+</article>
+<article class="source" id="src-s16">
+<h3>S16 — John Deere OMRG38059, exhaust-filter system overview and service</h3>
+<p>Official Deere engine-family guidance covering automatic cleaning, avoiding unnecessary idling, ash accumulation, and qualified filter service.</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E3_19_20100820.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E3_19_20100820.html</a>
+</article>
+<article class="source" id="src-s17">
+<h3>S17 — John Deere OMRG38059, “Disable Exhaust Filter Cleaning”</h3>
+<p>Official Deere engine-family guidance that inhibit/disable should be used only when necessary because elevated exhaust temperature would create a hazard.</p>
+<p class="source-meta"><span class="label family">MODEL-FAMILY GUIDANCE</span></p>
+<a class="ext url" href="https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E9_19_20160321.html" rel="noopener noreferrer" target="_blank">https://manuals.deere.com/omview/OMRG38059_19/JR74534%2C00001E9_19_20160321.html</a>
+</article>
+</div>
+<h3>Publication identification and proprietary-document gaps</h3>
+<div class="source-list">
+<article class="source" id="src-s11">
+<h3>S11 — John Deere TM12930, 344K Compact 4WD Loader Repair Technical Manual (preview/metadata)</h3>
+<p>TM12930, 10DEC19, B030077 and later. Public preview exposes title, serial applicability, contents, and PIN-identification notes. Full manual is proprietary; preview is not relied upon for hidden procedures or values.</p>
+<p class="source-meta"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span> Third-party preview of Deere publication.</p>
+<a class="ext url" href="https://www.slideshare.net/slideshow/john-deere-344k-4wd-loader-technical-repair-manual-tm12930-pdf/281274127" rel="noopener noreferrer" target="_blank">https://www.slideshare.net/slideshow/john-deere-344k-4wd-loader-technical-repair-manual-tm12930-pdf/281274127</a>
+</article>
+<article class="source" id="src-s12">
+<h3>S12 — John Deere OMT313329, 344K Loader Operator’s Manual (publication metadata)</h3>
+<p>Operator manual listed for PIN B030077 and later. The full manual is not publicly readable in the research set; it is the controlling source for display-specific parked-cleaning steps and warnings.</p>
+<p class="source-meta"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span></p>
+<a class="ext url" href="https://therepairmanual.com/john-deere/john-deere-344k-loaders-operators-manuals-omt313329/" rel="noopener noreferrer" target="_blank">https://therepairmanual.com/john-deere/john-deere-344k-loaders-operators-manuals-omt313329/</a>
+</article>
+<article class="source" id="src-s13">
+<h3>S13 — John Deere TM12927 / TM12930 publication metadata</h3>
+<p>Diagnostic, Operation &amp; Test Manual TM12927 and Repair Technical Manual TM12930, listed for PIN B030077 and later. TM12927 is needed for 344K-specific DTC definitions, test points, normal values, wiring, calibrations, and diagnostic trees.</p>
+<p class="source-meta"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span> Secondary seller metadata only.</p>
+<a class="ext url" href="https://therepairmanual.com/john-deere/john-deere-344k-loader-repair-technical-manual-sn-after-b030077/" rel="noopener noreferrer" target="_blank">https://therepairmanual.com/john-deere/john-deere-344k-loader-repair-technical-manual-sn-after-b030077/</a>
+</article>
+<article class="source" id="src-s14">
+<h3>S14 — John Deere PC11203 parts-catalog metadata</h3>
+<p>Parts catalog listed for 344K PIN B030077 and later. Use Deere’s live parts system to verify supersessions against the complete PIN and engine serial before ordering.</p>
+<p class="source-meta"><span class="label gap">PROPRIETARY-DOCUMENT GAP</span> Secondary metadata; live Deere catalog controls.</p>
+<a class="ext url" href="https://therepairmanual.com/john-deere/john-deere-344k-loaders-sn-1lu344k_-b030077-parts-catalog-manual-pc11203/" rel="noopener noreferrer" target="_blank">https://therepairmanual.com/john-deere/john-deere-344k-loaders-sn-1lu344k_-b030077-parts-catalog-manual-pc11203/</a>
+</article>
+<article class="source" id="src-s18">
+<h3>S18 — John Deere 344L compact wheel-loader brochure</h3>
+<p>Official Deere successor-model brochure used only to warn against mixing later Final Tier 4 procedures/specifications with this Interim Tier 4 344K.</p>
+<p class="source-meta"><span class="label na">NOT APPLICABLE</span> to the subject machine.</p>
+<a class="ext url" href="https://www.deere.com/assets/pdfs/common/products/sync/DKA344LDR-344L-compact-wheel-loader.pdf" rel="noopener noreferrer" target="_blank">https://www.deere.com/assets/pdfs/common/products/sync/DKA344LDR-344L-compact-wheel-loader.pdf</a>
+</article>
+</div>
+<p class="footer-note"><strong>Scope limitation:</strong> This report is an independent field-research aid, not a substitute for the current John Deere operator manual, technical manual, engine CTM, Service ADVISOR, or an authorized technician’s inspection. Specifications and procedures must be matched to the complete PIN, engine serial number, installed software, and market emissions label.</p>
+<p class="print-only">End of report — 2014 John Deere 344K, PIN 1LU344KXLZB035000.</p>
+</section>
+</main>
+</div>
+<script>
+(function(){
+  "use strict";
+
+  function normalize(text){
+    return text.trim().replace(/\s+/g," ").toLowerCase();
+  }
+
+  function valueFor(cell, type){
+    const explicit = cell.getAttribute("data-sort");
+    if(explicit !== null) return type === "number" ? Number(explicit) : normalize(explicit);
+    const text = normalize(cell.textContent || "");
+    if(type === "number"){
+      const n = Number(text.replace(/[^0-9.+-]/g,""));
+      return Number.isFinite(n) ? n : 0;
+    }
+    return text;
+  }
+
+  document.querySelectorAll("table.sortable").forEach(function(table){
+    table.querySelectorAll("thead .sort-button").forEach(function(button){
+      button.addEventListener("click", function(){
+        const th = button.closest("th");
+        const index = Number(button.dataset.index);
+        const type = button.dataset.type || "text";
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        const prior = th.getAttribute("aria-sort");
+        const direction = prior === "ascending" ? "descending" : "ascending";
+
+        table.querySelectorAll("th[aria-sort]").forEach(function(other){
+          if(other !== th) other.removeAttribute("aria-sort");
+        });
+        th.setAttribute("aria-sort", direction);
+
+        rows.sort(function(a,b){
+          const av = valueFor(a.cells[index], type);
+          const bv = valueFor(b.cells[index], type);
+          let result;
+          if(type === "number") result = av - bv;
+          else result = av.localeCompare(bv, undefined, {numeric:true, sensitivity:"base"});
+          return direction === "ascending" ? result : -result;
+        });
+        rows.forEach(function(row){ tbody.appendChild(row); });
+      });
+    });
+  });
+
+  const select = document.getElementById("jumpSelect");
+  if(select){
+    select.addEventListener("change", function(){
+      const target = document.getElementById(select.value);
+      if(target) target.scrollIntoView({behavior:"smooth", block:"start"});
+      select.value = "";
+    });
+  }
+
+  const links = Array.from(document.querySelectorAll("#tocNav a"));
+  const sections = links.map(function(link){
+    return document.querySelector(link.getAttribute("href"));
+  }).filter(Boolean);
+
+  if("IntersectionObserver" in window){
+    const observer = new IntersectionObserver(function(entries){
+      const visible = entries
+        .filter(function(entry){ return entry.isIntersecting; })
+        .sort(function(a,b){ return b.intersectionRatio - a.intersectionRatio; });
+      if(!visible.length) return;
+      const id = visible[0].target.id;
+      links.forEach(function(link){
+        const active = link.getAttribute("href") === "#" + id;
+        link.classList.toggle("active", active);
+        if(active) link.setAttribute("aria-current","true");
+        else link.removeAttribute("aria-current");
+      });
+    }, {rootMargin:"-18% 0px -65% 0px", threshold:[0.01,0.2,0.5]});
+    sections.forEach(function(section){ observer.observe(section); });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(link){
+    link.addEventListener("click", function(event){
+      const id = link.getAttribute("href").slice(1);
+      if(!id) return;
+      const target = document.getElementById(id);
+      if(target){
+        event.preventDefault();
+        target.scrollIntoView({behavior:"smooth", block:"start"});
+        history.replaceState(null,"","#"+id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

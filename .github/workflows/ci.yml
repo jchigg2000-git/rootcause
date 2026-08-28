@@ -1,0 +1,44 @@
+# Deliberately the three scripts that already exist, and no more: `npm run
+# build` runs neither the type checker nor the tests, so a type error or a
+# failing assertion would otherwise reach a live environment untouched.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A superseded run is a run whose result nobody will act on.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: typecheck · lint · test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches package.json engines (>=22.13.0).
+          node-version: 22
+          cache: npm
+
+      # `ci` not `install`: the lockfile is the contract, and a resolution that
+      # drifts here would not match what a deploy build installs.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Contract/logic tests only — no server, no database.
+      - name: Test
+        run: npm test

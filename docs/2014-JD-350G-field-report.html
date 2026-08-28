@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>2014 John Deere 350G Diagnostic Field Report</title>
+<style>
+:root{
+  --ink:#181b18;--muted:#535b53;--paper:#e9eae5;--panel:#ffffff;--panel-2:#f4f4f0;
+  --line:#c6c9c1;--line-heavy:#8f958a;--chrome:#1c231d;--chrome-2:#242c25;
+  --amber:#dfa900;--amber-ink:#6d5300;
+  --danger:#a3271d;--danger-bg:#f6e9e7;--warn:#7c5c00;--warn-bg:#f4eeda;
+  --ok:#245c3c;--ok-bg:#e9efe9;--info:#2a566b;--info-bg:#e8eef1;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --content:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:66px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+a{color:#1d4f6d;text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,button:focus-visible,select:focus-visible,th[tabindex]:focus-visible{outline:2px solid #0a66a8;outline-offset:2px}
+
+/* ---- chrome ---- */
+.topbar{position:sticky;top:0;z-index:40;background:var(--chrome);color:#fff;border-bottom:1px solid #000}
+.topbar-inner{max-width:var(--content);margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px}
+.brand{font:700 .72rem var(--mono);letter-spacing:.09em;text-transform:uppercase;color:#d9ddd6}
+.actions{display:flex;gap:8px;align-items:center}
+button,.jump-select{font:inherit}
+.btn{border:1px solid #4a534b;background:var(--chrome-2);color:#fff;padding:0 14px;min-height:44px;border-radius:2px;font:700 .8rem var(--mono);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:#31392f;border-color:var(--amber)}
+.jump-wrap{display:none;flex:1;min-width:0}
+.jump-select{width:100%;max-width:none;min-height:44px;padding:0 30px 0 10px;border-radius:2px;border:1px solid #4a534b;background:var(--chrome-2);color:#fff;font:700 .85rem var(--mono)}
+
+.hero{background:var(--chrome);color:#fff;position:relative}
+.hero::after{content:"";display:block;height:7px;background:repeating-linear-gradient(-45deg,var(--amber) 0 11px,#15190f 11px 22px)}
+.hero-inner{max-width:var(--content);margin:auto;padding:22px 16px 20px}
+.eyebrow{color:var(--amber);font:700 .68rem var(--mono);text-transform:uppercase;letter-spacing:.12em}
+h1{font-size:clamp(1.45rem,4.2vw,2.4rem);line-height:1.08;margin:.4rem 0 .6rem;max-width:980px;letter-spacing:-.01em}
+.hero p{max-width:930px;color:#cfd5cd;font-size:.95rem;margin:.3rem 0}
+.hero p strong{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.meta-chip{background:#12170f;border:1px solid #39412f;border-left:3px solid var(--amber);padding:5px 9px;border-radius:2px;font:600 .72rem var(--mono);color:#dfe3da}
+
+/* ---- layout ---- */
+.layout{max-width:var(--content);margin:0 auto;display:grid;grid-template-columns:232px minmax(0,1fr);gap:18px;padding:18px 14px 60px}
+.toc{position:sticky;top:66px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:8px;max-height:calc(100vh - 86px);overflow:auto}
+.toc strong{display:block;margin:4px 8px 8px;color:var(--muted);font:700 .66rem var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.toc a{display:block;color:#39413a;text-decoration:none;border-left:3px solid transparent;padding:8px 9px;font-size:.84rem;font-weight:600}
+.toc a:hover{background:var(--panel-2)}
+.toc a.active{border-left-color:var(--amber);background:var(--panel-2);color:var(--ink);font-weight:800}
+main{min-width:0}
+section{scroll-margin-top:66px;margin-bottom:14px;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:clamp(14px,2.5vw,24px)}
+section > h2{margin:-2px 0 14px;color:var(--ink);font-size:clamp(1.12rem,2.4vw,1.5rem);line-height:1.2;border-bottom:1px solid var(--line);padding:0 0 9px 12px;border-left:4px solid var(--amber);letter-spacing:-.01em}
+h3{color:var(--ink);margin:22px 0 8px;font-size:1.02rem}
+h4{margin:16px 0 6px;color:var(--ink);font-size:.92rem}
+p{margin:.5rem 0 .9rem}
+.lede{font-size:1rem;color:#2c342d}
+.small{font-size:.82rem;color:var(--muted)}
+code{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--line);padding:0 4px;border-radius:2px;font-size:.86em}
+ul,ol{padding-left:1.2rem}
+li{margin:.34rem 0}
+
+/* ---- cards / KPI ---- */
+.grid{display:grid;gap:10px}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:13px 14px}
+.card h3,.card h4{margin-top:0}
+.kpi{border-top:3px solid var(--line-heavy)}
+.kpi.urgent{border-top-color:var(--danger)}
+.kpi.caution{border-top-color:var(--warn)}
+.kpi-label{font:700 .64rem var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.kpi-value{font:700 .98rem var(--mono);color:var(--ink);margin:.3rem 0;letter-spacing:-.01em}
+
+/* ---- callouts ---- */
+.callout{border:1px solid var(--line);border-left:4px solid var(--info);background:var(--info-bg);padding:12px 14px;border-radius:2px;margin:14px 0;font-size:.93rem}
+.callout.warning{border-left-color:var(--warn);background:var(--warn-bg)}
+.callout.danger{border-left-color:var(--danger);background:var(--danger-bg)}
+.callout strong{color:var(--ink)}
+
+/* ---- badges ---- */
+.badge{display:inline-block;border:1px solid currentColor;border-radius:2px;padding:1px 6px;font:700 .6rem var(--mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;background:#fff}
+.b-confirmed{color:var(--ok)}.b-component{color:var(--info)}
+.b-inference{color:var(--warn)}.b-family{color:#4f4770}
+.b-field{color:#7c3f22}.b-gap{color:var(--danger)}.b-na{color:#5b5f5b}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+
+/* ---- tables ---- */
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:2px;background:var(--panel);margin:12px 0 18px}
+table{border-collapse:collapse;width:100%;min-width:700px;font-size:.85rem}
+.sortable-table{min-width:1140px}
+th,td{padding:8px 10px;border-bottom:1px solid #e3e5df;vertical-align:top;text-align:left}
+th{background:var(--panel-2);color:var(--ink);font:700 .66rem var(--mono);text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line)}
+th.sortable{cursor:pointer;padding-right:24px;position:relative}
+th.sortable::after{content:"↕";position:absolute;right:8px;color:#7d857c}
+th.sortable[aria-sort="ascending"]::after{content:"↑";color:var(--ink)}
+th.sortable[aria-sort="descending"]::after{content:"↓";color:var(--ink)}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:#f8f8f5}
+.rank{font:800 1rem var(--mono);color:var(--ink)}
+.likelihood-high{font-weight:800;color:var(--danger)}
+.likelihood-med{font-weight:800;color:var(--warn)}
+.likelihood-low{font-weight:800;color:var(--ok)}
+.cite{font-weight:700;text-decoration:none;font-size:.76em;vertical-align:super;font-family:var(--mono)}
+
+/* ---- checklists & steps ---- */
+.checklist{list-style:none;padding:0}
+.checklist li{position:relative;padding-left:26px;min-height:24px}
+.checklist li::before{content:"☐";position:absolute;left:2px;top:-1px;font:800 1rem var(--mono);color:var(--line-heavy)}
+.steps{counter-reset:step;list-style:none;padding:0}
+.steps li{counter-increment:step;position:relative;padding:11px 12px 11px 48px;margin:8px 0;background:var(--panel-2);border:1px solid var(--line);border-radius:2px}
+.steps li::before{content:counter(step,decimal-leading-zero);position:absolute;left:10px;top:11px;width:28px;height:24px;display:grid;place-items:center;background:var(--chrome);color:#fff;font:700 .74rem var(--mono);border-radius:2px}
+
+/* ---- diagrams ---- */
+.arch{background:var(--panel-2);border:1px solid var(--line);border-radius:2px;padding:12px;overflow:auto;-webkit-overflow-scrolling:touch}
+.flow{display:flex;align-items:stretch;gap:8px;min-width:880px}
+.node{flex:1;min-width:120px;border:1px solid var(--line-heavy);border-radius:2px;background:#fff;padding:9px;text-align:center;font-size:.78rem;display:flex;flex-direction:column;justify-content:center}
+.node strong{color:var(--ink)}
+.node.engine{border-color:var(--ok);background:var(--ok-bg)}
+.node.after{border-color:var(--warn);background:var(--warn-bg)}
+.arrow{align-self:center;font-weight:800;color:var(--muted);font-size:1.1rem}
+.subflow{margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:8px;min-width:880px}
+.wiring{display:grid;grid-template-columns:185px 215px 1fr 1fr;gap:8px;min-width:960px;align-items:stretch}
+.wcol{border:1px solid var(--line);border-radius:2px;background:#fff;padding:10px}
+.wcol h4{margin:0 0 8px;font:700 .68rem var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.witem{border-left:3px solid var(--ok);padding:6px 8px;background:var(--panel-2);margin:6px 0;border-radius:2px;font-size:.79rem}
+.witem.act{border-left-color:var(--warn)}
+.witem.net{border-left-color:var(--info)}
+.witem.warn{border-left-color:var(--danger)}
+.diagram-note{font-size:.78rem;color:var(--muted);margin-top:9px}
+
+/* ---- diagnostic paths ---- */
+.path{border-left:3px solid var(--line-heavy);padding-left:14px;margin:16px 0}
+.path h3{margin-top:0}
+.decision{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center;margin:10px 0}
+.decision .branch{background:var(--panel-2);border:1px solid var(--line);border-radius:2px;padding:10px}
+.decision .or{font:800 .78rem var(--mono);color:var(--muted);text-transform:uppercase}
+
+/* ---- sources ---- */
+.source-list{counter-reset:src;list-style:none;padding:0}
+.source-list li{counter-increment:src;margin:0 0 10px;padding:11px 12px 11px 46px;border:1px solid var(--line);border-radius:2px;background:#fff;position:relative;overflow-wrap:anywhere}
+.source-list li::before{content:counter(src);position:absolute;left:11px;top:11px;background:var(--chrome);color:#fff;border-radius:2px;width:26px;height:22px;display:grid;place-items:center;font:700 .72rem var(--mono)}
+.source-title{font-weight:700;color:var(--ink)}
+.source-meta{font-size:.78rem;color:var(--muted)}
+.url{font-family:var(--mono);font-size:.72rem;word-break:break-all}
+.footer{max-width:var(--content);margin:auto;padding:0 16px 34px;color:var(--muted);font-size:.78rem}
+.no-js{background:var(--warn-bg);border:1px solid #cdb268;padding:10px;border-radius:2px;margin:10px}
+.only-print{display:none}
+
+/* ---- tablet ---- */
+@media (max-width:920px){
+  .layout{grid-template-columns:1fr;padding-top:12px}
+  .toc{display:none}.jump-wrap{display:block}.brand{display:none}
+  .grid-3{grid-template-columns:1fr 1fr}
+}
+
+/* ---- phone: stacked tables, vertical diagrams ---- */
+@media (max-width:720px){
+  body{font-size:16px}
+  .hero-inner{padding:16px 12px 14px}
+  .layout{padding:12px 8px 50px}
+  section{padding:13px 12px;border-left:0;border-right:0;border-radius:0;margin-bottom:10px}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .topbar-inner{padding:6px 8px}
+  .actions .btn-label{display:none}
+  .decision{grid-template-columns:minmax(0,1fr)}
+  .decision .or{text-align:center}
+
+  .table-wrap{overflow:visible;border:0;background:none}
+  .table-wrap table,.table-wrap tbody{display:block;min-width:0;width:100%}
+  .table-wrap thead{display:none}
+  .table-wrap tr{display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line-heavy);border-radius:2px;margin:0 0 10px;padding:2px 0}
+  .table-wrap tr:hover td{background:#fff}
+  .table-wrap td{display:block;padding:8px 10px 7px;border-bottom:1px solid #ebece7;font-size:.88rem;overflow-wrap:anywhere}
+  .table-wrap td:last-child{border-bottom:0}
+  .table-wrap td::before{content:attr(data-label);display:block;font:700 .6rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+  .table-wrap td[data-label="Rank"],.table-wrap td[data-label="Priority"]{background:var(--panel-2);border-bottom:1px solid var(--line);padding:6px 10px}
+  .table-wrap td[data-label="Rank"]::before,.table-wrap td[data-label="Priority"]::before{display:inline;margin:0 8px 0 0}
+  .table-wrap td[data-label="Problem"],.table-wrap td[data-label="Practice or condition"],.table-wrap td[data-label="Issue"]{font-weight:700}
+
+  .arch{overflow:visible;padding:10px}
+  .flow{flex-direction:column;min-width:0;gap:6px}
+  .flow .arrow{transform:rotate(90deg);align-self:center;margin:-2px 0}
+  .subflow{grid-template-columns:1fr;min-width:0}
+  .wiring{grid-template-columns:1fr;min-width:0}
+}
+
+/* ---- print ---- */
+@media print{
+  @page{size:auto;margin:12mm}
+  body{background:#fff;font-size:9.5pt;color:#000}
+  .topbar,.toc,.no-print{display:none!important}.only-print{display:block}
+  .hero{background:#fff!important;color:#000}
+  .hero::after{display:none}
+  .hero-inner{padding:0 0 10px;border-bottom:2px solid #000}
+  .hero p{color:#222}.eyebrow{color:#000}.meta-chip{border:1px solid #777;border-left:3px solid #000;background:#fff;color:#000}
+  .layout{display:block;max-width:none;padding:0}.layout main{width:100%}
+  section{border:0;border-radius:0;padding:10px 0;margin:0 0 12px;break-inside:auto}
+  section > h2{break-after:avoid;border-left:0;padding-left:0;border-bottom:1px solid #000}
+  h3,h4{break-after:avoid}.card,.callout,.arch,.path{break-inside:avoid}
+  .table-wrap{overflow:visible;border:0}.table-wrap table{min-width:0;width:100%;font-size:7.3pt}
+  th,td{padding:4px 5px}th{position:static;background:#eee!important}
+  .sortable-table,.sortable-table tbody{display:block!important;width:100%!important;font-size:8pt!important}
+  .sortable-table thead{display:none!important}
+  .sortable-table tr{display:block!important;border:1px solid #999;border-radius:2px;margin:0 0 8px;padding:3px 5px;break-inside:avoid;background:#fff}
+  .sortable-table td{display:grid!important;grid-template-columns:112px minmax(0,1fr);gap:7px;width:100%!important;padding:3px 4px;border-bottom:1px solid #ddd;font-size:8pt;overflow-wrap:anywhere}
+  .sortable-table td:last-child{border-bottom:0}
+  .sortable-table td::before{content:attr(data-label);font-weight:800;text-transform:uppercase;color:#000;font-size:6.8pt;letter-spacing:.025em}
+  .flow,.subflow,.wiring{min-width:0}.flow{gap:4px}.node{min-width:0;padding:5px;font-size:6.8pt}.arrow{font-size:9pt}
+  .subflow{grid-template-columns:repeat(4,1fr);gap:4px}.wiring{grid-template-columns:repeat(4,1fr);gap:4px}
+  .wcol{padding:5px}.witem{font-size:6.8pt;padding:4px}.source-list li{break-inside:avoid}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:6.5pt;color:#333}
+}
+</style>
+</head>
+<body>
+<noscript><div class="no-js">This report remains readable without JavaScript. Table sorting and active-section highlighting are disabled.</div></noscript>
+
+<header class="topbar" aria-label="Report controls">
+  <div class="topbar-inner">
+    <div class="brand">350G Field Diagnostics</div>
+    <div class="jump-wrap">
+      <label for="mobileJump" class="only-print">Jump to section</label>
+      <select id="mobileJump" class="jump-select" aria-label="Jump to report section">
+        <option value="">Jump to section…</option>
+        <option value="#identity">1. Machine identity</option>
+        <option value="#safety">2. Safety</option>
+        <option value="#applicability">3. Applicability</option>
+        <option value="#systems">4. System architecture</option>
+        <option value="#likely">5. Most likely problems</option>
+        <option value="#operations">6. Operation & maintenance</option>
+        <option value="#known">7. Documented issues</option>
+        <option value="#paths">8. Diagnostic paths</option>
+        <option value="#values">9. Normal values</option>
+        <option value="#plan">10. Repair-priority plan</option>
+        <option value="#ledger">11. Evidence ledger</option>
+        <option value="#sources">12. Sources</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" onclick="window.print()" aria-label="Print or save report as PDF"><span class="btn-label">Print / save as PDF</span><span aria-hidden="true"> ⎙</span></button>
+    </div>
+  </div>
+</header>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Diagnostic field report · regeneration and turbo-speed complaint</div>
+    <h1>2014 John Deere 350G LC</h1>
+    <p><strong>PIN:</strong> 1FF350GXVEF810000 · Final Tier 4 configuration · primary complaint: regeneration problems with a monitor message paraphrased as “turbo isn’t up to speed.”</p>
+    <div class="hero-meta">
+      <span class="meta-chip">Generated August 3, 2026</span>
+      <span class="meta-chip">U.S./Canada configuration assumed</span>
+      <span class="meta-chip">Engine: PowerTech PSS 9.0 L / 6090HT012</span>
+      <span class="meta-chip">Research confidence: high on configuration; medium on fault cause</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Table of contents">
+    <strong>Contents</strong>
+    <a href="#identity">1. Machine identity</a>
+    <a href="#safety">2. Safety</a>
+    <a href="#applicability">3. Applicability matrix</a>
+    <a href="#systems">4. System architecture</a>
+    <a href="#likely">5. Most likely problems</a>
+    <a href="#operations">6. Operation & maintenance</a>
+    <a href="#known">7. Documented issues</a>
+    <a href="#paths">8. Diagnostic paths</a>
+    <a href="#values">9. Normal values</a>
+    <a href="#plan">10. Repair-priority plan</a>
+    <a href="#ledger">11. Evidence ledger</a>
+    <a href="#sources">12. Sources</a>
+  </nav>
+
+  <main>
+    <section id="identity">
+      <h2>1. Machine identity and core finding</h2>
+      <div class="grid grid-3">
+        <article class="card kpi">
+          <div class="kpi-label">Exact applicability</div>
+          <div class="kpi-value">F809192— production range</div>
+          <p>The PIN’s plant/sequence portion is <code>F810000</code>, placing it after the documented <code>F809192</code> configuration break. <span class="badge b-confirmed">Confirmed machine fact</span> <a class="cite" href="#src-1">[1]</a><a class="cite" href="#src-2">[2]</a></p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-label">Engine and emissions</div>
+          <div class="kpi-value">6090HT012 Final Tier 4</div>
+          <p>9.0 L, series-turbocharged PowerTech PSS architecture with DOC/DPF and DEF/SCR aftertreatment. <span class="badge b-confirmed">Confirmed machine fact</span> <a class="cite" href="#src-2">[2]</a><a class="cite" href="#src-3">[3]</a></p>
+        </article>
+        <article class="card kpi urgent">
+          <div class="kpi-label">Primary diagnostic direction</div>
+          <div class="kpi-value">Prove turbo-speed signal first</div>
+          <p>A turbo-speed warning is more specific than a generic regen complaint. Preserve the exact SPN/FMI and determine whether the ECU sees a missing/implausible signal or genuinely low turbo speed before replacing emissions parts.</p>
+        </article>
+      </div>
+
+      <div class="callout danger">
+        <strong>Core finding:</strong> this is not the earlier Interim Tier 4 350G configuration. The earlier <code>E808001–E809191</code> machines use the 6090HT010 and do not have the same DEF/SCR system. Using that earlier manual or wiring diagram could produce a wrong diagnosis or damaged electronics. <a class="cite" href="#src-4">[4]</a>
+      </div>
+
+      <h3>First-screen diagnosis</h3>
+      <div class="grid grid-2">
+        <article class="card">
+          <h4>Most likely fault chain</h4>
+          <ol>
+            <li>Turbocharger-speed sensor, connector, harness, shared reference, or signal plausibility fault.</li>
+            <li>Actual air-system underperformance: restricted intake, charge-air leak, failed hose/clamp, or biased manifold-pressure/temperature input.</li>
+            <li>VGT actuator, vane-position feedback, calibration, or sticking turbo geometry.</li>
+            <li>DPF pressure/temperature feedback or fuel-dosing fault preventing the ECU from achieving or confirming regeneration temperature.</li>
+            <li>High soot/ash loading created by repeated aborted regens, low-load work, excessive idle, or an engine/EGR fault.</li>
+          </ol>
+        </article>
+        <article class="card">
+          <h4>What is still required</h4>
+          <ul>
+            <li>Exact monitor text and every active/stored SPN/FMI.</li>
+            <li>Engine hours and prior exhaust-filter cleaning history.</li>
+            <li>Service ADVISOR live data during a controlled warm run or attempted parked cleaning.</li>
+            <li>Engine serial/option-code label to verify installed component variants.</li>
+            <li>PIN-specific PIP/campaign and software-calibration check through Deere support.</li>
+          </ul>
+        </article>
+      </div>
+
+      <h3>Evidence-label legend</h3>
+      <div class="legend" aria-label="Evidence label legend">
+        <span class="badge b-confirmed">Confirmed machine fact</span>
+        <span class="badge b-component">Documented component fact</span>
+        <span class="badge b-inference">Reasonable inference</span>
+        <span class="badge b-family">Model-family guidance</span>
+        <span class="badge b-field">Field pattern</span>
+        <span class="badge b-gap">Proprietary-document gap</span>
+        <span class="badge b-na">Not applicable</span>
+      </div>
+      <p class="small">“High likelihood” in this report means the problem matches the reported symptom and known system logic. It does not represent a fleet failure rate.</p>
+    </section>
+
+    <section id="safety">
+      <h2>2. Safety and stop-work warnings</h2>
+      <div class="callout danger">
+        <strong>Stop work immediately</strong> for a red STOP warning, uncontrolled derate/shutdown, visible exhaust fire, glowing aftertreatment, oil entering the intake/exhaust, severe turbo noise, rapid coolant loss, fuel leakage, or smoke from wiring. Do not continue a parked cleaning in dry vegetation, near combustible material, inside a building without exhaust extraction, or with an active fuel/oil leak.
+      </div>
+      <div class="grid grid-2">
+        <article class="card">
+          <h3>Before inspection</h3>
+          <ul class="checklist">
+            <li>Park on firm level ground; lower bucket/attachment completely.</li>
+            <li>Place pilot shutoff lever in the locked position; apply parking controls.</li>
+            <li>Allow turbocharger and aftertreatment to cool before touching components.</li>
+            <li>Block or support raised structures with approved equipment; hydraulics alone are not support.</li>
+            <li>Disconnect battery power before connector repair or harness replacement, following the machine manual.</li>
+            <li>Use eye protection and gloves; high-pressure fuel and hydraulic injection injuries require emergency care.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>During electrical and regen testing</h3>
+          <ul class="checklist">
+            <li>Use breakout leads and manufacturer test adapters; do not pierce sealed wiring unless the service procedure specifically requires it.</li>
+            <li>Do not short a sensor-reference circuit to battery voltage or ground.</li>
+            <li>Keep personnel clear of the upperstructure swing radius and tracks.</li>
+            <li>Do not leave a parked cleaning unattended.</li>
+            <li>Do not bypass interlocks, defeat derates, unplug emissions devices to continue work, or alter DEF/DPF/SCR programming.</li>
+            <li>Preserve fault history and freeze-frame data before clearing codes.</li>
+          </ul>
+        </article>
+      </div>
+      <p>The applicable operator manual contains dedicated procedures for parked exhaust-filter cleaning, SCR operation, machine preparation, battery isolation, welding, and connector cleanliness. <span class="badge b-confirmed">Confirmed machine fact</span> <a class="cite" href="#src-1">[1]</a></p>
+    </section>
+
+    <section id="applicability">
+      <h2>3. Applicability and configuration matrix</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Year/build indication</th><th>PIN range</th><th>Market</th><th>Engine/powertrain</th><th>Major emissions configuration</th><th>Evidence</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="Year/build indication">Earlier G-series production</td>
+              <td data-label="PIN range"><code>1FF350GX__E808001–E809191</code></td>
+              <td data-label="Market">North American documentation</td>
+              <td data-label="Engine/powertrain">6090HT010, 9.0 L</td>
+              <td data-label="Major emissions configuration">Interim Tier 4: DOC/DPF; no machine DEF/SCR architecture</td>
+              <td data-label="Evidence"><span class="badge b-na">Not applicable</span> to this PIN</td>
+              <td data-label="Source"><a href="#src-4">[4]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Year/build indication">Later G-series / Final Tier 4 introduction</td>
+              <td data-label="PIN range"><code>1FF350GX__F809192—</code></td>
+              <td data-label="Market">U.S./Canada assumed</td>
+              <td data-label="Engine/powertrain">6090HT012 PowerTech PSS 9.0 L</td>
+              <td data-label="Major emissions configuration">Cooled EGR, series turbochargers, DOC/DPF, DEF dosing, SCR and ammonia-oxidation catalyst</td>
+              <td data-label="Evidence"><span class="badge b-confirmed">Confirmed machine fact</span></td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-2">[2]</a> <a href="#src-5">[5]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Year/build indication">User machine</td>
+              <td data-label="PIN range"><code>1FF350GXVEF810000</code></td>
+              <td data-label="Market">Not supplied; U.S. assumed</td>
+              <td data-label="Engine/powertrain">6090HT012 unless engine plate shows replacement</td>
+              <td data-label="Major emissions configuration">Final Tier 4, early F-range DEF-header layout</td>
+              <td data-label="Evidence"><span class="badge b-confirmed">Confirmed machine fact</span></td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-2">[2]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Year/build indication">Early Final Tier 4 DEF service subrange</td>
+              <td data-label="PIN range">Machine S/N through <code>811697</code></td>
+              <td data-label="Market">Applicable manual range</td>
+              <td data-label="Engine/powertrain">Same base engine</td>
+              <td data-label="Major emissions configuration">DEF header suction screen and baffle service arrangement; later machines use different filter layouts</td>
+              <td data-label="Evidence"><span class="badge b-confirmed">Confirmed machine fact</span></td>
+              <td data-label="Source"><a href="#src-1">[1]</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">
+        <strong>Serial-break consequence:</strong> at sequence 810000, this machine is before the DEF-system subbreaks at 811698 and 814800. Order DEF header/filter parts by PIN, not by “350G” alone. The operator-manual contents identify separate procedures for ≤811697, 811698–814799, and ≥814800. <a class="cite" href="#src-1">[1]</a>
+      </div>
+    </section>
+
+    <section id="systems">
+      <h2>4. How the relevant systems work</h2>
+      <p class="lede">Regeneration is not an isolated muffler event. The ECU coordinates air handling, fuel delivery, exhaust temperature, DPF restriction, DEF dosing, and NOx conversion. A turbo-speed fault can block or destabilize the thermal-management sequence because calculated airflow and measured turbo behavior no longer agree.</p>
+
+      <h3>Air and exhaust flow</h3>
+      <div class="arch" role="img" aria-label="Functional air and exhaust flow for the Final Tier 4 350G">
+        <div class="flow">
+          <div class="node"><strong>Air cleaner</strong><span>restriction input</span></div><div class="arrow">→</div>
+          <div class="node engine"><strong>Low-pressure fixed turbo</strong><span>first compression stage</span></div><div class="arrow">→</div>
+          <div class="node engine"><strong>High-pressure VGT</strong><span>actuator + position/speed feedback</span></div><div class="arrow">→</div>
+          <div class="node"><strong>Charge-air cooler</strong><span>hoses, clamps, temperature</span></div><div class="arrow">→</div>
+          <div class="node"><strong>Intake / air throttle</strong><span>MAP and temperature</span></div><div class="arrow">→</div>
+          <div class="node engine"><strong>6090HT012 cylinders</strong><span>HPCR combustion + cooled EGR</span></div>
+        </div>
+        <div class="flow" style="margin-top:12px">
+          <div class="node engine"><strong>Exhaust manifold</strong><span>pressure / temperature; EGR branch</span></div><div class="arrow">→</div>
+          <div class="node engine"><strong>Turbo turbine stages</strong><span>energy drives compressors</span></div><div class="arrow">→</div>
+          <div class="node after"><strong>DOC</strong><span>oxidizes fuel/HC; generates heat</span></div><div class="arrow">→</div>
+          <div class="node after"><strong>DPF</strong><span>captures soot; pressure and temperature monitored</span></div><div class="arrow">→</div>
+          <div class="node after"><strong>DEF mixer / doser</strong><span>urea solution → ammonia</span></div><div class="arrow">→</div>
+          <div class="node after"><strong>SCR + ASC</strong><span>NOx reduction; ammonia cleanup</span></div><div class="arrow">→</div>
+          <div class="node"><strong>Tailpipe</strong><span>outlet sensing</span></div>
+        </div>
+        <div class="subflow">
+          <div class="node"><strong>Passive regeneration</strong><span>Normal high-load exhaust heat oxidizes soot continuously.</span></div>
+          <div class="node"><strong>Active regeneration</strong><span>ECU raises exhaust temperature through air/fuel/turbo management and exhaust dosing.</span></div>
+          <div class="node"><strong>Parked cleaning</strong><span>Stationary ECU-controlled event when operating conditions and interlocks permit.</span></div>
+          <div class="node"><strong>Ash service</strong><span>Noncombustible ash cannot be burned away and eventually requires filter removal/service.</span></div>
+        </div>
+      </div>
+      <p class="diagram-note">Architecture is machine-specific at the major-component level and component-family guidance at the detailed control-strategy level. Deere’s Final Tier 4 certification lists EGR, periodic trap oxidation, turbocharging, SCR-urea, and an ammonia oxidation catalyst for the 6090HT012. <a class="cite" href="#src-5">[5]</a></p>
+
+      <h3>Functional emissions wiring and sensor diagram</h3>
+      <div class="callout warning">
+        <strong>Important:</strong> the diagram below is a diagnostic architecture map, not a substitute for the OEM schematic. It intentionally does not invent connector numbers, pin numbers, wire colors, splice locations, reference voltages, or resistance limits. Those are contained in PIN-applicable technical manual <strong>TM13206X19</strong> and engine-component service information. <span class="badge b-gap">Proprietary-document gap</span> <a class="cite" href="#src-6">[6]</a>
+      </div>
+      <div class="arch" role="img" aria-label="Functional electrical wiring diagram for engine and emissions controls">
+        <div class="wiring">
+          <div class="wcol">
+            <h4>Power and network</h4>
+            <div class="witem net"><strong>Two 12 V batteries</strong><br>24 V machine system</div>
+            <div class="witem net"><strong>Battery disconnect / fuses / relays</strong><br>ECU, dosing, heaters, sensors</div>
+            <div class="witem net"><strong>CAN/J1939</strong><br>Engine ECU ↔ machine controller ↔ monitor ↔ Service ADVISOR/JDLink</div>
+            <div class="witem warn"><strong>Ground strategy</strong><br>Battery, chassis and ECU sensor returns must be tested separately.</div>
+          </div>
+          <div class="wcol">
+            <h4>Engine control unit</h4>
+            <div class="witem net"><strong>ECU</strong><br>Calculates airflow, soot load, exhaust temperature targets, DEF dosing and derate logic.</div>
+            <div class="witem net"><strong>Inputs</strong><br>Frequency, analog voltage, thermistor, digital status and CAN smart-sensor messages.</div>
+            <div class="witem act"><strong>Outputs</strong><br>VGT motor, EGR valve, air throttle, fuel/exhaust doser, DEF supply and dosing commands.</div>
+            <div class="witem warn"><strong>Fault handling</strong><br>Stores SPN/FMI, occurrence count and operating snapshot; may inhibit cleaning or derate.</div>
+          </div>
+          <div class="wcol">
+            <h4>Primary sensor inputs</h4>
+            <div class="witem"><strong>Turbocharger speed sensor</strong><br>Measured shaft speed; compare with predicted speed.</div>
+            <div class="witem"><strong>VGT vane-position feedback</strong><br>Confirms commanded geometry.</div>
+            <div class="witem"><strong>Manifold pressure / intake temperature / barometric pressure</strong><br>Air-mass plausibility.</div>
+            <div class="witem"><strong>Air-filter restriction and charge-air temperature</strong><br>Restriction and cooler performance.</div>
+            <div class="witem"><strong>EGR flow/pressure/temperature and valve position</strong><br>Recirculation control.</div>
+            <div class="witem"><strong>DPF differential pressure</strong><br>Pressure taps before/after filter estimate restriction.</div>
+            <div class="witem"><strong>Exhaust temperature sensors/module</strong><br>DOC/DPF/SCR thermal state.</div>
+            <div class="witem"><strong>NOx sensor(s)</strong><br>SCR conversion feedback; exact quantity/location by schematic.</div>
+            <div class="witem"><strong>DEF header</strong><br>Level, temperature and quality/concentration functions depending on build.</div>
+          </div>
+          <div class="wcol">
+            <h4>Controlled devices</h4>
+            <div class="witem act"><strong>VGT actuator</strong><br>Adjusts turbine geometry for boost, EGR and temperature management.</div>
+            <div class="witem act"><strong>EGR valve and intake throttle</strong><br>Manage oxygen, pressure differential and exhaust temperature.</div>
+            <div class="witem act"><strong>Hydrocarbon/fuel doser</strong><br>Adds fuel upstream of DOC during active thermal management.</div>
+            <div class="witem act"><strong>DEF supply module / heater / lines</strong><br>Moves and conditions DEF.</div>
+            <div class="witem act"><strong>DEF dosing valve</strong><br>Meters DEF upstream of SCR.</div>
+            <div class="witem act"><strong>Monitor indicators</strong><br>Cleaning request, inhibit, DEF/SCR warning, derate and stop messages.</div>
+          </div>
+        </div>
+        <p class="diagram-note"><strong>Signal path to test first:</strong> turbo-speed sensor → sealed connector → engine harness → ECU supply/return/signal inputs → CAN message to monitor. Verify the exact three-wire or application-specific circuit from TM13206X19 before measuring. Deere’s public component documentation identifies turbo-speed sensing and generic above-130-kW wiring, but does not establish the 350G connector/pin map. <a class="cite" href="#src-7">[7]</a><a class="cite" href="#src-8">[8]</a></p>
+      </div>
+
+      <h3>Why a turbo-speed fault can disrupt regeneration</h3>
+      <ol>
+        <li>The ECU predicts turbo speed from engine speed, fueling, manifold pressure, VGT command, ambient pressure and airflow.</li>
+        <li>If measured speed is absent, noisy, implausible, or lower than predicted, the ECU cannot safely trust air handling or VGT response.</li>
+        <li>Active regeneration requires controlled oxygen flow and exhaust heat. The ECU may abort, refuse, prolong or derate the cleaning sequence when air-system control is not credible.</li>
+        <li>A true low-speed condition also reduces boost, increases smoke/soot, and can load the DPF faster than it can clean.</li>
+      </ol>
+      <p><span class="badge b-inference">Reasonable inference</span> The precise inhibit criteria and threshold for this machine are proprietary; the exact SPN/FMI and Service ADVISOR test plan are required.</p>
+    </section>
+
+    <section id="likely">
+      <h2>5. Ranked most likely problems</h2>
+      <p>Default order favors strong symptom match, safety, low-cost confirmation, and avoiding unnecessary parts. Select a column heading to sort.</p>
+      <div class="table-wrap">
+        <table class="sortable-table">
+          <thead>
+            <tr>
+              <th class="sortable" tabindex="0" data-type="number" aria-sort="ascending">Rank</th>
+              <th class="sortable" tabindex="0">Problem</th>
+              <th class="sortable" tabindex="0">Likelihood</th>
+              <th>Confidence</th>
+              <th>Applicable variant</th>
+              <th>Why it happens / what ECU sees</th>
+              <th>Operator symptoms / code evidence</th>
+              <th>Confirmation tests</th>
+              <th>Corrective action</th>
+              <th>Do not replace until…</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank" data-sort="1" data-label="Rank">1</td>
+              <td data-label="Problem"><strong>Turbo-speed sensor circuit, connector or harness fault</strong></td>
+              <td data-sort="3" data-label="Likelihood"><span class="likelihood-high">High</span></td>
+              <td data-label="Confidence">Medium-high</td>
+              <td data-label="Applicable variant">6090HT012 FT4</td>
+              <td data-label="Why it happens / what ECU sees">Heat, vibration, oil intrusion, connector fretting, broken shielding/return, or sensor failure produces missing/noisy/implausible speed. ECU sees predicted/measured mismatch or absent signal.</td>
+              <td data-label="Operator symptoms / code evidence">Direct match to “turbo isn’t up to speed.” Generic Deere code family uses SPN 103 for turbo speed; FMI identifies high/low/open/short/invalid/missing condition.</td>
+              <td data-label="Confirmation tests">Record exact SPN/FMI and snapshot. Key-off connector inspection. Check terminal tension, corrosion, oil, rub-through and heat damage. With correct schematic, verify supply/return and signal integrity using breakout leads. Compare live speed to commanded load; wiggle-test harness.</td>
+              <td data-label="Corrective action">Repair terminal/harness/ground or replace proven sensor; clear codes only after saving history; controlled verification run.</td>
+              <td data-label="Do not replace until">Supply, return, signal continuity, connector drag, live-data plausibility and harness movement have been proven.</td>
+              <td data-label="Source"><a href="#src-7">[7]</a> <a href="#src-9">[9]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="2" data-label="Rank">2</td>
+              <td data-label="Problem"><strong>Actual air-system underperformance: intake restriction or charge-air leak</strong></td>
+              <td data-sort="3" data-label="Likelihood"><span class="likelihood-high">High</span></td>
+              <td data-label="Confidence">Medium</td>
+              <td data-label="Applicable variant">All FT4 350G; dusty/demolition duty raises likelihood</td>
+              <td data-label="Why it happens / what ECU sees">Restricted air cleaner or leaking CAC hose/clamp lowers delivered air and shifts predicted-versus-measured turbo relationship. Poor combustion creates more soot.</td>
+              <td data-label="Operator symptoms / code evidence">Low power, smoke under load, frequent cleaning, boost/MAP plausibility codes, turbo speed below target, oily dust tracks around hose leaks.</td>
+              <td data-label="Confirmation tests">Inspect restriction indicator and both compressor stages; clean debris without damaging elements. Pressure/smoke-test charge-air circuit with approved tooling. Compare MAP, barometric pressure, intake temperature and turbo speed at matched rpm/load.</td>
+              <td data-label="Corrective action">Replace damaged hose/clamp/seal or restricted elements; clean CAC/coolers; retest under load.</td>
+              <td data-label="Do not replace until">Sensor bias and VGT command/actual have also been checked.</td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-3">[3]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="3" data-label="Rank">3</td>
+              <td data-label="Problem"><strong>VGT actuator, vane-position feedback, calibration or sticking geometry</strong></td>
+              <td data-sort="3" data-label="Likelihood"><span class="likelihood-high">High</span></td>
+              <td data-label="Confidence">Medium</td>
+              <td data-label="Applicable variant">PowerTech PSS series-turbo engine</td>
+              <td data-label="Why it happens / what ECU sees">Vanes fail to reach commanded position because of actuator electrical fault, failed calibration, linkage/mechanical binding, carbon, or turbo damage. ECU cannot establish expected boost/EGR/exhaust heat.</td>
+              <td data-label="Operator symptoms / code evidence">Turbo-speed or boost mismatch, low power, delayed regen, possible actuator/calibration code family such as SPN 641/2795 in Deere component documentation.</td>
+              <td data-label="Confirmation tests">Service ADVISOR commanded VGT sweep and calibration; compare command vs position; inspect actuator connector/harness and linkage. Check for mechanical binding only by approved procedure after cooldown.</td>
+              <td data-label="Corrective action">Repair wiring; perform required calibration/relearn; replace actuator or turbo only if command, power, position and mechanical tests isolate it.</td>
+              <td data-label="Do not replace until">Air leaks, sensor circuit, power/ground and calibration have been ruled out.</td>
+              <td data-label="Source"><a href="#src-3">[3]</a> <a href="#src-8">[8]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="4" data-label="Rank">4</td>
+              <td data-label="Problem"><strong>DPF differential-pressure sensor, pressure hoses or exhaust-temperature feedback fault</strong></td>
+              <td data-sort="2" data-label="Likelihood"><span class="likelihood-med">Medium</span></td>
+              <td data-label="Confidence">Medium-high</td>
+              <td data-label="Applicable variant">FT4 DOC/DPF system</td>
+              <td data-label="Why it happens / what ECU sees">Blocked/cracked/swapped pressure lines or biased pressure/temperature input makes the ECU miscalculate soot/restriction or fail to confirm heat rise.</td>
+              <td data-label="Operator symptoms / code evidence">Cleaning starts but runs long/aborts; implausible soot load; no expected temperature progression; DPF pressure or temperature DTCs.</td>
+              <td data-label="Confirmation tests">Key-on engine-off plausibility/zero check per service manual. Inspect both pressure tubes for soot, moisture, cracks and correct routing. Compare differential pressure at multiple known engine speeds. Compare exhaust-temperature sensors cold-soak and during warm-up.</td>
+              <td data-label="Corrective action">Clear/replace damaged tubes; repair harness; replace a sensor only after plausibility and circuit tests; perform any required reset.</td>
+              <td data-label="Do not replace until">Pressure hoses, ports, cold-soak agreement, wiring and actual filter restriction are separated.</td>
+              <td data-label="Source"><a href="#src-8">[8]</a> <a href="#src-10">[10]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="5" data-label="Rank">5</td>
+              <td data-label="Problem"><strong>Active-regeneration fuel dosing or DOC heat-generation fault</strong></td>
+              <td data-sort="2" data-label="Likelihood"><span class="likelihood-med">Medium</span></td>
+              <td data-label="Confidence">Medium</td>
+              <td data-label="Applicable variant">FT4 DOC/DPF thermal-management system</td>
+              <td data-label="Why it happens / what ECU sees">Restricted doser, low dosing pressure, leaking shutoff/control valve, poor atomization, exhaust leak, or degraded DOC prevents commanded temperature rise.</td>
+              <td data-label="Operator symptoms / code evidence">Regen remains active unusually long, temperatures rise slowly or unevenly, repeated aborted cleaning, fuel-doser DTCs, hydrocarbon odor or smoke.</td>
+              <td data-label="Confirmation tests">Review commanded dosing and exhaust temperature traces. Check fuel supply, dosing pressure and leak-off by OEM procedure. Inspect exhaust leaks upstream of sensors/DOC. Do not remove hot doser without cooldown.</td>
+              <td data-label="Corrective action">Repair supply, wiring, valve/nozzle or leak; evaluate DOC only after dosing and sensors are proven.</td>
+              <td data-label="Do not replace until">Temperature sensors, dosing command, fuel pressure, exhaust leaks and DPF restriction are verified.</td>
+              <td data-label="Source"><a href="#src-3">[3]</a> <a href="#src-8">[8]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="6" data-label="Rank">6</td>
+              <td data-label="Problem"><strong>Excess soot or ash loading from interrupted/low-load operation or an upstream engine fault</strong></td>
+              <td data-sort="2" data-label="Likelihood"><span class="likelihood-med">Medium</span></td>
+              <td data-label="Confidence">Medium</td>
+              <td data-label="Applicable variant">All DPF-equipped 350G</td>
+              <td data-label="Why it happens / what ECU sees">Soot can burn; ash cannot. Frequent aborts, idling, low-load cycles, oil consumption, injector/EGR faults or poor airflow increase filter loading and backpressure.</td>
+              <td data-label="Operator symptoms / code evidence">Increasing cleaning frequency, long parked cleanings, derate, high calculated soot or pressure, reduced power, hotter turbo/exhaust.</td>
+              <td data-label="Confirmation tests">Review hours since last successful cleaning, abort count, soot/ash estimate, DPF pressure trend, oil consumption and engine balance. Inspect maintenance records. Use off-machine DPF test/cleaning if directed.</td>
+              <td data-label="Corrective action">Correct root cause; complete approved cleaning if allowed; remove and professionally clean/replace filter when ash or restriction is confirmed.</td>
+              <td data-label="Do not replace until">Pressure sensor/hoses and upstream combustion/air faults are proven.</td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-11">[11]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="7" data-label="Rank">7</td>
+              <td data-label="Problem"><strong>DEF supply/header/dosing or NOx-sensor fault</strong></td>
+              <td data-sort="2" data-label="Likelihood"><span class="likelihood-med">Medium</span></td>
+              <td data-label="Confidence">Medium</td>
+              <td data-label="Applicable variant">Exact early F-range DEF layout</td>
+              <td data-label="Why it happens / what ECU sees">Contaminated/aged DEF, restricted early header screen, heater/pump fault, dosing valve fault or NOx feedback error disrupts SCR compliance. This can create derate and parallel aftertreatment warnings, though it is not the first explanation for turbo-speed mismatch.</td>
+              <td data-label="Operator symptoms / code evidence">DEF/SCR warning, inducement countdown/derate, crystallization, dosing/pressure/quality/NOx codes; regen complaint may be reported at same time.</td>
+              <td data-label="Confirmation tests">Verify all codes, DEF concentration/condition with approved test, tank/header service history, supply pressure, purge, heaters and NOx plausibility. Confirm correct filter/screen by PIN.</td>
+              <td data-label="Corrective action">Flush only by approved procedure; service early header screen/baffle; repair supply/doser/heater or proven NOx sensor; update software if directed.</td>
+              <td data-label="Do not replace until">DEF quality, contamination, wiring, pressure, temperatures and software are checked.</td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-12">[12]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="8" data-label="Rank">8</td>
+              <td data-label="Problem"><strong>EGR, air-throttle, coolant-temperature or combustion fault</strong></td>
+              <td data-sort="2" data-label="Likelihood"><span class="likelihood-med">Medium-low</span></td>
+              <td data-label="Confidence">Medium-low</td>
+              <td data-label="Applicable variant">6090HT012 FT4</td>
+              <td data-label="Why it happens / what ECU sees">Incorrect EGR flow, air-throttle position, low engine temperature, injector imbalance or fuel restriction changes soot production and thermal response.</td>
+              <td data-label="Operator symptoms / code evidence">Smoke, roughness, low power, slow warm-up, EGR/temperature/fuel codes, repeated soot loading.</td>
+              <td data-label="Confirmation tests">Review coolant temperature, EGR command/actual, air throttle, rail pressure, injector correction/balance and fuel restriction under matched conditions.</td>
+              <td data-label="Corrective action">Repair proven valve/sensor/fuel/cooling fault; then reassess soot and regen performance.</td>
+              <td data-label="Do not replace until">Electrical and airflow faults are separated from mechanical/combustion faults.</td>
+              <td data-label="Source"><a href="#src-5">[5]</a> <a href="#src-8">[8]</a></td>
+            </tr>
+            <tr>
+              <td class="rank" data-sort="9" data-label="Rank">9</td>
+              <td data-label="Problem"><strong>Mechanical turbocharger failure</strong></td>
+              <td data-sort="1" data-label="Likelihood"><span class="likelihood-low">Low–medium</span></td>
+              <td data-label="Confidence">Medium-low until inspected</td>
+              <td data-label="Applicable variant">Series-turbo system</td>
+              <td data-label="Why it happens / what ECU sees">Bearing, wheel, vane or oil-supply damage causes true low speed/boost, noise, oil leakage or imbalance. Expensive and less likely than circuit/air leaks without corroborating symptoms.</td>
+              <td data-label="Operator symptoms / code evidence">Whine/scrape, oil smoke, metal debris, excessive shaft movement, low boost despite correct command and leak-free intake.</td>
+              <td data-label="Confirmation tests">Inspect intake/exhaust safely, oil feed/drain, wheel damage and approved shaft-clearance criteria. Correlate turbo speed, boost, VGT command and exhaust pressure.</td>
+              <td data-label="Corrective action">Repair oil/air root cause and replace only the isolated failed turbo/actuator assembly; flush contaminated charge-air system as required.</td>
+              <td data-label="Do not replace until">Sensor, harness, CAC leaks, VGT calibration, exhaust restriction and lubrication are proven.</td>
+              <td data-label="Source"><a href="#src-3">[3]</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>Best first test:</strong> retrieve the exact SPN/FMI and graph turbo speed, engine speed, VGT command/actual position, manifold pressure, barometric pressure, DPF differential pressure, and key exhaust temperatures during warm-up and a controlled load event. That single data set separates an electrical signal fault from a real airflow/turbo problem far better than replacing the turbo-speed sensor blindly.
+      </div>
+    </section>
+
+    <section id="operations">
+      <h2>6. Top operation- and maintenance-related problems</h2>
+      <p>These are operating conditions that can create or amplify the complaint. They are not assumptions that the operator caused the failure.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Priority</th><th>Practice or condition</th><th>Damage/fault mechanism</th><th>Typical symptoms</th><th>How to verify</th><th>Correct practice or fix</th><th>Prevention</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Priority">1</td><td data-label="Practice or condition">Repeatedly interrupted or disabled automatic cleaning</td><td data-label="Damage/fault mechanism">Soot accumulation advances until parked/service cleaning or derate; each abort can increase required heat/time.</td><td data-label="Typical symptoms">More frequent requests, long or failed parked cleaning, high soot warning.</td><td data-label="How to verify">Review cleaning inhibit setting, event history and operator reports.</td><td data-label="Correct practice or fix">Correct active faults first, then allow the approved process to complete in a safe area.</td><td data-label="Prevention">Leave auto cleaning enabled unless the worksite creates a genuine fire hazard.</td></tr>
+            <tr><td data-label="Priority">2</td><td data-label="Practice or condition">Extended idle and sustained low-load work</td><td data-label="Damage/fault mechanism">Low exhaust temperature reduces passive oxidation and increases soot production.</td><td data-label="Typical symptoms">Frequent regen, slow temperature rise, soot accumulation without heavy production work.</td><td data-label="How to verify">Compare idle percentage, duty cycle and exhaust-temperature history.</td><td data-label="Correct practice or fix">Use normal productive load and manufacturer operating modes; avoid unnecessary idling.</td><td data-label="Prevention">Plan periodic productive high-load operation rather than attempting unsupported “Italian tune-up” procedures.</td></tr>
+            <tr><td data-label="Priority">3</td><td data-label="Practice or condition">Dirty air cleaner, plugged coolers, damaged charge-air hoses or loose clamps</td><td data-label="Damage/fault mechanism">Reduces oxygen/boost, raises soot and distorts predicted turbo-speed relationship.</td><td data-label="Typical symptoms">Low power, smoke, oily dust tracks, turbo/MAP codes, frequent cleaning.</td><td data-label="How to verify">Daily visual inspection; restriction indicator; approved pressure test.</td><td data-label="Correct practice or fix">Clean cooler pack correctly; replace damaged hoses/elements and torque clamps per manual.</td><td data-label="Prevention">Increase inspection frequency in demolition, quarry, forestry and high-debris work.</td></tr>
+            <tr><td data-label="Priority">4</td><td data-label="Practice or condition">Wrong or contaminated DEF; neglected early serial-range DEF header screen</td><td data-label="Damage/fault mechanism">Crystals, deposits, poor concentration, restricted supply or pump cavitation causes SCR faults/derate.</td><td data-label="Typical symptoms">DEF/SCR warnings, pressure/quality codes, crystals at fittings, parallel aftertreatment complaint.</td><td data-label="How to verify">Approved refractometer/quality test, contamination check and PIN-specific service history.</td><td data-label="Correct practice or fix">Drain/clean only by OEM procedure; service the ≤811697 header screen/baffle arrangement.</td><td data-label="Prevention">Use sealed ISO 22241 DEF containers and dedicated clean equipment; keep cap/filler clean.</td></tr>
+            <tr><td data-label="Priority">5</td><td data-label="Practice or condition">Wrong engine oil, excessive oil consumption or overdue DPF ash service</td><td data-label="Damage/fault mechanism">Noncombustible ash accumulates; oil consumption can damage DOC/DPF/SCR and increase restriction.</td><td data-label="Typical symptoms">Shortening regen intervals, persistent pressure after successful cleaning, oil use.</td><td data-label="How to verify">Oil specification/service records, consumption trend, ash estimate and off-machine filter evaluation.</td><td data-label="Correct practice or fix">Use Deere-approved low-ash oil; correct oil consumption; service filter professionally.</td><td data-label="Prevention">Track oil added and regen frequency by hour-meter date.</td></tr>
+            <tr><td data-label="Priority">6</td><td data-label="Practice or condition">Low battery voltage, poor grounds, welding/jump-start errors or dirty ECU connectors</td><td data-label="Damage/fault mechanism">Voltage drop and transients corrupt sensor/actuator operation and network messages.</td><td data-label="Typical symptoms">Multiple unrelated intermittent codes, failed actuator tests, cold-start-only faults.</td><td data-label="How to verify">Battery load test, voltage-drop testing under load, ground inspection and code timestamps.</td><td data-label="Correct practice or fix">Repair power/ground; follow 24 V jump-start and welding isolation procedure.</td><td data-label="Prevention">Keep terminals clean; disconnect/prepare electronics before welding exactly as manual states.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="known">
+      <h2>7. Top documented known issues and fixes</h2>
+      <div class="callout">
+        <strong>Public-record result:</strong> no authoritative public recall, campaign, Product Improvement Program, or machine-specific service bulletin was found that identifies turbo-speed/regen failure as a defect for PIN 1FF350GXVEF810000. Deere states that PIN-specific PIPs and warranty information are available through its service resources/dealer channel. <span class="badge b-gap">Proprietary-document gap</span> <a class="cite" href="#src-13">[13]</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Issue</th><th>Evidence category</th><th>Applicable year/serial</th><th>Symptoms</th><th>Confirmation</th><th>Supported fix</th><th>Parts/software/procedure notes</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="Issue">Major production break from IT4 to FT4 emissions system</td>
+              <td data-label="Evidence category">Documented configuration change</td>
+              <td data-label="Applicable year/serial"><code>F809192—</code>; includes this PIN</td>
+              <td data-label="Symptoms">Wrong manual/parts selection can lead to incorrect diagnostics</td>
+              <td data-label="Confirmation">Read full PIN and engine plate</td>
+              <td data-label="Supported fix">Use OMT351368X19, TM13206X19 and PC11263 applicability</td>
+              <td data-label="Parts/software/procedure notes">Do not use OMT289050/6090HT010 wiring as the primary schematic</td>
+              <td data-label="Source"><a href="#src-1">[1]</a> <a href="#src-2">[2]</a> <a href="#src-4">[4]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Issue">Serial-specific DEF header/filter service arrangement</td>
+              <td data-label="Evidence category">Documented service procedure / production change</td>
+              <td data-label="Applicable year/serial">User S/N 810000 is ≤811697</td>
+              <td data-label="Symptoms">Restricted supply may create SCR pressure/dosing faults</td>
+              <td data-label="Confirmation">Check service history and supply pressure; inspect by manual procedure</td>
+              <td data-label="Supported fix">Service early header suction screen and baffle at specified interval/procedure</td>
+              <td data-label="Parts/software/procedure notes">Different procedure for 811698–814799 and ≥814800; order by PIN</td>
+              <td data-label="Source"><a href="#src-1">[1]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Issue">Turbo-speed sensor kit supersession RE540025 → DZ103962</td>
+              <td data-label="Evidence category">Documented component part supersession</td>
+              <td data-label="Applicable year/serial">John Deere component family; exact installed part must be verified by PC11263/engine serial</td>
+              <td data-label="Symptoms">Turbo-speed signal fault if applicable sensor fails</td>
+              <td data-label="Confirmation">Identify installed part and confirm circuit fault before ordering</td>
+              <td data-label="Supported fix">Use current Deere replacement only after electrical proof</td>
+              <td data-label="Parts/software/procedure notes">Supersession alone does not prove elevated failure frequency or exact machine fit</td>
+              <td data-label="Source"><a href="#src-7">[7]</a></td>
+            </tr>
+            <tr>
+              <td data-label="Issue">NOx sensor RE552183 listed for F809192— 350GLC / 6090HT012</td>
+              <td data-label="Evidence category">Documented component applicability</td>
+              <td data-label="Applicable year/serial">Exact FT4 machine range</td>
+              <td data-label="Symptoms">SCR/DEF warning or derate; not primary proof of turbo fault</td>
+              <td data-label="Confirmation">Read NOx/SPN/FMI, compare inlet/outlet plausibility and wiring</td>
+              <td data-label="Supported fix">Replace only the identified failed sensor/module; update software if required</td>
+              <td data-label="Parts/software/procedure notes">Do not infer NOx failure from a generic regen complaint</td>
+              <td data-label="Source"><a href="#src-12">[12]</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><span class="badge b-field">Field pattern</span> Technicians commonly encounter heat-damaged connectors, rubbed engine harnesses, plugged DPF pressure tubes, crystallized DEF fittings, and charge-air leaks on aged Tier 4 equipment. Those patterns justify inspection priority but are not evidence that this model has a defect.</p>
+    </section>
+
+    <section id="paths">
+      <h2>8. Symptom-based diagnostic paths</h2>
+
+      <div class="path">
+        <h3>A. “Turbo not up to speed” / turbo-speed warning</h3>
+        <ol class="steps">
+          <li><strong>Make safe and preserve evidence.</strong> Lower attachment, lock pilot controls, photograph every message, record every controller/SPN/FMI, occurrence count and time stamp. Do not clear codes.</li>
+          <li><strong>Identify electrical versus performance FMI.</strong> Open/short/missing/invalid-message logic points first to sensor/connector/harness. Predicted-versus-measured or low-value logic requires both circuit checks and airflow/VGT testing.</li>
+          <li><strong>Cold visual inspection.</strong> Inspect sensor lead at turbo, connector lock, terminal tension, oil/water intrusion, melted loom, abrasion at clamps, and harness routing near exhaust/turbo surfaces.</li>
+          <li><strong>Use the exact schematic.</strong> From TM13206X19/engine CTM, identify supply, return, signal, splice and ECU pins. Test with breakout leads; compare sensor return to ECU return, not merely chassis.</li>
+          <li><strong>Graph live data.</strong> Turbo speed must respond smoothly with engine load and correlate with VGT command, MAP, barometric pressure and engine speed. Dropouts or impossible jumps while other values remain stable indicate signal trouble.</li>
+          <li><strong>Prove the air path.</strong> Inspect/pressure-test air cleaner outlet, both compressor stages, CAC, hoses and clamps; evaluate restriction and MAP/IAT plausibility.</li>
+          <li><strong>Prove VGT control.</strong> Run commanded actuator sweep/calibration. Compare commanded and actual position. Stop if abnormal mechanical noise, seizure or oil leakage is found.</li>
+          <li><strong>Only then evaluate mechanical turbo condition.</strong> Use approved wheel/shaft/oil-feed tests and account for downstream exhaust restriction.</li>
+        </ol>
+      </div>
+
+      <div class="path">
+        <h3>B. Parked cleaning starts but takes too long or aborts</h3>
+        <ol class="steps">
+          <li>Confirm no turbo/air-handling, fuel, coolant, DPF, dosing, DEF/SCR or network fault is active; many active faults prevent a valid cleaning.</li>
+          <li>Verify prerequisites from the operator monitor/manual: safe parking state, adequate fluids/fuel/DEF, correct switch setting, engine at required conditions, pilot controls locked, and auto cleaning not intentionally inhibited.</li>
+          <li>Graph DOC inlet/outlet, DPF and SCR-related temperatures. Determine whether the ECU commands heat and whether each sensor rises smoothly in the expected sequence.</li>
+          <li>If temperature does not rise, test dosing command/pressure, exhaust leaks, DOC response, VGT/EGR/air-throttle control and engine temperature.</li>
+          <li>If temperature rises but restriction remains high, validate DPF pressure sensor/hoses, soot estimate and ash load. Ash will not burn away.</li>
+          <li>If cleaning completes but repeats quickly, diagnose the soot source: intake leak/restriction, EGR, injector/rail pressure, oil consumption, low-load duty cycle or biased sensors.</li>
+        </ol>
+      </div>
+
+      <div class="path">
+        <h3>C. DEF/SCR warning or derate appears with regen complaint</h3>
+        <ol class="steps">
+          <li>Separate DPF cleaning codes from SCR inducement codes; they are linked systems but different failure paths.</li>
+          <li>Confirm DEF level, age, contamination, concentration and freeze/thaw status with approved tools.</li>
+          <li>Because S/N 810000 is in the early header range, check whether the suction screen/baffle service was performed and whether pressure/purge are normal.</li>
+          <li>Inspect heated lines, connectors, dosing valve and crystallization; run supply/dosing tests with Service ADVISOR.</li>
+          <li>Evaluate NOx sensor power/network/plausibility and exhaust leaks. Replace no NOx sensor solely from a generic “regen” complaint.</li>
+        </ol>
+      </div>
+
+      <div class="path">
+        <h3>D. Low power, smoke or abnormal turbo noise</h3>
+        <div class="decision">
+          <div class="branch"><strong>Electrical/signal pattern</strong><br>Intermittent turbo-speed dropouts, stable MAP/engine operation, harness movement changes fault.</div>
+          <div class="or">OR</div>
+          <div class="branch"><strong>True airflow/mechanical pattern</strong><br>Low MAP, smoke, slow turbo response, charge-air leak, VGT mismatch, oil/noise or high exhaust restriction.</div>
+        </div>
+        <p>Do not perform a parked cleaning with severe turbo noise, oil smoke, suspected compressor contact, or an uncontrolled fuel/oil leak. A hot regeneration can worsen a fire or runaway hazard.</p>
+      </div>
+    </section>
+
+    <section id="values">
+      <h2>9. Normal values and service information</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Confirmed value or range</th><th>Conditions/location</th><th>Applicability</th><th>Evidence</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Parameter">Engine model</td><td data-label="Confirmed value or range">John Deere 6090HT012, PowerTech PSS 9.0 L</td><td data-label="Conditions/location">Base engine for F809192— 350GLC</td><td data-label="Applicability">Exact PIN range</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-2">[2]</a></td></tr>
+            <tr><td data-label="Parameter">Rated machine power</td><td data-label="Confirmed value or range">202 kW (271 hp) net at 1,900 rpm</td><td data-label="Conditions/location">ISO-rated machine specification</td><td data-label="Applicability">350G LC FT4 brochure</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Displacement/cylinders</td><td data-label="Confirmed value or range">9.0 L; inline 6-cylinder</td><td data-label="Conditions/location">Engine specification</td><td data-label="Applicability">FT4 350G LC</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Aftertreatment</td><td data-label="Confirmed value or range">DOC/DPF + SCR-urea + ammonia oxidation catalyst; cooled EGR; turbocharger</td><td data-label="Conditions/location">Certified emissions-control system</td><td data-label="Applicability">6090HT012 Final Tier 4 family</td><td data-label="Evidence"><span class="badge b-component">Component fact</span></td><td data-label="Source"><a href="#src-5">[5]</a></td></tr>
+            <tr><td data-label="Parameter">DEF tank capacity</td><td data-label="Confirmed value or range">35 L (9.2 U.S. gal.)</td><td data-label="Conditions/location">Machine refill capacity</td><td data-label="Applicability">FT4 350G LC</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Fuel tank</td><td data-label="Confirmed value or range">628 L (166 U.S. gal.)</td><td data-label="Conditions/location">Machine refill capacity</td><td data-label="Applicability">350G LC brochure configuration</td><td data-label="Evidence"><span class="badge b-family">Model-family guidance</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Engine oil with filter</td><td data-label="Confirmed value or range">27 L (7.1 U.S. gal.)</td><td data-label="Conditions/location">Refill capacity</td><td data-label="Applicability">350G LC brochure configuration</td><td data-label="Evidence"><span class="badge b-family">Model-family guidance</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Cooling system</td><td data-label="Confirmed value or range">39.7 L (10.5 U.S. gal.)</td><td data-label="Conditions/location">System capacity</td><td data-label="Applicability">350G LC brochure configuration</td><td data-label="Evidence"><span class="badge b-family">Model-family guidance</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Electrical</td><td data-label="Confirmed value or range">Two 12 V batteries; 24 V machine; 1,400 CCA; 100 A alternator</td><td data-label="Conditions/location">Machine electrical specification</td><td data-label="Applicability">350G LC</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-3">[3]</a></td></tr>
+            <tr><td data-label="Parameter">Air-intake hose inspection</td><td data-label="Confirmed value or range">Listed at 500-hour maintenance</td><td data-label="Conditions/location">Operator-manual service schedule</td><td data-label="Applicability">F809192— manual</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-1">[1]</a></td></tr>
+            <tr><td data-label="Parameter">Early DEF header screen/baffle</td><td data-label="Confirmed value or range">Procedure listed in 2,000-hour section for S/N —811697</td><td data-label="Conditions/location">User machine S/N 810000</td><td data-label="Applicability">Exact serial subrange</td><td data-label="Evidence"><span class="badge b-confirmed">Confirmed</span></td><td data-label="Source"><a href="#src-1">[1]</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Important values not publicly confirmed</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parameter needed</th><th>Why it matters</th><th>Verification source needed</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Parameter needed">Exact turbo-speed sensor supply, return, signal specification and connector pinout</td><td data-label="Why it matters">Distinguishes sensor/harness/ECU fault without damaging circuit</td><td data-label="Verification source needed">TM13206X19 electrical schematic and 6090HT012 engine CTM</td></tr>
+            <tr><td data-label="Parameter needed">Expected turbo speed versus rpm/load and allowable predicted/measured deviation</td><td data-label="Why it matters">Separates true under-speed from signal error</td><td data-label="Verification source needed">Service ADVISOR test plan / engine diagnostics</td></tr>
+            <tr><td data-label="Parameter needed">VGT commanded-position tolerance, actuator calibration limits and sweep procedure</td><td data-label="Why it matters">Prevents unnecessary turbo or actuator replacement</td><td data-label="Verification source needed">TM13206X19 and engine CTM</td></tr>
+            <tr><td data-label="Parameter needed">DPF differential-pressure limits at specified speed and temperature</td><td data-label="Why it matters">Determines actual restriction versus biased sensor/tubes</td><td data-label="Verification source needed">Service ADVISOR / TM13206X19</td></tr>
+            <tr><td data-label="Parameter needed">Exhaust-temperature targets and allowable regeneration duration</td><td data-label="Why it matters">Determines whether heat generation or filter loading is abnormal</td><td data-label="Verification source needed">Applicable OMT procedure plus diagnostic test plan</td></tr>
+            <tr><td data-label="Parameter needed">DEF supply/dosing pressure, purge and heater limits</td><td data-label="Why it matters">Confirms early header/supply-system fault</td><td data-label="Verification source needed">TM13206X19 / SCR diagnostic manual</td></tr>
+            <tr><td data-label="Parameter needed">Current ECU/software calibration and active PIP status</td><td data-label="Why it matters">Hardware may test correctly while logic/update remains outstanding</td><td data-label="Verification source needed">PIN lookup through Deere dealer/Service ADVISOR</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">No values above should be guessed from a different 350G serial range, a 210G, an agricultural 6090 application, or a generic J1939 list.</p>
+    </section>
+
+    <section id="plan">
+      <h2>10. Repair-priority plan</h2>
+      <ol class="steps">
+        <li><strong>Immediate safety and damage prevention — owner/operator.</strong> Stop for severe turbo noise, oil smoke, red STOP, fuel/oil leakage, wiring smoke or exhaust fire risk. Do not force regeneration around combustibles.</li>
+        <li><strong>Free visual and operating checks — informed owner/operator.</strong> Photograph messages; record exact codes; check auto-clean setting, DEF/fuel level, air-restriction indicator, cooler cleanliness, CAC hoses/clamps, obvious exhaust leaks, turbo sensor connector and harness rub points.</li>
+        <li><strong>Basic maintenance and contamination checks — owner or technician.</strong> Verify correct air/fuel filters and oil; drain water separators; assess DEF quality and early serial-range header service; inspect battery terminals/grounds.</li>
+        <li><strong>Fault-code and live-data review — trained technician with Service ADVISOR.</strong> Preserve all controller codes and snapshots. Graph turbo speed, VGT command/actual, MAP/baro/IAT, DPF pressure, exhaust temperatures, soot/ash estimate, dosing and SCR data.</li>
+        <li><strong>Targeted electrical/airflow tests — trained technician.</strong> Use TM13206X19, breakout leads and approved pressure/smoke-test equipment. Verify sensor circuit, harness, grounds, charge-air integrity and VGT sweep/calibration.</li>
+        <li><strong>Aftertreatment tests — emissions-trained technician.</strong> Validate DPF tubes/sensor, temperature sensors, fuel doser/DOC heat response, DEF supply/doser/heaters and NOx plausibility. Avoid blind sensor replacement.</li>
+        <li><strong>Software and PIN-specific checks — Deere dealer or authorized service.</strong> Check active PIPs, calibration versions, parts supersessions and required reset/relearn procedures.</li>
+        <li><strong>Removal or major repair — qualified shop.</strong> Remove DPF for flow/ash cleaning only after sensor and root-cause proof. Remove turbo only after circuit, air-path, VGT, lubrication and restriction tests isolate mechanical failure.</li>
+      </ol>
+
+      <div class="grid grid-2">
+        <article class="card">
+          <h3>Owner/operator can reasonably do</h3>
+          <ul>
+            <li>Record codes/messages and maintenance history.</li>
+            <li>Inspect accessible hoses, clamps, loom and connectors while cool and powered down.</li>
+            <li>Clean cooler exterior with approved method.</li>
+            <li>Verify approved fluids and DEF handling.</li>
+            <li>Check whether automatic cleaning has been disabled.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Requires technician/tools</h3>
+          <ul>
+            <li>Backprobe/breakout electrical measurements.</li>
+            <li>Service ADVISOR live-data graphing and actuator tests.</li>
+            <li>VGT calibration and software updates.</li>
+            <li>Charge-air pressure/smoke test.</li>
+            <li>DPF flow/ash evaluation, doser tests and DEF pressure tests.</li>
+            <li>Turbo removal or aftertreatment disassembly.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="ledger">
+      <h2>11. Evidence ledger and remaining gaps</h2>
+      <h3>Searches performed</h3>
+      <p>Searches covered the exact PIN format and production break; 350GLC operator, diagnostic and parts-manual publications; 6090HT010 versus 6090HT012 engine applicability; Final Tier 4 launch/specifications; CARB/EPA certification; turbo-speed DTC terminology; public Deere engine wiring pages; DPF/DEF/NOx components; recalls, campaigns, PIPs and parts supersessions.</p>
+
+      <h3>Accepted evidence</h3>
+      <ul>
+        <li>Applicable operator-manual metadata and table of contents for F809192—, including DPF/SCR and serial-specific DEF service procedures.</li>
+        <li>Parts-catalog applicability linking F809192— to 6090HT012.</li>
+        <li>Official Deere/CARB certification showing 6090HT012 Final Tier 4 and its emissions-control elements.</li>
+        <li>John Deere FT4 350G brochure specifications.</li>
+        <li>Official/general Deere DTC and engine-wiring pages used only as component-family guidance.</li>
+        <li>Dealer parts pages used to establish component applicability or supersession, not failure frequency.</li>
+      </ul>
+
+      <h3>Rejected or downgraded evidence</h3>
+      <ul>
+        <li>Forum posts, social media, isolated owner reports and search snippets were not used to prove a model defect.</li>
+        <li>Interim Tier 4 6090HT010 wiring and procedures were rejected for direct use because this PIN is in the later FT4 range.</li>
+        <li>Manual-reseller descriptions were used only for publication/PIN metadata when primary manuals were not publicly accessible.</li>
+        <li>Generic truck or agricultural diagnostic thresholds were rejected as machine specifications.</li>
+      </ul>
+
+      <h3>Unresolved contradictions and gaps</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Gap</th><th>Current conclusion</th><th>What closes it</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Gap">Exact wording/code behind “turbo isn’t up to speed”</td><td data-label="Current conclusion">SPN 103 turbo-speed family is the leading interpretation, but FMI and controller are unknown.</td><td data-label="What closes it">Photo of alarm list plus complete SPN/FMI and occurrence data.</td></tr>
+            <tr><td data-label="Gap">OEM pin-level emissions schematic</td><td data-label="Current conclusion">Public sources support the architecture, not exact 350G pins/colors/splices.</td><td data-label="What closes it">TM13206X19 schematic pages and 6090HT012 engine CTM.</td></tr>
+            <tr><td data-label="Gap">Installed engine/component substitutions</td><td data-label="Current conclusion">6090HT012 is correct by PIN unless replaced or modified.</td><td data-label="What closes it">Engine serial plate, option-code label and parts history.</td></tr>
+            <tr><td data-label="Gap">Whether a current PIP/software update applies</td><td data-label="Current conclusion">No public campaign found; Deere’s system is PIN-specific.</td><td data-label="What closes it">Dealer/Deere PIN inquiry and Service ADVISOR calibration report.</td></tr>
+            <tr><td data-label="Gap">Actual DPF ash/soot state</td><td data-label="Current conclusion">Cannot be inferred from “long regen.”</td><td data-label="What closes it">Live soot/ash data, DPF pressure trend and service history.</td></tr>
+            <tr><td data-label="Gap">Operating pattern and hours</td><td data-label="Current conclusion">Likelihood ranking assumes an aged 2014 machine but hours/duty are unknown.</td><td data-label="What closes it">Hour meter, idle percentage, application, load cycle and prior regen history.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warning">
+        <strong>Exact documents to obtain:</strong> OMT351368X19 operator manual; TM13206X19 Diagnostic, Operation and Test; T351354X19 repair technical manual; PC11263 parts catalog; 6090HT012 engine serial-specific component technical manual; current Service ADVISOR diagnostic test plans and calibration/PIP report.
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2>12. Sources</h2>
+      <ol class="source-list">
+        <li id="src-1">
+          <div class="source-title">John Deere 350GLC Excavator Operator’s Manual — OMT351368X19</div>
+          <div class="source-meta">Applicable PIN: 1FF350GX__F809192—. Public metadata/TOC reviewed. Relevant entries: aftertreatment indicators; exhaust filter and parked cleaning; SCR overview; DEF use; 500-hour air-intake hose check; serial-specific DEF header/filter procedures; service documents T351354X19, TM13206X19 and PC11263.</div>
+          <a href="https://heydownloads.com/product/john-deere-350glc-excavator-operators-manual-pdf-download-3/" target="_blank" rel="noopener">Open source page</a>
+          <div class="url">https://heydownloads.com/product/john-deere-350glc-excavator-operators-manual-pdf-download-3/</div>
+        </li>
+        <li id="src-2">
+          <div class="source-title">John Deere 350GLC Parts Catalog — PC11263</div>
+          <div class="source-meta">Applicable PIN: 1FF350GX__F809192—. Public catalog/parts metadata identifies engine 6090HT012 for this range. Publication itself is proprietary.</div>
+          <a href="https://www.ebay.com/itm/318439360990" target="_blank" rel="noopener">Open catalog metadata</a>
+          <div class="url">https://www.ebay.com/itm/318439360990</div>
+          <a href="https://www.rdoequipment.com/product-details/john-deere-head-cyl-fxb00009745" target="_blank" rel="noopener">Open dealer fitment reference</a>
+        </li>
+        <li id="src-3">
+          <div class="source-title">John Deere 350G LC Final Tier 4 product brochure/specifications</div>
+          <div class="source-meta">PowerTech PSS 9.0 L, Final Tier 4, 202 kW/271 hp at 1,900 rpm, series turbocharging, DOC/DPF/SCR description, capacities and electrical specifications. Dealer-hosted Deere brochure.</div>
+          <a href="https://www.doublehequip.com/siteart/pdf/rental/Excavators-Mid-Size-G-Series-DKA350380G.pdf" target="_blank" rel="noopener">Open PDF</a>
+          <div class="url">https://www.doublehequip.com/siteart/pdf/rental/Excavators-Mid-Size-G-Series-DKA350380G.pdf</div>
+        </li>
+        <li id="src-4">
+          <div class="source-title">John Deere 350G operator manual OMT289050 — earlier Interim Tier 4 configuration</div>
+          <div class="source-meta">Reviewed only to establish non-applicability and the earlier 6090HT010 configuration. Do not use its electrical details for this F810000 machine.</div>
+          <a href="https://www.scribd.com/document/478866715/OMT289050-350G-E808001-English" target="_blank" rel="noopener">Open source page</a>
+          <div class="url">https://www.scribd.com/document/478866715/OMT289050-350G-E808001-English</div>
+        </li>
+        <li id="src-5">
+          <div class="source-title">California Air Resources Board / John Deere Power Systems Executive Order — 6090HT012</div>
+          <div class="source-meta">Official certification. Lists 6090HT012 in a Final Tier 4 family and identifies electronic control, EGR, periodic trap oxidizer, turbocharger, SCR-urea and ammonia oxidation catalyst.</div>
+          <a href="https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/emission-certificates/certified/carb/2015/U-R-004-0495.pdf" target="_blank" rel="noopener">Open 2015 certificate PDF</a>
+          <div class="url">https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/emission-certificates/certified/carb/2015/U-R-004-0495.pdf</div>
+          <a href="https://www.deere.com/assets/pdfs/common/industries/engines-and-drivetrain/emission-certificates/certified/carb/2016/U-R-004-0518.pdf" target="_blank" rel="noopener">Open subsequent family certificate PDF</a>
+        </li>
+        <li id="src-6">
+          <div class="source-title">John Deere 350GLC Diagnostic, Operation and Test Manual — TM13206X19</div>
+          <div class="source-meta">Applicable PIN: 1FF350GX__F809192—. Proprietary manual identified as the required source for exact schematics, connector pins, tests and specifications.</div>
+          <a href="https://repairsadvisor.com/john-deere-350glc-pin-1ff350gx-f809192-excavator-diagnostic-operation-and-test-manual-tm13206x19-ra0244469.html" target="_blank" rel="noopener">Open publication metadata</a>
+          <div class="url">https://repairsadvisor.com/john-deere-350glc-pin-1ff350gx-f809192-excavator-diagnostic-operation-and-test-manual-tm13206x19-ra0244469.html</div>
+        </li>
+        <li id="src-7">
+          <div class="source-title">John Deere turbocharger speed sensor references</div>
+          <div class="source-meta">Official/dealer parts sources identify the turbo-speed sensing component and a RE540025-to-DZ103962 supersession. Exact installed part must be verified by machine/engine serial.</div>
+          <a href="https://www.rdoequipment.com/product-details/john-deere-sensor-kit-re540025" target="_blank" rel="noopener">RDO RE540025 reference</a>
+          <div class="url">https://www.rdoequipment.com/product-details/john-deere-sensor-kit-re540025</div>
+          <a href="https://shop.deere.com/ca/en/product/DZ103962%3A-Turbocharger-Speed-Sensor-Kit/p/DZ103962" target="_blank" rel="noopener">John Deere DZ103962 reference</a>
+        </li>
+        <li id="src-8">
+          <div class="source-title">John Deere public engine wiring/DTC documentation — above 130 kW</div>
+          <div class="source-meta">Component-family guidance identifies turbo speed sensor B5300, VGT and DPF-related circuits in Deere engine wiring. Not a machine-specific 350G schematic.</div>
+          <a href="https://manuals.deere.com/omview/OMRG38059_19/BK53208%2C0000369_19_20160229.html" target="_blank" rel="noopener">Engine wiring diagram above 130 kW</a>
+          <div class="url">https://manuals.deere.com/omview/OMRG38059_19/BK53208%2C0000369_19_20160229.html</div>
+          <a href="https://manuals.deere.com/omview/OMRG38059_19/HS01721A%2C00000D7_19_20100412.html" target="_blank" rel="noopener">DTC/SPN listing</a>
+        </li>
+        <li id="src-9">
+          <div class="source-title">John Deere ECU diagnostic trouble code page — SPN 103 turbocharger speed</div>
+          <div class="source-meta">Official Deere model-family reference: SPN 103 variants include predicted/measured mismatch, open, short, invalid and missing-input descriptions. Exact 6090HT012 application and FMI must be confirmed in Service ADVISOR.</div>
+          <a href="https://manuals.deere.com/omview/OMH229936_19/OUO6075_0000B3D_19_02AUG07_1.htm" target="_blank" rel="noopener">Open Deere DTC page</a>
+          <div class="url">https://manuals.deere.com/omview/OMH229936_19/OUO6075_0000B3D_19_02AUG07_1.htm</div>
+        </li>
+        <li id="src-10">
+          <div class="source-title">John Deere DPF differential-pressure sensor — RE546719</div>
+          <div class="source-meta">Official parts description establishes the DPF delta-pressure sensor function. Exact 350G part and circuit must be resolved through PC11263/TM13206X19.</div>
+          <a href="https://shop.deere.com/us/product/RE546719%3A-Diesel-Particulate-Filter-Delta-Pressure-Sensor/p/RE546719" target="_blank" rel="noopener">Open Deere parts page</a>
+          <div class="url">https://shop.deere.com/us/product/RE546719%3A-Diesel-Particulate-Filter-Delta-Pressure-Sensor/p/RE546719</div>
+        </li>
+        <li id="src-11">
+          <div class="source-title">John Deere guidance: understanding DPF regeneration</div>
+          <div class="source-meta">Official Deere operator-manual guidance used only for general DPF behavior: repeated disabling of active regeneration can lead to a parked-cleaning requirement.</div>
+          <a href="https://manuals.deere.com/omview/OMTCU40074_19/MX00654%2C000007E_19_20151020.html" target="_blank" rel="noopener">Open Deere manual page</a>
+          <div class="url">https://manuals.deere.com/omview/OMTCU40074_19/MX00654%2C000007E_19_20151020.html</div>
+        </li>
+        <li id="src-12">
+          <div class="source-title">John Deere NOx sensor RE552183 applicability</div>
+          <div class="source-meta">Dealer catalog fitment identifies the sensor for 350GLC F809192— with 6090HT012. Used only as component applicability, not proof of failure.</div>
+          <a href="https://www.rdoequipment.com/product-details/john-deere-chemical-sensor-re552183" target="_blank" rel="noopener">Open dealer parts page</a>
+          <div class="url">https://www.rdoequipment.com/product-details/john-deere-chemical-sensor-re552183</div>
+        </li>
+        <li id="src-13">
+          <div class="source-title">John Deere Service & Repair Resources</div>
+          <div class="source-meta">Official Deere page states that PIN-specific information can include warranty details, Product Improvement Programs, components/options, machine health and service resources.</div>
+          <a href="https://www.deere.com/en-us/our-company/service-repair-resources" target="_blank" rel="noopener">Open Deere service resources</a>
+          <div class="url">https://www.deere.com/en-us/our-company/service-repair-resources</div>
+        </li>
+        <li id="src-14">
+          <div class="source-title">John Deere upgrades G-series excavators with Final Tier 4 engines</div>
+          <div class="source-meta">Industry publication dated July 8, 2014, describing the 350G Final Tier 4 PowerTech PSS 9.0 L, DPF and DEF/SCR introduction. Useful for resolving model-year overlap.</div>
+          <a href="https://www.oemoffhighway.com/engines/press-release/11564365/john-deere-upgrades-gseries-excavators-with-tier-4-final-engines" target="_blank" rel="noopener">Open article</a>
+          <div class="url">https://www.oemoffhighway.com/engines/press-release/11564365/john-deere-upgrades-gseries-excavators-with-tier-4-final-engines</div>
+        </li>
+      </ol>
+      <p class="small">Source review date: August 3, 2026. Public URLs can change. The report records proprietary gaps rather than filling them with guessed values.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="footer">
+  <p><strong>Scope:</strong> field diagnostic prioritization for one identified machine. This is not a replacement for John Deere service literature, technician training, lockout procedures, Service ADVISOR test plans or emissions regulations.</p>
+</footer>
+
+<script>
+(function(){
+  const tables=document.querySelectorAll('.sortable-table');
+  function cellValue(row,index){
+    const cell=row.cells[index];
+    return cell?.dataset.sort ?? cell?.textContent.trim() ?? '';
+  }
+  function sortTable(table,header,index){
+    const tbody=table.tBodies[0];
+    const rows=Array.from(tbody.rows);
+    const type=header.dataset.type||'text';
+    const asc=header.getAttribute('aria-sort')!=='ascending';
+    table.querySelectorAll('th[aria-sort]').forEach(th=>th.removeAttribute('aria-sort'));
+    header.setAttribute('aria-sort',asc?'ascending':'descending');
+    rows.sort((a,b)=>{
+      let av=cellValue(a,index),bv=cellValue(b,index);
+      if(type==='number'){av=parseFloat(av)||0;bv=parseFloat(bv)||0;return asc?av-bv:bv-av;}
+      return asc?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});
+    });
+    rows.forEach(r=>tbody.appendChild(r));
+  }
+  tables.forEach(table=>{
+    table.querySelectorAll('th.sortable').forEach((th,i)=>{
+      th.addEventListener('click',()=>sortTable(table,th,i));
+      th.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sortTable(table,th,i);}});
+    });
+  });
+
+  const links=Array.from(document.querySelectorAll('.toc a'));
+  const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+      if(!visible)return;
+      links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+visible.target.id));
+    },{rootMargin:'-20% 0px -65% 0px',threshold:[0,.1,.4]});
+    sections.forEach(s=>io.observe(s));
+  }
+  const jump=document.getElementById('mobileJump');
+  jump?.addEventListener('change',()=>{if(jump.value){location.hash=jump.value;jump.value='';}});
+})();
+</script>
+</body>
+</html>

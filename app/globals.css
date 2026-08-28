@@ -1,0 +1,3894 @@
+/**
+ * RootCause shell tokens — blue chrome, orange accent.
+ *
+ * SUPERSEDES the brand-board palette of 2026-08-05 (near-black + amber +
+ * Rajdhani), which was rejected in favour of the earlier blue-with-orange
+ * scheme. These are the values from `af97427`, restored verbatim.
+ *
+ * The shell and the report are deliberately NOT the same colour. Reports stay
+ * liveried by equipment manufacturer (`app/lib/brand.ts` THEMES); the shell is
+ * blue and orange regardless. Only the unrecognised-make fallback follows the
+ * shell.
+ *
+ * The `--green-*` / `--gold` names remain as aliases: ~1,400 lines of rules
+ * still reference them, and aliasing recolours everything at once. Migrate a
+ * name when you next touch the rule that uses it.
+ */
+:root {
+  /* Surfaces */
+  --paper: #eef1f4;
+  --paper-strong: #ffffff;
+  --paper-soft: #e3e8ee;
+  --panel-2: #f4f6f8;
+
+  /* Text. --muted is 5.7:1 on --paper; do not lighten it. */
+  --ink: #16202b;
+  --muted: #4e5c6a;
+
+  /* Chrome — masthead, footer, dark panels */
+  --chrome: #10243a;
+  --chrome-2: #17314c;
+  --chrome-3: #1f4062;
+  --chrome-4: #2a5580;
+  --chrome-deep: #0b1a2b;
+
+  /* Accent. Orange is a signal colour: rules, marks and small type on dark.
+     Never a background behind body text — it carries black, not white. */
+  --accent: #e07a1f;
+  --accent-soft: #f6d4ae;
+  --accent-ink: #7a4108;
+
+  /* Lines */
+  --line: #ccd4dc;
+  --line-heavy: #8f9ba8;
+
+  /* Semantics — identical to the report stylesheet on purpose. Evidence tone
+     must read the same wherever it appears. */
+  --danger: #a3271d;
+  --danger-soft: #f7e8e6;
+  --warn: #7c5c00;
+  --warn-soft: #f6efdb;
+  --ok: #245c3c;
+  --info: #1d5573;
+  --info-soft: #e7eff4;
+
+  /* Type. The reference documents set prose in the system sans and every
+     label, eyebrow and badge in mono. Rajdhani was dropped 2026-08-05. */
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Roboto Mono", monospace;
+
+  /* The documents use 2px throughout. Instruments, not app chrome. */
+  --radius-lg: 3px;
+  --radius: 2px;
+  --shadow: 0 1px 2px rgba(16, 36, 58, 0.06);
+
+  /* Rhythm. One 4px-based scale for the shell's vertical spacing, plus the
+     masthead's two dimensions, so chrome and content tighten together instead
+     of each rule carrying its own magic number. --gutter is the one
+     page-margin expression, written once and overridden once for mobile. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --header-h: 44px;
+  --stripe-h: 5px;
+  --gutter: max(28px, calc((100vw - 1240px) / 2));
+
+  /* The Brand-marks layer references this for the mark on light surfaces; it
+     was referenced without ever being defined, so the mark silently inherited
+     body ink. Same value, now deliberate. */
+  --brand-ink: var(--ink);
+
+  /* --- Legacy aliases. Same names, blue/orange roles. --- */
+  --green-950: var(--chrome);
+  --green-900: var(--chrome-2);
+  --green-800: var(--chrome-3);
+  --green-700: var(--chrome-4);
+  --green-600: #2a5580;
+  --gold: var(--accent);
+  --gold-soft: var(--accent-soft);
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+/* No drag-to-resize grippers anywhere — the boxes are sized by their rules. */
+textarea {
+  resize: none;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  color: inherit;
+}
+
+/* The focus ring is defined once, in the Controls layer near the end of this
+   file, using var(--accent). A second hardcoded rule used to live here and
+   survived three palettes without ever being recoloured; it is gone. */
+
+.app-shell {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Slim chrome: the header is var(--header-h) all in — the hazard stripe lives
+   inside it (see the Document-chassis layer's ::after), not stacked below it.
+   The old 72px bar plus a separate 10px chevron strip spent ~88px on chrome;
+   the strip also rendered blank (its gradient referenced an undefined
+   --brand-grey), so its brand duty folds into the stripe here. Slimmed again
+   56px → 44px on 2026-08-06: the bar still spent too much height on chrome. */
+.site-header {
+  align-items: center;
+  background: var(--green-950);
+  border-bottom: 3px solid var(--gold);
+  color: #fff;
+  display: flex;
+  gap: var(--space-4);
+  height: var(--header-h);
+  justify-content: space-between;
+  padding: 0 var(--gutter) var(--stripe-h);
+  position: relative;
+  z-index: 10;
+}
+
+.wordmark {
+  align-items: center;
+  color: #fff;
+  display: inline-flex;
+  font-size: 18px;
+  font-weight: 900;
+  gap: 11px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.wordmark > span:last-child span {
+  color: var(--gold);
+}
+
+.wordmark-mark {
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: inline-flex;
+  font-size: 11px;
+  height: 34px;
+  justify-content: center;
+  letter-spacing: -0.02em;
+  position: relative;
+  transform: skew(-6deg);
+  width: 38px;
+}
+
+.wordmark-mark::after {
+  background: var(--gold);
+  bottom: -4px;
+  content: "";
+  height: 3px;
+  left: 7px;
+  position: absolute;
+  width: 18px;
+}
+
+.header-context {
+  color: #c8d4e2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Compact identity band. Was a 440px two-column marquee with proof pills, an
+   aside card and a 420px "RC" watermark, which cost far more vertical space
+   than it conveyed. A more technical register replaced it: the blueprint grid
+   stays, and everything that needed the height went with it. */
+.hero {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 82% 30%, rgba(224, 122, 31, 0.14), transparent 26%),
+    linear-gradient(125deg, var(--green-950), var(--green-800));
+  background-size: 52px 52px, 52px 52px, auto, auto;
+  color: #fff;
+  padding: var(--space-6) var(--gutter);
+}
+
+/* Labels are mono everywhere in the reference documents; the shell's eyebrows
+   now match (2026-08-06 "technical" pass). */
+.eyebrow {
+  color: var(--green-600);
+  font: 700 11px/1.4 var(--mono);
+  letter-spacing: 0.18em;
+  margin: 0 0 var(--space-3);
+  text-transform: uppercase;
+}
+
+.hero .eyebrow,
+.interview-page .eyebrow {
+  color: var(--gold);
+}
+
+.hero h1 {
+  font-size: clamp(30px, 3.6vw, 46px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin: 0;
+}
+
+.hero h1 em {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.hero-lede {
+  color: #c8d4e2;
+  font-size: 15px;
+  line-height: 1.55;
+  margin: var(--space-3) 0 0;
+  max-width: 68ch;
+}
+
+.intake-section {
+  margin: 0 auto;
+  max-width: 1240px;
+  padding: var(--space-6) 28px var(--space-8);
+}
+
+.section-heading {
+  align-items: end;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: var(--space-5);
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+}
+
+.section-heading h2,
+.interview-heading h1,
+.report-toolbar h1 {
+  font-size: clamp(30px, 3.6vw, 46px);
+  letter-spacing: -0.055em;
+  line-height: 1;
+  margin: 0;
+}
+
+.section-heading > p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 3px;
+  max-width: 46ch;
+  text-align: right;
+}
+
+.section-heading > p span {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.intake-form {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.form-block {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+  padding: var(--space-6) 38px;
+}
+
+.form-block legend {
+  float: left;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+/* General sibling, not adjacent: in the identity block the element right after
+   the legend is the absolutely-placed actions row, which a `clear` cannot
+   touch — the first in-flow row still has to clear the floated legend. */
+.form-block legend ~ * {
+  clear: both;
+}
+
+.form-block legend > span {
+  color: var(--green-600);
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.form-block legend small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-left: 8px;
+}
+
+/* Shares the legend's row instead of spending one of its own — the button is
+   absolutely placed against the fieldset so "01 Machine identity" and
+   "Randomize machine" sit on a single line (2026-08-06 densify pass). */
+.identity-block {
+  position: relative;
+}
+
+.identity-actions {
+  position: absolute;
+  right: 38px;
+  top: 22px;
+}
+
+.randomize-button {
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  text-transform: uppercase;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.randomize-button:hover {
+  background: var(--paper);
+  border-color: var(--line-heavy);
+}
+
+/* "Use a saved machine" shortcut at the head of section 01. Renders only when
+   the operator actually has machines, so the divider below it never appears
+   over an empty control. */
+.machine-picker {
+  margin-bottom: var(--space-5);
+}
+
+.machine-picker-divider {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  gap: 14px;
+  letter-spacing: 0.14em;
+  margin: var(--space-5) 0 0;
+  text-transform: uppercase;
+}
+
+.machine-picker-divider::before,
+.machine-picker-divider::after {
+  background: #ccd4dc;
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
+.field-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.primary-fields {
+  grid-template-columns: 0.65fr 1.2fr 1fr;
+}
+
+.secondary-fields {
+  border-top: 1px solid #ccd4dc;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+}
+
+.detail-fields {
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: var(--space-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ComboField renders a real <label htmlFor> where the other fields wrap their
+   input in <label className="field"> — see app/components/combobox.tsx for why
+   the wrapper cannot be reused. Both spellings share the eyebrow treatment. */
+.field > span,
+.field > label {
+  color: #26323f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.field > span b,
+.field > label b {
+  color: var(--danger);
+}
+
+.field small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.field input,
+.field select,
+.field textarea,
+.reply-box textarea {
+  appearance: none;
+  background: #f7f9fb;
+  border: 1px solid #ccd4dc;
+  border-radius: 8px;
+  color: var(--ink);
+  line-height: 1.4;
+  padding: 13px 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  width: 100%;
+}
+
+/* A select in .field used to fall through to native chrome: the block above
+   listed only input and textarea, and the later touch-target rules add nothing
+   but radius and min-height. The chevron is drawn here because appearance:none
+   removes the platform one. */
+.field input,
+.field select {
+  height: 49px;
+}
+
+.field select {
+  background-image: linear-gradient(45deg, transparent 50%, #5b6b7b 50%),
+    linear-gradient(135deg, #5b6b7b 50%, transparent 50%);
+  background-position: right 18px center, right 13px center;
+  background-repeat: no-repeat;
+  background-size: 5px 5px, 5px 5px;
+  cursor: pointer;
+  padding-right: 34px;
+}
+
+.field textarea {
+  min-height: 92px;
+}
+
+.field .problem-input {
+  font-size: 16px;
+  min-height: 150px;
+  padding: 17px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder,
+.reply-box textarea::placeholder {
+  color: #7c8894;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.reply-box textarea:focus {
+  background: #fff;
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px rgba(224, 122, 31, 0.16);
+  outline: none;
+}
+
+.photo-picker {
+  align-items: center;
+  background:
+    repeating-linear-gradient(135deg, rgba(16, 36, 58, 0.02) 0, rgba(16, 36, 58, 0.02) 8px, transparent 8px, transparent 16px),
+    #f7f9fb;
+  border: 1px dashed #a9b6c3;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  gap: 16px;
+  min-height: 106px;
+  padding: 22px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.photo-picker:hover {
+  background-color: #eaeff5;
+  border-color: var(--green-600);
+}
+
+.photo-picker input {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.photo-picker:has(input:focus-visible) {
+  outline: 3px solid #e07a1f;
+  outline-offset: 3px;
+}
+
+.photo-plus {
+  align-items: center;
+  background: var(--green-800);
+  border-radius: 50%;
+  color: var(--gold);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 28px;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+
+.photo-picker strong,
+.photo-picker small {
+  display: block;
+}
+
+.photo-picker strong {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.photo-picker small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.photo-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 18px;
+}
+
+.photo-preview {
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.photo-preview img {
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.photo-preview figcaption {
+  font-size: 11px;
+  overflow: hidden;
+  padding: 8px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-preview button {
+  align-items: center;
+  background: rgba(11, 26, 43, 0.9);
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: 20px;
+  height: 30px;
+  justify-content: center;
+  line-height: 1;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 30px;
+}
+
+.form-error {
+  background: var(--danger-soft);
+  border-left: 4px solid var(--danger);
+  color: #a3271d;
+  font-size: 13px;
+  margin: 24px 38px 0;
+  padding: 12px 14px;
+}
+
+.form-submit {
+  align-items: center;
+  background: #eaeff5;
+  display: flex;
+  gap: 30px;
+  justify-content: space-between;
+  padding: var(--space-5) 38px;
+}
+
+.form-submit p {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 12px;
+  gap: 10px;
+  margin: 0;
+  max-width: 560px;
+}
+
+.form-submit p span,
+.case-caution span {
+  align-items: center;
+  background: var(--gold);
+  border-radius: 50%;
+  color: var(--green-950);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 900;
+  height: 23px;
+  justify-content: center;
+  width: 23px;
+}
+
+.primary-button {
+  align-items: center;
+  background: var(--green-800);
+  border: 1px solid var(--green-800);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 18px;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 21px;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--green-700);
+  transform: translateY(-1px);
+}
+
+.primary-button span {
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.interview-page {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    var(--green-950);
+  background-size: 52px 52px;
+  color: #fff;
+  min-height: calc(100vh - var(--header-h));
+  padding: var(--space-7) var(--gutter) var(--space-8);
+}
+
+.interview-heading {
+  align-items: end;
+  display: flex;
+  gap: 36px;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.interview-heading > div:first-child > p:last-child {
+  color: #b9c8d8;
+  margin: 18px 0 0;
+}
+
+.machine-plaque {
+  border-left: 3px solid var(--gold);
+  min-width: 260px;
+  padding: 4px 0 4px 18px;
+}
+
+.machine-plaque span,
+.machine-plaque small {
+  color: #9fb2c6;
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.machine-plaque strong {
+  display: block;
+  font-size: 18px;
+  margin: 3px 0 2px;
+}
+
+.interview-layout {
+  align-items: start;
+  display: grid;
+  gap: 26px;
+  grid-template-columns: 290px minmax(0, 1fr);
+}
+
+.case-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-top: 3px solid var(--gold);
+  padding: 25px;
+  position: sticky;
+  top: 24px;
+}
+
+.case-index {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.case-summary h2 {
+  font-size: 20px;
+  margin: 32px 0 10px;
+}
+
+.case-summary > p {
+  color: #c8d4e2;
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.case-summary dl {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 25px 0;
+  padding: 12px 0;
+}
+
+.case-summary dl div {
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.case-summary dt {
+  color: #93a8bd;
+}
+
+.case-summary dd {
+  margin: 0;
+}
+
+.case-summary .case-caution {
+  align-items: flex-start;
+  color: #f6d4ae;
+  display: flex;
+  font-size: 11px;
+  gap: 9px;
+  line-height: 1.45;
+}
+
+.conversation-panel {
+  background: var(--paper-strong);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.23);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.conversation-status {
+  align-items: center;
+  background: #eaeff5;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  font-size: 10px;
+  font-weight: 900;
+  gap: 8px;
+  letter-spacing: 0.13em;
+  padding: 14px 22px;
+  text-transform: uppercase;
+}
+
+.status-dot {
+  background: var(--green-600);
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.status-dot.is-working {
+  animation: pulse 1.3s infinite;
+  background: var(--gold);
+}
+
+@keyframes pulse {
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Was 280px, back when the assistant bubble carried all three questions and
+     filled it. The open turn's questions are asked in the block below now, so
+     the first bubble is one short line and 280px was a void under it. The ask
+     block reserves the panel's height instead — see .ask-current. */
+  min-height: 140px;
+  /* And bounded at the other end: the transcript is history, the question is
+     the work. Ten turns of history must not push the open question and its
+     answers off the bottom of the screen. The region scrolls, the newest turn
+     is pinned to its bottom (see the scroll effect in diagnostic-app.tsx), and
+     the ask block below stays where the operator last saw it.
+
+     A viewport-height pane with the ask block pinned was tried instead and is
+     worse: on a 760px screen it pushed the compose row into a *second*, nested
+     scroll region inside the ask block, which hid the send control in exactly
+     the review state where it is the only thing left to do. */
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: var(--space-5);
+}
+
+/* Latched imperatively by the scroll effect the moment content actually
+   fills the cap — at that instant the reserve applies with zero visual
+   delta, and from then on a send SCROLLS the region instead of growing it,
+   so the ask block below stops sliding down the page at every turn boundary
+  . The first paint stays compact — that early void is why the
+   140px floor above exists. */
+.messages.is-grown {
+  min-height: 46vh;
+}
+
+/* Screen-reader-only live region. Same recipe as .combo-status. */
+.visually-hidden {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.message {
+  max-width: 82%;
+  padding: 17px 19px;
+}
+
+.assistant-message {
+  align-self: flex-start;
+  background: #eaeff5;
+  border-left: 3px solid var(--green-600);
+}
+
+.user-message {
+  align-self: flex-end;
+  background: var(--green-800);
+  color: #fff;
+}
+
+.message-label {
+  color: var(--green-600);
+  display: block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+}
+
+.user-message .message-label {
+  color: var(--gold);
+}
+
+.message p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.loading-message p {
+  color: var(--muted);
+}
+
+/* The in-flight turn ticks so the pause reads as work, not a hang. Browsers
+   that cannot animate content simply show the static message; the global
+   reduced-motion rule freezes it likewise.
+
+   The fixed width keeps the dots from widening the line, and nowrap is its
+   other half: "· · ·" is wider than the box and carries spaces, so without it
+   the dots WRAP INSIDE the 1.1em box — the paragraph gains a line at "· ·"
+   and another at "· · ·", and everything below the bubble bounces one to two
+   line-heights on every 1.6s cycle, for the whole wait. The overflow is
+   invisible: the box sits at the end of its own line. */
+.loading-message p::after {
+  animation: thinking 1.6s steps(4, jump-none) infinite;
+  content: "…";
+  display: inline-block;
+  text-align: left;
+  white-space: nowrap;
+  width: 1.1em;
+}
+
+@keyframes thinking {
+  0% { content: ""; }
+  33% { content: "·"; }
+  66% { content: "· ·"; }
+  100% { content: "· · ·"; }
+}
+
+.conversation-error {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 var(--space-5) var(--space-4);
+}
+
+.conversation-error .form-error {
+  flex: 1 1 240px;
+  margin: 0;
+}
+
+/* ── The ask block ────────────────────────────────────────────────────────
+   One question at a time, its answers directly above the box that types them,
+   and the compose row in the same place in every state.
+
+   The operator this is drawn for has greasy hands, is part way through being
+   annoyed at a machine, and is holding a phone in the other hand. Three things
+   follow from that and are load-bearing rather than taste:
+
+   1. Targets are 56px and full width below 720px, with real gaps. A slipped
+      finger should hit nothing, never the wrong answer — the gap is the
+      feature, not the spacing.
+   2. Nothing moves under a thumb. The compose row is the last child in every
+      state, and `.ask-current`/`.ask-review` hold a floor height so swapping
+      between them never yanks it upward — the CSS reserves a base floor and a
+      JS ratchet (diagnostic-app.tsx) raises it to the tallest state the turn
+      has shown. The block sits in NORMAL FLOW: sticky was tried at 390×760
+      and rejected (measured 2026-08-07); do not reintroduce it.
+   3. Answer labels are sentence case, not the uppercase this file uses for
+      every other label. These are the operator's words being read at speed
+      under glare — "Also when just lowered" beats "ALSO WHEN JUST LOWERED".
+      The mono family is kept, so it still sits in the house style. */
+
+.ask-block {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Progress rail and retract control in one. Every settled question is a button
+   back to itself, so a mis-tap costs one tap to fix and needs no undo state —
+   nothing has left the browser until the turn sends. */
+.ask-track {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-5);
+}
+
+/* Equal-width pills, one row, always. With content-sized pills the rail
+   wrapped to a second row the moment the summaries replaced "Now"/"—",
+   dropping the review 52px right as the last chip committed — and shrank
+   back a row when the next turn's compact rail arrived. Sized by question
+   count alone, the rail cannot move anything for the life of the turn; the
+   truncated summary loses little, since the full text is in the aria-label
+   and the review list below. */
+.ask-track li {
+  flex: 1 1 0;
+  max-width: 15rem;
+  min-width: 0;
+}
+
+/* In flight: the rail keeps its exact review-state geometry (same summaries,
+   from the snapshot) but disappears — visibility so the space holds and AT
+   skips it. Unmounting it here was a 44px shift at send AND at arrival. */
+.ask-track.is-held {
+  visibility: hidden;
+}
+
+.ask-pill {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font: 700 0.68rem/1.3 var(--mono);
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 10px;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  width: 100%;
+}
+
+/* The digit is the rail's only "which question" cue, at ~11px bold — it must
+   clear 4.5:1. --line-heavy measured 2.83:1 on the white panel. */
+.ask-pill b {
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+/* The answer is the label, truncated — the full text is in the aria-label and
+   one tap away in the question itself. */
+.ask-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ask-pill.is-settled {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* --accent-ink, not --accent: the settled state is the rail's dominant one
+   and the raw accent measured 3.01:1 at digit size. */
+.ask-pill.is-settled b {
+  color: var(--accent-ink);
+}
+
+.ask-pill.is-skipped {
+  border-color: var(--line-heavy);
+  color: var(--muted);
+}
+
+.ask-pill.is-skipped b {
+  color: var(--muted);
+}
+
+.ask-pill.is-current {
+  background: var(--green-800);
+  border-color: var(--green-800);
+  color: #fff;
+}
+
+/* White, not --gold: the gold digit measured 3.58:1 on the dark pill at a
+   size that needs 4.5:1. */
+.ask-pill.is-current b {
+  color: #fff;
+}
+
+.ask-pill:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Unsettled and current pills are not retract targets; the current one is
+   already open and an unreached one has nothing to take back. */
+.ask-pill:disabled {
+  cursor: default;
+}
+
+.ask-current,
+.ask-review {
+  /* A floor, not a fixed height: swapping the open question for the review
+     list must not jerk the compose row up the screen. */
+  min-height: 190px;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+/* Never shrink inside the block's flex column. Without this the mobile pane
+   compresses the question box instead of scrolling, and its chips render on
+   top of the compose row — squashed flex children overflow, they do not
+   reflow. The block scrolls; its parts keep their size. */
+.ask-track,
+.ask-current,
+.ask-review,
+.ask-block .reply-form,
+.ask-block .conversation-error {
+  flex: 0 0 auto;
+}
+
+.ask-step {
+  color: var(--muted);
+  font: 700 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+/* Takes focus on every step of the walk, so it needs to look focusable to
+   nobody and read clearly to everybody. Two lines are reserved because the
+   chips sit directly below: a one-line question following a two-line one
+   dropped the whole options grid 24px between taps, right under the thumb
+   mid-walk. A three-line question still grows — the reserve covers the
+   common case, not the worst one. */
+.ask-question {
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0 0 var(--space-4);
+  min-height: 2.9em;
+}
+
+/* The walk's three programmatic focus targets — the open question, the
+   review/sent heading, and the readiness line — get a real indicator: a
+   keyboard user otherwise watches the focus ring vanish on every single step
+  . Higher specificity than the [tabindex="-1"] suppression below,
+   which stays correct for the stage headings it was written for. */
+p.ask-question:focus-visible,
+.ask-review .ask-step:focus-visible,
+.report-action p:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.ask-options {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.ask-chip {
+  align-items: center;
+  /* Not --paper-strong: white chips on the white panel left a 1.5:1 hairline
+     as the tap target's only boundary — invisible at arm's length in glare.
+     The soft fill carries the edge; the heavier border finishes it. */
+  background: var(--paper-soft);
+  border: 1px solid var(--line-heavy);
+  border-radius: var(--radius);
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  font: 600 0.86rem/1.35 var(--mono);
+  gap: 10px;
+  /* Well over the 44px floor the rest of the app keeps. These are the most
+     tapped targets in the product and the ones most often hit through a
+     glove, so they get the extra 12px. */
+  min-height: 56px;
+  padding: 10px 14px;
+  text-align: left;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+/* The keyboard shortcut, printed where it is used. Hidden on touch, where it
+   is unusable and would only be noise beside the answer. */
+.ask-chip b {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+
+/* The selection cue that is not colour alone. The chip this replaced carried a
+   ::before ring for exactly this reason, and dropping it left .is-picked
+   signalled by three colour changes and nothing else — with the number badge,
+   the only other structural element, display:none on the touch devices this
+   screen is drawn for. Always in the box and transparent until picked, so
+   picking an answer never re-flows the chip's text. */
+.ask-chip::after {
+  color: transparent;
+  content: "✓";
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  margin-left: auto;
+}
+
+.ask-chip.is-picked::after {
+  color: var(--accent-ink);
+}
+
+.ask-chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.ask-chip:active:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+/* Picked. Only ever visible on a question the operator went back to — a chip
+   tap commits and moves on, so the open question is normally blank. Same
+   --accent-soft under --accent-ink as everywhere else; never solid orange
+   under text. */
+.ask-chip.is-picked {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.ask-chip.is-picked b {
+  border-color: var(--accent-ink);
+  color: var(--accent-ink);
+}
+
+/* Disabled means the model is composing or the turn already went. The block
+   stays mounted either way so its height never jumps under a thumb mid-tap. */
+.ask-chip:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* The escape hatch. Spans the chip grid as its last cell so it reads as
+   "one more option" rather than as chrome — the measured failure is an operator
+   who does not know typing is allowed, so discoverability is the entire feature.
+   Dashed and unnumbered to keep it clearly secondary to the real answers, and
+   shorter than a chip (44px against 56px) for the same reason.
+
+   The copy is kept short deliberately: it must not wrap at 390px. A second line
+   here would change the block's height between a question that has chips and one
+   that does not, which is the class of layout shift this file works to
+   avoid. */
+.ask-escape {
+  align-items: center;
+  background: none;
+  border: 1px dashed var(--line-heavy);
+  border-radius: var(--radius);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font: 600 0.74rem/1.4 var(--mono);
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  text-align: center;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.ask-escape:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.ask-escape:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.ask-aside {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+}
+
+/* Deliberately quiet, deliberately present. The panel this replaced let an
+   unanswerable question stay blank and send anyway; without a skip the
+   one-at-a-time walk would be the first version of this screen that can trap
+   somebody who simply does not know. */
+.ask-skip {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font: 600 0.74rem/1.4 var(--mono);
+  min-height: 44px;
+  padding: 0 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ask-skip:hover:not(:disabled) {
+  color: var(--accent-ink);
+}
+
+.ask-skip:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.ask-tip {
+  color: var(--muted);
+  font: 600 0.68rem/1.4 var(--mono);
+}
+
+.ask-review-note {
+  color: var(--accent-ink);
+  font: 600 0.76rem/1.45 var(--mono);
+  margin: 0 0 var(--space-4);
+}
+
+/* Satisfied: hidden but still in the layout. Unmounting it on the first
+   typed character pulled the compose box up under the caret — same
+   reserve-the-space trick as .ask-chip::after. */
+.ask-review-note.is-satisfied {
+  visibility: hidden;
+}
+
+/* The weld preview: a chip plus typed text send as ONE answer, and this is
+   the only place that combination is visible before it commits. */
+.ask-preview {
+  color: var(--muted);
+  font: 600 0.72rem/1.5 var(--mono);
+  margin: var(--space-4) 0 0;
+}
+
+.ask-preview strong {
+  color: var(--accent-ink);
+}
+
+/* Empty: hidden but in the layout, so the weld appearing mid-typing never
+   shifts the compose row under the caret — same reserve as the review note. */
+.ask-preview.is-empty {
+  visibility: hidden;
+}
+
+.ask-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ask-answers li {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 2px 12px;
+  grid-template-columns: 1fr auto;
+  padding: 10px 12px;
+}
+
+.ask-answer-q {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.ask-answer-a {
+  color: var(--ink);
+  font: 600 0.88rem/1.4 var(--mono);
+  grid-column: 1;
+}
+
+/* A skip is a real answer to record, not a blank — say so rather than leaving
+   a row that reads as a rendering fault. */
+.ask-answer-a.is-skipped {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.ask-change {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  cursor: pointer;
+  font: 700 0.7rem/1 var(--mono);
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: 44px;
+  padding: 0 14px;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.ask-change:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.ask-change:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* ── The frozen sent view ─────────────────────────────────────────────────
+   Rendered from the sentSummaries snapshot while a turn is in flight or its
+   call has failed. Quieter via --muted, NOT via opacity — an opacity ghost
+   dropped the operator's own answers below AA contrast, and after a failure
+   this view is the resting state they read the error over. */
+.ask-review.is-sent .ask-answer-a {
+  color: var(--muted);
+}
+
+.ask-sent-note {
+  color: var(--muted);
+  font: 600 0.76rem/1.5 var(--mono);
+  margin: var(--space-4) 0 0;
+}
+
+/* Same tick as the transcript's loading bubble, so the pause reads as work
+   from inside the block the operator is actually looking at.
+   nowrap for the same reason as there: the spaced dots wrapping inside the
+   fixed box pulsed this note (and the compose row under it) by a line-height
+   twice per cycle. */
+.ask-sent-note::after {
+  animation: thinking 1.6s steps(4, jump-none) infinite;
+  content: "…";
+  display: inline-block;
+  text-align: left;
+  white-space: nowrap;
+  width: 1.1em;
+}
+
+/* The parked trailing note, shown while a reopened question borrows the
+   compose box. A button — one tap re-confirms and returns to review. */
+.ask-note-held {
+  background: var(--paper-soft);
+  border: 1px dashed var(--line-heavy);
+  border-radius: var(--radius);
+  color: var(--muted);
+  cursor: pointer;
+  display: block;
+  font: 600 0.72rem/1.5 var(--mono);
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.ask-note-held:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.reply-form {
+  border-top: 1px solid var(--line);
+  /* The other half of the height ratchet. The ratchet floors .ask-block, but
+     the block is a top-packed flex column — without this the floor's slack
+     sits BELOW the form, so a state swap to shorter content (last chip →
+     review, review → sent view, retract) still yanked the compose row 120px+
+     up the screen with the floor holding perfectly. auto margin moves the
+     slack ABOVE the form: the compose row rides the floored block's bottom
+     edge and holds still through every within-turn swap. When content
+     exceeds the floor there is no slack and this is inert. */
+  margin-top: auto;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.reply-form > label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.reply-box {
+  display: flex;
+  gap: 9px;
+}
+
+.reply-box textarea {
+  min-height: 78px;
+}
+
+.reply-send {
+  align-self: flex-end;
+  background: var(--green-800);
+  border: 0;
+  border-radius: 8px;
+  color: var(--gold);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 22px;
+  height: 48px;
+  /* No `width` in the list: 48px → auto cannot interpolate, so a declared
+     width transition was motion that never happened. */
+  transition: background 150ms ease;
+  width: 48px;
+}
+
+/* The one tap that reaches the network — and the only one that cannot be
+   taken back — so it stops being a bare glyph and says what it does. Grows
+   sideways only: the compose row's height and position do not change, and by
+   the time it appears the hand has already lifted off a chip well above it.
+   The arrival flash marks the role change on a control the walk just spent
+   several steps teaching the operator to ignore; the global
+   reduced-motion rule collapses it. */
+.reply-send.is-sending-turn {
+  /* The 400ms delay is the send cooldown: the flash lands as the control
+     actually arms, not while it is still greyed out. */
+  animation: send-arrive 600ms ease 400ms;
+  font: 800 0.78rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  padding: 0 16px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  width: auto;
+}
+
+@keyframes send-arrive {
+  0% {
+    background: var(--accent);
+    color: #fff;
+  }
+  100% {
+    background: var(--green-800);
+  }
+}
+
+.reply-send:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.reply-form > small {
+  color: #7c8894;
+  display: block;
+  font-size: 10px;
+  margin-top: 7px;
+}
+
+.report-action {
+  align-items: center;
+  background: #eaeff5;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 22px;
+  justify-content: space-between;
+  padding: var(--space-5);
+}
+
+.report-action > div {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.readiness-mark {
+  align-items: center;
+  border: 1px solid #bcc7d3;
+  border-radius: 50%;
+  color: transparent;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.readiness-mark.is-ready {
+  background: var(--green-700);
+  border-color: var(--green-700);
+  color: #fff;
+}
+
+.report-action p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.report-action p strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.generating-page {
+  align-items: center;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    var(--green-950);
+  background-size: 52px 52px;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - var(--header-h));
+  padding: var(--space-7) 28px var(--space-8);
+}
+
+.generating-panel {
+  max-width: 560px;
+  text-align: center;
+  width: 100%;
+}
+
+.generating-spinner {
+  animation: spin 900ms linear infinite;
+  border: 3px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  border-top-color: var(--gold);
+  display: inline-block;
+  height: 46px;
+  margin: 0 0 26px;
+  width: 46px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.generating-panel .eyebrow {
+  color: var(--gold);
+}
+
+.generating-panel h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  margin: 0 0 18px;
+}
+
+.generating-copy {
+  color: #c8d4e2;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 auto 34px;
+  max-width: 460px;
+}
+
+.generating-progress {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.generating-progress-bar {
+  background: var(--gold);
+  border-radius: inherit;
+  height: 100%;
+  transition: width 900ms ease;
+}
+
+.generating-countdown {
+  color: #9fb2c6;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  margin: 16px 0 0;
+  text-transform: uppercase;
+}
+
+.report-page {
+  margin: 0 auto;
+  max-width: 1500px;
+  padding: var(--space-7) 28px var(--space-8);
+}
+
+.report-toolbar {
+  align-items: end;
+  display: flex;
+  gap: 30px;
+  justify-content: space-between;
+  margin: 0 auto var(--space-5);
+}
+
+.report-toolbar > div > p:last-child {
+  color: var(--muted);
+  margin: 13px 0 0;
+}
+
+.report-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.ghost-button {
+  align-items: center;
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 18px;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 21px;
+  transition: background 150ms ease;
+}
+
+.ghost-button:hover {
+  background: var(--paper-soft);
+}
+
+.ghost-button span {
+  font-size: 16px;
+}
+
+.report-actions-hint {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin: 0;
+  text-align: right;
+}
+
+.report-frame-shell {
+  background: var(--green-950);
+  border: 1px solid var(--green-950);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding: 10px;
+}
+
+.report-frame {
+  background: #fff;
+  border: 0;
+  border-radius: 10px;
+  display: block;
+  height: 78vh;
+  min-height: 720px;
+  width: 100%;
+}
+
+.site-footer {
+  align-items: center;
+  background: var(--green-950);
+  border-top: 2px solid var(--gold);
+  color: #a8bacd;
+  display: flex;
+  gap: 36px;
+  justify-content: space-between;
+  padding: var(--space-5) var(--gutter);
+}
+
+.site-footer > span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.site-footer p {
+  font-size: 10px;
+  margin: 0;
+  max-width: 680px;
+  text-align: right;
+}
+
+@media (max-width: 960px) {
+  .secondary-fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .interview-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stacked, the conversation goes first. The case summary is a recap of what
+     the operator typed a minute ago; making them scroll past it to reach the
+     question they are being asked puts the least useful thing on the screen
+     they land on. */
+  .conversation-panel {
+    order: 1;
+  }
+
+  .case-summary {
+    order: 2;
+    position: static;
+  }
+
+  .case-summary dl {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  /* One override recolours every page margin; the header height needs none —
+     56px is already phone-sized chrome. */
+  :root {
+    --gutter: 18px;
+  }
+
+  .header-context {
+    display: none;
+  }
+
+  .hero {
+    padding: var(--space-5) var(--gutter);
+  }
+
+  .hero h1 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+
+  .intake-section {
+    padding: var(--space-5) var(--gutter) var(--space-7);
+  }
+
+  .section-heading,
+  .interview-heading,
+  .report-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .section-heading > p {
+    margin-top: var(--space-3);
+    text-align: left;
+  }
+
+  .form-block {
+    padding: var(--space-5) 20px var(--space-6);
+  }
+
+  /* Not enough width to share the legend's row on a phone — back to its own
+     right-aligned row, pulled up against the legend. */
+  .identity-actions {
+    margin: -10px 0 var(--space-4);
+    position: static;
+    text-align: right;
+  }
+
+  .primary-fields,
+  .secondary-fields,
+  .detail-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-error {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .form-submit {
+    align-items: stretch;
+    flex-direction: column;
+    padding: var(--space-5) 20px;
+  }
+
+  .form-submit .primary-button {
+    width: 100%;
+  }
+
+  .interview-page,
+  .generating-page {
+    padding: var(--space-6) var(--gutter) var(--space-7);
+  }
+
+  .generating-panel h1 {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .generating-spinner {
+    height: 38px;
+    margin-bottom: 20px;
+    width: 38px;
+  }
+
+  .machine-plaque {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Every pixel above the panel is a pixel the operator scrolls past to reach
+     the question. The lede told them to say so when a detail is unavailable —
+     the "Skip — not sure" button now does that, in the place they need it. */
+  .interview-heading > div:first-child > p:last-child {
+    display: none;
+  }
+
+  .interview-heading h1 {
+    font-size: clamp(22px, 6.4vw, 30px);
+  }
+
+  /* svh, not dvh: dvh tracks the URL bar collapsing, which resized the pane
+     24–36px mid-scroll and slid the ask block with it. The small
+     viewport is stable for the whole gesture. */
+  .messages {
+    max-height: 40svh;
+    min-height: 0;
+    padding: var(--space-4);
+  }
+
+  .messages.is-grown {
+    min-height: 40svh;
+  }
+
+  .message {
+    max-width: 94%;
+  }
+
+  .ask-track {
+    padding: 0 var(--space-4);
+  }
+
+  .ask-current,
+  .ask-review {
+    /* No static floor on a phone — the reserved space is screen the
+       transcript could have used. The JS height ratchet
+       (diagnostic-app.tsx) supplies the real floor: the section keeps the
+       tallest height this turn has shown, so a state swap can never shrink
+       the panel and yank the compose row up under the thumb. */
+    min-height: 0;
+    padding: var(--space-4);
+  }
+
+  /* One target per row, full width. A slipped finger lands in the gap. */
+  .ask-options {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-error {
+    margin: 0 var(--space-4) var(--space-4);
+  }
+
+  .reply-form {
+    padding: var(--space-4);
+  }
+
+  .report-action {
+    align-items: stretch;
+    flex-direction: column;
+    padding: var(--space-4);
+  }
+
+  .report-action .primary-button {
+    width: 100%;
+  }
+
+  .report-depth select {
+    width: 100%;
+  }
+
+  .report-page {
+    padding: var(--space-6) 14px var(--space-7);
+  }
+
+  .report-toolbar .primary-button,
+  .report-toolbar .ghost-button {
+    width: 100%;
+  }
+
+  .report-actions {
+    width: 100%;
+  }
+
+  .report-actions-buttons {
+    flex-direction: column;
+  }
+
+  .report-actions-hint {
+    text-align: left;
+  }
+
+  .report-frame-shell {
+    border-radius: 12px;
+    padding: 5px;
+  }
+
+  .report-frame {
+    min-height: 650px;
+  }
+
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    padding: var(--space-5) var(--gutter);
+  }
+
+  .site-footer p {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ------------------------------------------------------------ combobox */
+/* Make / model / machine-type suggestions. The popup is portalled to <body>
+   and positioned in JS, so it carries no offset parent here — three ancestors
+   (.app-shell, .intake-form, .settings-card) clip an in-flow absolute one. */
+
+.combo {
+  position: relative;
+}
+
+.combo input {
+  /* Clearance for the toggle. */
+  padding-right: 40px;
+}
+
+.combo-toggle {
+  align-items: center;
+  background: none;
+  border: 0;
+  bottom: 1px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  width: 40px;
+}
+
+.combo-toggle:hover {
+  color: var(--ink);
+}
+
+.combo-toggle span {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid currentcolor;
+  display: block;
+  transition: transform 150ms ease;
+}
+
+.combo-toggle.is-open span {
+  transform: rotate(180deg);
+}
+
+.combo-popup {
+  background: var(--paper-strong);
+  border: 1px solid var(--line-heavy);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(16, 36, 58, 0.18);
+  list-style: none;
+  margin: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+  /* Or a trackpad flick through 60 models scrolls the page behind it. */
+  overscroll-behavior: contain;
+  padding: 4px 0;
+  position: fixed;
+  z-index: 60;
+}
+
+.combo-popup.is-above {
+  box-shadow: 0 -6px 20px rgba(16, 36, 58, 0.18);
+}
+
+.combo-option {
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 9px 14px;
+  /* Kills the 300ms double-tap delay on touch. */
+  touch-action: manipulation;
+}
+
+/* Hover and keyboard write the same highlight — there is never a second
+   visual competing with it. */
+.combo-option.is-active {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.combo-option.is-current {
+  font-weight: 700;
+}
+
+.combo-option.is-current::after {
+  color: var(--accent);
+  content: " ✓";
+}
+
+.combo-empty {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+
+/* Announces the filtered count; never rendered. */
+.combo-status {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+@media (pointer: coarse) {
+  .combo-option {
+    align-items: center;
+    display: flex;
+    min-height: 44px;
+  }
+
+  /* The number badge is a keyboard affordance. On touch it can never be used,
+     so it is noise sitting where the answer should start. */
+  .ask-chip b {
+    display: none;
+  }
+
+  /* Wider gutters between answers than a mouse needs: the miss here is a
+     wrong diagnosis, not a wrong menu item. */
+  .ask-options {
+    gap: 12px;
+  }
+
+  .ask-chip {
+    min-height: 60px;
+  }
+
+  /* Stays below the chips' 60px — it is the secondary control — but takes the
+     app's 44px gloved-hand floor, which it already has. Named here so a later
+     edit to the chip height does not silently leave this one behind. */
+  .ask-escape {
+    min-height: 48px;
+  }
+
+  /* The rail is the only retract affordance while a question is open — it
+     gets the app's 44px gloved-hand floor like everything else. */
+  .ask-pill {
+    min-height: 44px;
+  }
+
+  .ask-track {
+    gap: 8px;
+  }
+
+  /* Enter inserts a newline on touch and the number badges are hidden here,
+     so a hint about Enter and 1–9 would describe a keyboard that does not
+     exist — and it sits in the exact band the soft keyboard fights for. */
+  .reply-form > small {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- auth */
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: linear-gradient(160deg, var(--green-950), var(--green-800));
+}
+
+.auth-card {
+  width: min(440px, 100%);
+  background: var(--paper-strong);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 5vw, 38px);
+  box-shadow: var(--shadow);
+}
+
+.auth-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.auth-head h1 {
+  margin: 2px 0 0;
+  font-size: 1.7rem;
+  color: var(--green-950);
+}
+
+.auth-lede {
+  color: var(--muted);
+  margin: 14px 0 22px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.auth-remember input {
+  width: 16px;
+  height: 16px;
+}
+
+/* ------------------------------------------------------------ settings */
+
+.settings-shell {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-5) 20px var(--space-8);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+
+.settings-head h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  color: var(--green-950);
+}
+
+.settings-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.settings-back {
+  margin-left: auto;
+  font-size: 0.9rem;
+  color: var(--green-700);
+}
+
+.settings-card {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.settings-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-card-head:hover {
+  background: var(--paper-soft);
+}
+
+.settings-card-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.settings-card-title strong {
+  color: var(--green-950);
+  font-size: 1.02rem;
+}
+
+.settings-card-title small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.settings-badge {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--green-700);
+}
+
+.settings-chevron {
+  font-size: 1.25rem;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.settings-card-body {
+  padding: 4px 18px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.settings-rows {
+  display: grid;
+  gap: 18px;
+  padding-top: 16px;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.94rem;
+}
+
+.settings-toggle input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.form-notice {
+  color: var(--green-700);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* Quiet copy for loading and empty states (settings "Loading…", spec-lookup's
+   empty sections). The class was referenced by both pages but never defined,
+   so those states rendered as full-size body text. */
+.small {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* -------------------------------------------------------- access codes */
+
+/* Replaced the accounts table on 2026-08-18: there are no accounts to manage
+   any more, only codes to issue and revoke. */
+
+.token-manager {
+  padding-top: 16px;
+  display: grid;
+  gap: 22px;
+}
+
+/* The issued code is shown exactly once — only its hash is stored — so this
+   panel is deliberately loud and does not auto-dismiss. */
+.token-issued {
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--paper-strong);
+  display: grid;
+  gap: 10px;
+}
+
+.token-issued-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.token-issued-code {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  word-break: break-all;
+  user-select: all;
+}
+
+.token-issued-note {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.token-issued-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.token-form {
+  display: grid;
+  gap: 14px;
+  align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.token-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.token-row {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.token-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.token-row-meta {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.token-status {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.token-status.ok { color: var(--ok); }
+.token-status.info { color: var(--info); }
+.token-status.warn { color: var(--warn); }
+.token-status.danger { color: var(--danger); }
+
+/* The shared button shape the token console uses; matches the settings
+   actions it sits beside. */
+.button,
+.settings-actions button:not(.primary-button) {
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.button:hover,
+.settings-actions button:not(.primary-button):hover {
+  background: var(--paper-soft);
+}
+
+.button.primary {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.button.ghost {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.button.ghost:hover {
+  background: var(--danger-soft);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ------------------------------------------------- header account nav */
+
+.header-account {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.85rem;
+}
+
+/* These three sit on the dark masthead, not on a light card. They used to use
+   --muted / --green-700 / --paper-strong, which are light-surface tokens: the
+   email and the Settings link fell to ~1.6:1 on the chrome, and Sign out
+   rendered as a white pill floating in the dark bar. */
+.header-user {
+  color: #b9c8d8;
+  max-width: 26ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-account a {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.45);
+  text-underline-offset: 3px;
+}
+
+.header-account a:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* Radius, height and padding are owned here, and agree with each other. The
+   Controls layer further down supplies the mono/uppercase treatment. */
+.header-account button {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: var(--chrome-2);
+  color: #fff;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.header-account button:hover {
+  background: var(--chrome-3);
+  border-color: var(--accent);
+}
+
+/* At phone widths the account nav overflowed the fixed 44px bar and pushed
+   Sign out off-screen. Compression alone cannot fit wordmark + admin links +
+   button into 390px, so the bar is allowed to wrap to a second row instead of
+   clipping (2026-08-06). */
+@media (max-width: 720px) {
+  .site-header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--header-h);
+    padding-top: 8px;
+    padding-bottom: calc(var(--stripe-h) + 8px);
+    row-gap: 2px;
+  }
+  .header-account {
+    font-size: 0.75rem;
+    gap: 10px;
+  }
+  .header-account button { padding: 2px 8px; }
+  .header-user { display: none; }
+  .wordmark { font-size: 16px; }
+  .settings-head { flex-wrap: wrap; }
+  .settings-back { margin-left: 0; }
+}
+
+/* Provider configuration status under the model selector. Amber, not red:
+   an unconfigured provider is a setup gap, not a failure that has happened. */
+.field-warning {
+  color: #7c5c00;
+  background: #f6efdb;
+  border-left: 3px solid #e07a1f;
+  padding: 6px 9px;
+  border-radius: 4px;
+}
+.field-warning code {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Document chassis
+   --------------------------------------------------------------------------
+   Structural rules ported from the reference renderings in `docs/` — the same
+   pattern the two new-style documents mark `shared pattern` in their own CSS.
+   Kept as a trailing layer rather than edited into the rules above, so the port
+   is reviewable in one place and the palette change lands independently.
+   ========================================================================== */
+
+body {
+  font-family: var(--sans);
+}
+
+/* --- Type scale. Heavy, tight, fluid — the documents' headline voice. --- */
+h1 {
+  font-family: var(--sans);
+  font-weight: 800;
+  line-height: 1.05;
+  font-size: clamp(1.6rem, 4.5vw, 2.7rem);
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-weight: 700;
+  line-height: 1.15;
+  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+  letter-spacing: -0.01em;
+}
+h3 { font-weight: 700; line-height: 1.2; }
+
+/* --- The mono eyebrow. The single most recognisable cue in the documents.
+   Base colour is `--accent-ink`, the dark orange, NOT `--accent`: at 700 0.68rem
+   (~11px) the bright `#e07a1f` measured 3.01:1 on `--paper-strong` and 2.66:1 on
+   `--paper`, under the 4.5:1 AA floor for normal text. `--accent-ink` is 8.1:1 on
+   white and still reads as the same orange family.
+   This rule governs LIGHT surfaces only — the three on-chrome eyebrows
+   (`.hero`, `.interview-page`, `.generating-panel`) each override to `--gold` at
+   higher specificity, where a dark ink would be the unreadable one. --- */
+.eyebrow {
+  font: 700 0.68rem/1.4 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+/* --- Masthead + hazard stripe. `.mast::after` in the reference. Also the
+   only diagonal-stripe device the shell keeps: the separate `.brand-chevrons`
+   bar below the header is gone — it spent 10px of chrome and, because its
+   gradient referenced a `--brand-grey` that was never defined, had rendered
+   as a blank strip since the palette change. --- */
+.site-header {
+  border-bottom: 0;
+}
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--stripe-h);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 11px,
+    var(--chrome-deep) 11px 22px
+  );
+}
+
+/* The footer closes the document with the same device, mirrored. */
+.site-footer {
+  position: relative;
+  border-top: 0;
+}
+.site-footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--stripe-h);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 11px,
+    var(--chrome-deep) 11px 22px
+  );
+}
+
+/* --- Controls. Mono, uppercase, 44px minimum — a gloved-hand target. --- */
+.primary-button,
+.settings-back,
+.button,
+.header-account button {
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+.field input,
+.field textarea,
+.field select,
+.reply-box textarea {
+  border-radius: var(--radius);
+}
+.field input,
+.field select {
+  min-height: 44px;
+}
+
+/* Field labels borrow the eyebrow treatment at a smaller size. */
+.field > span,
+.field > label {
+  font: 700 0.66rem/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Accessibility fixes carried by this pass. --- */
+
+/* Contrast fix — both were sub-AA. Helper text was #7c8894 on #fffef9 at 3.79:1 and
+   the placeholder #7c8894 on #f7f9fb at 3.14:1 — the latter being the only cue
+   on several optional fields. Both now clear 4.5:1. */
+.reply-form small,
+.field small {
+  color: var(--muted);
+}
+.field input::placeholder,
+.field textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #616e7c;
+  opacity: 1;
+}
+
+/* A single visible focus ring, matching the documents' `:focus-visible` rule. */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Stage headings receive focus programmatically on transition. They are
+   not interactive, so the ring is the only thing that should read as focus. */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Report preview keeps the panel radius rather than the old pill. */
+.report-frame-shell,
+.report-frame,
+.intake-form,
+.auth-card,
+.conversation-panel,
+.settings-card,
+.photo-picker,
+.photo-preview {
+  border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   Brand marks — docs/brand-board.png
+   ========================================================================== */
+
+.wordmark {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+  text-decoration: none;
+}
+.wordmark > span {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+}
+
+.logo-mark {
+  color: currentColor;
+  flex: 0 0 auto;
+}
+
+/* Italic-leaning, tight, heavy — the wordmark on the board is a slanted
+   technical face with the amber rule under it. */
+.wordmark-text {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 8px;
+  line-height: 1;
+}
+.wordmark-text strong {
+  /* Sized to the slimmer masthead; the mark scales down beside it (logo.tsx). */
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.wordmark-text strong span {
+  color: inherit;
+}
+.wordmark-text em {
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding-bottom: 2px;
+}
+
+/* Auth and settings heads centre the mark, so it needs its own colour there —
+   the ring is currentColor and those surfaces are light. */
+.auth-head .logo-mark,
+.settings-head .logo-mark {
+  color: var(--brand-ink);
+}
+
+/* The sub-page mark is a link home. inline-flex kills the baseline gap under
+   the SVG; the radius shapes the focus ring around the hex. */
+.settings-logo {
+  border-radius: 8px;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+/* The pre-brand `RC` box is gone; these rules are kept inert so any stray
+   markup that still carries the class does not render a ghost badge. */
+.wordmark-mark { display: none; }
+
+/* --- Workflow strip. Brand-board icons, used as drawn.
+   The art is black line work with an amber accent, so it is legible on the
+   light surfaces only and must never be placed on the chrome.
+   One slim bordered bar of three numbered steps — it replaced a row of three
+   tall cards: those were too big and forced needless scrolling below the
+   intake heading. --- */
+.workflow {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  border-top: 3px solid var(--accent);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+}
+
+.workflow li {
+  align-items: start;
+  column-gap: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  padding: 10px 14px 12px;
+  row-gap: 2px;
+}
+
+.workflow li + li {
+  border-left: 1px solid var(--line);
+}
+
+.workflow img {
+  grid-row: 1 / 3;
+  margin-top: 3px;
+}
+
+.workflow strong {
+  font-size: 13.5px;
+}
+
+/* Step index, matching the form legends' numbered `<span>`s below. */
+.workflow strong i {
+  color: var(--green-600);
+  font: 700 0.72rem/1.4 var(--mono);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+
+.workflow span {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.report-toolbar .eyebrow {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow li + li {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+
+/**
+ * Spec lookup (`/spec-lookup`). Reuses the settings shell (`.settings-shell`,
+ * `.settings-head`, `.settings-back`) and the intake form's `.field` /
+ * `.field-grid` / `.primary-button` / `.ghost-button` — this page is deliberately
+ * not a third visual language.
+ */
+/**
+ * The grounded lookup takes ~2.5 minutes, so it borrows the report's
+ * `.generating-*` progress structure. Those rules are written for the report's
+ * DARK full-page stage (`.generating-page` sets `--green-950` and `color:#fff`),
+ * so every colour in them has to be restated here for a light surface —
+ * `#c8d4e2` copy and a white-alpha progress track are invisible on `--paper`.
+ * Structure is shared; palette is not.
+ */
+.spec-lookup-progress {
+  margin: var(--space-5) auto 0;
+  padding: var(--space-5) 0 var(--space-4);
+}
+
+.spec-lookup-progress .eyebrow {
+  /* `.generating-panel .eyebrow` is `--gold`, which is an on-dark accent. */
+  color: var(--accent-ink);
+}
+
+.spec-lookup-progress h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 14px;
+}
+
+.spec-lookup-progress .generating-spinner {
+  border-color: var(--line);
+  border-top-color: var(--accent);
+  height: 34px;
+  margin-bottom: 18px;
+  width: 34px;
+}
+
+.spec-lookup-progress .generating-copy,
+.spec-lookup-progress .generating-countdown {
+  /* --muted is 5.7:1 on --paper; the inherited on-dark greys are ~1.5:1. */
+  color: var(--muted);
+}
+
+.spec-lookup-progress .generating-progress {
+  background: var(--paper-soft);
+}
+
+.spec-lookup-form {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.spec-more-toggle {
+  justify-self: start;
+  font-size: 0.85rem;
+}
+
+.spec-detail-fields {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 720px) {
+  .spec-detail-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.spec-result {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.spec-result-head {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.spec-result-head h2 {
+  margin: 0 0 6px;
+  color: var(--green-950);
+}
+
+.spec-lede {
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+.spec-machine-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 0 0 12px;
+}
+
+.spec-machine-chips div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-machine-chips dt {
+  font: 700 0.66rem/1.4 var(--mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spec-machine-chips dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.spec-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spec-meta-chips li {
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font: 600 0.75rem/1.4 var(--mono);
+  color: var(--ink);
+}
+
+.spec-badge {
+  display: inline-block;
+  font: 700 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1px 6px;
+  margin: 0 8px 4px 0;
+}
+
+.spec-block-paragraph {
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.spec-block-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.spec-block-list {
+  margin: 0 0 12px;
+  padding-left: 22px;
+  line-height: 1.6;
+}
+
+.spec-block-list.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.spec-block-list.checklist li::before {
+  content: "☐ ";
+  color: var(--muted);
+}
+
+.spec-table-caption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 6px;
+}
+
+/* No min-width, ever — the same rule the downloadable report enforces.
+   Cards on narrow screens instead of scrolling sideways. */
+.spec-block-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 16px;
+}
+
+.spec-block-table th,
+.spec-block-table td {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.9rem;
+}
+
+.spec-block-table th {
+  background: var(--paper-soft);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .spec-block-table thead {
+    display: none;
+  }
+  .spec-block-table,
+  .spec-block-table tbody,
+  .spec-block-table tr,
+  .spec-block-table td {
+    display: block;
+    width: 100%;
+  }
+  .spec-block-table tr {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+  }
+  .spec-block-table td {
+    border: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec-block-table td:last-child {
+    border-bottom: none;
+  }
+  .spec-block-table td::before {
+    content: attr(data-label);
+    display: block;
+    font: 700 0.62rem/1.4 var(--mono);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+}
+
+/**
+ * Observability (`/observability`). Same reuse discipline as spec-lookup:
+ * the settings shell, the CollapsibleCard sections, and `.spec-block-table`'s
+ * labelled-card reflow. Only the stat tiles, the share bar, and the failed-row
+ * tint are new.
+ */
+.obs-toolbar {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin: 0 0 var(--space-4);
+}
+
+.obs-toolbar p {
+  margin: 0;
+}
+
+.obs-denied {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.obs-denied h2 {
+  margin: 0 0 8px;
+}
+
+.obs-denied p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.stat-tiles {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 var(--space-4);
+}
+
+.stat-tile {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+}
+
+.stat-tile.tone-caution {
+  border-top-color: var(--danger);
+}
+
+.stat-tile-label {
+  color: var(--muted);
+  font: 700 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stat-tile-value {
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.stat-tile-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.share-bar {
+  background: var(--paper-soft);
+  border-radius: 3px;
+  display: inline-block;
+  height: 8px;
+  margin-right: 8px;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 72px;
+}
+
+.share-bar span {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+}
+
+.obs-row-failed td {
+  background: var(--danger-soft);
+}
+
+@media (max-width: 720px) {
+  .stat-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.spec-callout {
+  border-left: 4px solid var(--info);
+  background: var(--info-soft);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 0 0 12px;
+}
+
+.spec-callout strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.spec-callout p {
+  margin: 0;
+}
+
+.spec-callout.tone-warning {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.spec-callout.tone-danger {
+  border-left-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.spec-block-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.spec-card {
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.spec-card strong {
+  display: block;
+  margin: 2px 0 4px;
+}
+
+.spec-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.spec-disclaimer {
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 0 4px;
+}
+
+/**
+ * Report library (`/library`) and Machine inventory (`/inventory`).
+ *
+ * Both pages ride the settings shell (`.settings-shell`, `.settings-head`,
+ * `.settings-back`) and the intake form's `.field` / `.field-grid` /
+ * `.primary-button` / `.ghost-button`, for the same reason spec lookup does:
+ * these are new surfaces, not a new visual language.
+ */
+
+/* --- The intake stage's entry points: the two saved-data pages plus spec
+   lookup, which moved up here from the Describe workflow step to sit beside
+   the report library and machine inventory. NOT header links — the header is
+   account chrome. Compact
+   icon-beside-text rows, one step lighter than `.workflow` below (no accent
+   top rule) so the procedure strip stays the louder of the two. --- */
+.workspace {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Same measure and gutter as `.intake-section` below, so the three bands of
+     the intake stage share one left edge. */
+  margin: var(--space-5) auto 0;
+  max-width: 1240px;
+  padding: 0 28px;
+}
+
+/* Drawn in the app's CONTROL vocabulary, not its panel vocabulary — 8px radius,
+   resting shadow, hover lift — matching `.primary-button`/`.ghost-button`, so the
+   cards read as pressable at rest (incl. touch, where hover never fires). The
+   non-clickable `.workflow` strip below deliberately keeps the flat 2px-radius
+   panel look; that contrast is the affordance. */
+.workspace a {
+  align-items: start;
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  color: inherit;
+  column-gap: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  padding: 12px 14px;
+  row-gap: 2px;
+  text-decoration: none;
+  transition: border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.workspace a:hover {
+  border-color: var(--line-heavy);
+  box-shadow: 0 3px 8px rgba(16, 36, 58, 0.1);
+  transform: translateY(-1px);
+}
+
+.workspace a:focus-visible {
+  outline: 2px solid var(--chrome-4);
+  outline-offset: 2px;
+}
+
+.workspace img {
+  grid-row: 1 / 3;
+  margin-top: 2px;
+}
+
+.workspace strong {
+  font-size: 14px;
+}
+
+.workspace .go {
+  align-self: center;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  color: var(--accent-ink);
+  display: grid;
+  font: 700 13px/1 var(--mono);
+  grid-column: 3;
+  grid-row: 1 / 3;
+  height: 22px;
+  place-items: center;
+  width: 22px;
+}
+
+.workspace span {
+  color: var(--muted);
+  font-size: 12.5px;
+  grid-column: 2;
+  line-height: 1.45;
+}
+
+/* --- Shared page furniture. --- */
+.page-lede {
+  color: var(--muted);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.empty-state {
+  background: var(--panel-2);
+  border: 1px dashed var(--line-heavy);
+  border-radius: var(--radius);
+  color: var(--muted);
+  margin: 0;
+  padding: var(--space-5);
+}
+
+/* Serial/PIN strings are compared character by character; the mono face is
+   what makes 0/O and 1/I distinguishable. */
+.mono {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  letter-spacing: 0.01em;
+}
+
+/* Destructive actions keep the ghost shape and change only their ink, so
+   "Remove" never reads as the primary action on a card. */
+.ghost-button.danger {
+  color: var(--danger);
+}
+
+.ghost-button.danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* --- Machine inventory --- */
+
+/* Full-width cards — the machine card is a dossier row,
+   not a reading column, so the inventory gets the app's own page measure
+   rather than `.settings-shell`'s 900px. Same value as `.workspace` /
+   `.intake-section`; `is-reading`'s 1500px stays report-only. */
+.inventory-shell,
+/* The parts result is an eight-column table; it needs the same measure. */
+.parts-lookup-shell {
+  max-width: 1240px;
+}
+
+/* `.settings-shell` is a grid, so a bare button stretches the full 900px and
+   reads as a page-wide action bar rather than a button. Found by looking at
+   it; `display:inline-flex` alone does not stop a grid item from filling its
+   track. */
+.inventory-shell > .primary-button {
+  justify-self: start;
+}
+
+.inventory-form {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.inventory-form h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.inventory-form h2:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.inventory-identity {
+  grid-template-columns: 88px repeat(3, minmax(0, 1fr));
+}
+
+.inventory-service {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.inventory-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.machine-list,
+.library-list {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.library-card {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.library-card-head h2 {
+  font-size: 1.15rem;
+  margin: 0 0 8px;
+}
+
+/* Facts read as label-over-value pairs rather than a table: there are at most
+   four of them and they are optional, so a grid of columns would leave holes. */
+.machine-facts,
+.library-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+}
+
+.machine-facts dt,
+.library-facts dt {
+  color: var(--muted);
+  font: 700 0.68rem/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.machine-facts dd,
+.library-facts dd {
+  margin: 2px 0 0;
+}
+
+.machine-card-actions,
+.library-card-actions {
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: var(--space-3);
+}
+
+.library-card-actions p {
+  color: var(--muted);
+  margin: 0;
+}
+
+/* --- The machine card: one full-width expandable row per machine.
+   Header = year/make/model, the operator's label after it, Edit pinned far
+   right. The whole left side is the expand toggle. --- */
+.machine-card {
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.machine-card-head {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+}
+
+.machine-card-toggle {
+  align-items: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.machine-card-toggle h3 {
+  font-size: 1.15rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.machine-nickname {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.machine-chevron {
+  color: var(--green-600);
+  flex: none;
+  font: 700 1.05rem/1 var(--mono);
+  width: 16px;
+}
+
+.machine-card-edit {
+  flex: none;
+}
+
+.machine-card-body {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.machine-section {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.machine-section .eyebrow {
+  margin: 0;
+}
+
+.machine-maintenance {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+
+.machine-maintenance p:last-child {
+  margin: 0;
+  /* Operators type these as a list of jobs with line breaks; preserving them
+     is the difference between a service history and a paragraph. */
+  white-space: pre-wrap;
+}
+
+/* Dated entries: date column in mono (scannable), note as prose, a quiet
+   per-entry remove on the right. */
+.service-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.service-list li {
+  align-items: baseline;
+  border-bottom: 1px dashed var(--line);
+  display: flex;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+}
+
+.service-date {
+  color: var(--muted);
+  flex: none;
+  font-size: 0.78rem;
+  min-width: 92px;
+}
+
+.service-note {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-remove {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.service-remove:hover {
+  color: var(--danger);
+}
+
+.service-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.service-form input[type="date"] {
+  flex: none;
+}
+
+.service-form input:not([type="date"]) {
+  flex: 1;
+  min-width: 180px;
+}
+
+.service-form input {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+}
+
+/* A machine's diagnostics, same row shape as the service list. */
+.machine-case-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.machine-case-list li {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+
+.machine-case-problem {
+  flex: 1;
+  min-width: 200px;
+  /* The operator's own words; one line each keeps the list a list. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-case-status,
+.machine-case-outcome {
+  flex: none;
+  font: 700 0.68rem/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.machine-case-status {
+  color: var(--muted);
+}
+
+.machine-case-outcome {
+  color: var(--ok);
+}
+
+/* --- Report library --- */
+.library-card-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.library-status {
+  border: 1px solid var(--line-heavy);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 700 0.68rem/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  padding: 1px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.library-status.status-reported {
+  background: var(--info-soft);
+  border-color: var(--info);
+  color: var(--info);
+}
+
+/* The operator confirmed which fix resolved the case — the one green chip. */
+.library-status.status-confirmed {
+  background: #e7f2ec;
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+/* "Which fix worked?" — one row between the reader's toolbar and the frame.
+   Present only when the stored report has a ranked list. */
+.fix-panel {
+  align-items: center;
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.fix-panel label {
+  flex: none;
+}
+
+.fix-panel select {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  flex: 1;
+  min-width: 220px;
+  padding: 7px 10px;
+}
+
+.fix-panel p {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.fix-confirmed-mark {
+  color: var(--ok);
+  font-weight: 900;
+  margin-right: 8px;
+}
+
+.library-problem {
+  margin: 0;
+  /* The operator's own words, often several sentences; the list is scannable
+     only if no one row can run away with the page. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Reading a report needs the report's width, not the 900px list column. */
+.library-shell.is-reading {
+  max-width: 1500px;
+}
+
+.library-shell .report-page {
+  padding: 0;
+}
+
+@media (max-width: 720px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-identity,
+  .inventory-service {
+    grid-template-columns: 1fr;
+  }
+
+  .machine-card-head {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .machine-card-body {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+
+  /* The date and the note stack; the note field keeps its full width. */
+  .service-form input:not([type="date"]) {
+    min-width: 100%;
+  }
+
+  .fix-panel select {
+    min-width: 100%;
+  }
+}
+
+/* Budget number + its explicit Save, one row (settings). */
+.budget-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.budget-row input {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  flex: 1;
+  max-width: 220px;
+  padding: 8px 10px;
+}

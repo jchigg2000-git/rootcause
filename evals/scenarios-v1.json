@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "created": "2026-08-06",
+  "purpose": "Ground truth for the interview-discrimination eval. Written BEFORE any run. Each scenario has one hidden true root cause whose surface symptoms overlap 3+ plausible alternatives; 'discriminator' is the specific evidence an interview question would have to surface to separate the truth from that alternative. 'category' tags the discriminator type so recurring interview blind spots can be aggregated across runs.",
+  "categories": [
+    "temperature-correlation", "service-history", "symptom-detail", "fault-codes",
+    "gauge-readings", "maintenance-checks", "load-dependence", "fluid-condition",
+    "symptom-scope", "visual-inspection", "rate-trend", "operating-conditions", "symptom-onset"
+  ],
+  "scenarios": [
+    {
+      "id": "01-deere-333g-hyd-hot-weak",
+      "machine": { "year": "2019", "make": "John Deere", "model": "333G", "machineType": "Compact track loader", "hours": "2140" },
+      "surfaceProblem": "Attachment hydraulics get weak and slow after about 30 minutes of running. The mulcher head bogs down and won't recover until the machine sits. Lifting and tilting still work. Seems fine first thing in the morning.",
+      "trueRootCause": "Hydraulic oil cooler externally packed with mulching debris — oil overheats under sustained high-flow load, viscosity drops, aux circuit goes weak when hot.",
+      "alternatives": [
+        { "cause": "Worn auxiliary hydraulic pump", "discriminator": "Performance is full when cold — pump wear would degrade performance cold and hot alike.", "category": "temperature-correlation" },
+        { "cause": "Wrong or degraded hydraulic oil from a recent service", "discriminator": "No hydraulic service in over a year; oil level correct at the sight glass.", "category": "service-history" },
+        { "cause": "Clogged suction/return filter causing cavitation", "discriminator": "No pump whine or growl at any temperature; oil in the tank is not foamy.", "category": "symptom-detail" }
+      ],
+      "hiddenFacts": [
+        "Machine does forestry mulching in dry, dusty conditions all season.",
+        "The hydraulic oil temperature warning lamp comes on about 45 minutes into mulching — operator has been ignoring it.",
+        "The cooler / AC condenser stack is visibly packed with mulch dust; it has never been blown out.",
+        "No hydraulic service in over a year; oil level is mid sight glass.",
+        "No unusual noises from the pump area at any temperature; oil not foamy.",
+        "No fault codes have been read out.",
+        "Serial/PIN 1T0333GKEF331245. Machine works about 8 hours a day."
+      ]
+    },
+    {
+      "id": "02-cat-320f-scr-derate",
+      "machine": { "year": "2017", "make": "Caterpillar", "model": "320F L", "machineType": "Excavator", "hours": "6800" },
+      "surfaceProblem": "Engine intermittently loses power and tops out around half throttle, mostly late in the working day. Shuts off fine, restarts fine, and the next morning it's back to normal.",
+      "trueRootCause": "SCR/DEF system inducement derate — DEF injector crystallization plus degraded DEF from an unshaded bulk tote stored in the sun since spring.",
+      "alternatives": [
+        { "cause": "Fuel filter restriction starving the engine at load", "discriminator": "An amber emissions/aftertreatment lamp lights roughly 20 minutes before each derate — the power loss follows a warning sequence, not fuel demand. Fuel filters were changed 200 hours ago.", "category": "fault-codes" },
+        { "cause": "Turbo boost leak", "discriminator": "No black smoke, no whistle, no gradual power fade under load — power steps down in stages.", "category": "symptom-detail" },
+        { "cause": "Overheating protection derate", "discriminator": "Coolant temperature gauge reads normal while derated.", "category": "gauge-readings" },
+        { "cause": "Low or empty DEF tank", "discriminator": "DEF gauge shows full; tank is topped up from the bulk tote regularly.", "category": "gauge-readings" }
+      ],
+      "hiddenFacts": [
+        "An amber emissions lamp comes on about 20 minutes before each derate; the monitor mentions aftertreatment but the operator hasn't written down the codes.",
+        "The monitor shows stored codes; nobody has read them out with a laptop.",
+        "DEF is filled from a 275-gallon tote that has sat uncovered in the sun since spring.",
+        "DEF gauge full. Coolant temp normal. No smoke of any color. No whistle.",
+        "Fuel filters changed 200 hours ago at the last service.",
+        "Serial/PIN CAT0320FLXBR02214. Runs 10-hour days in summer heat."
+      ]
+    },
+    {
+      "id": "03-kubota-svl75-no-crank",
+      "machine": { "year": "2021", "make": "Kubota", "model": "SVL75-2", "machineType": "Compact track loader", "hours": "940" },
+      "surfaceProblem": "Sometimes it won't start — turn the key, one click, then nothing. Try a few more times and it eventually cranks. Other days it starts first try.",
+      "trueRootCause": "Corroded battery-to-frame ground strap — high resistance under cranking load, worst on damp mornings and after washing the machine.",
+      "alternatives": [
+        { "cause": "Failing starter motor or solenoid", "discriminator": "The work lights dim hard during a failed attempt — a supply-side voltage drop, not starter internals.", "category": "symptom-detail" },
+        { "cause": "Weak or failing battery", "discriminator": "Battery was replaced 3 months ago and load-tested fine at the dealer since.", "category": "service-history" },
+        { "cause": "Seat or lap-bar safety interlock switch", "discriminator": "The solenoid clicks on every failed attempt — an interlock failure would give silent no-response. Happens with operator seated and lap bar down.", "category": "symptom-detail" }
+      ],
+      "hiddenFacts": [
+        "Failures are much more common on damp mornings and after pressure-washing the machine the evening before.",
+        "The cab work lights dim noticeably during a failed start attempt.",
+        "Battery is 3 months old; dealer load-tested it fine after the problem started.",
+        "Exactly one click per failed attempt, never rapid clicking, never silent.",
+        "Operator is always seated with lap bar down; tried cycling it, no difference.",
+        "No fault codes on the display. Serial/PIN KBCZ07512."
+      ]
+    },
+    {
+      "id": "04-bobcat-t650-pulls-left",
+      "machine": { "year": "2015", "make": "Bobcat", "model": "T650", "machineType": "Compact track loader", "hours": "3480" },
+      "surfaceProblem": "Machine pulls to the left when driving, and the right side feels lazier than the left. It's worse when I'm pushing or carrying a full bucket. Steering controls feel normal otherwise.",
+      "trueRootCause": "Right-side drive motor internal wear (excessive case-drain leakage) — efficiency loss that grows with load.",
+      "alternatives": [
+        { "cause": "Track tension mismatch", "discriminator": "Both tracks were tensioned to spec a week ago; sag measured equal on both sides.", "category": "maintenance-checks" },
+        { "cause": "Drive control linkage or pilot calibration offset", "discriminator": "The pull gets clearly worse under load and uphill — a linkage or calibration offset would be constant regardless of load.", "category": "load-dependence" },
+        { "cause": "Right final drive (gearbox) failing", "discriminator": "Right final drive gear oil is at level and clean, no metal on the check plug, no grinding.", "category": "fluid-condition" }
+      ],
+      "hiddenFacts": [
+        "Pull is noticeably worse pushing into a pile, grading, or climbing; nearly tracks straight unloaded on flat ground.",
+        "Both tracks tensioned to spec last week; sag equal side to side.",
+        "Right final drive oil checked at the same time: correct level, clean, no metal flakes.",
+        "A faint extra whine from the right side under heavy load.",
+        "Hydraulic oil level correct. No warning lights or codes.",
+        "Serial/PIN ALJG20458. Does grading and pushing work daily."
+      ]
+    },
+    {
+      "id": "05-case-580sn-trans-slip-hot",
+      "machine": { "year": "2018", "make": "Case", "model": "580 Super N", "machineType": "Backhoe loader", "hours": "4160" },
+      "surfaceProblem": "Transmission slips once it warms up — after an hour or two of work it loses forward drive on a grade. Stone cold, it drives fine. I bought it used this spring.",
+      "trueRootCause": "Degraded, burnt transmission fluid — service long overdue under the previous owner (fluid dark brown, burnt smell); clutch packs slip when hot.",
+      "alternatives": [
+        { "cause": "Low transmission fluid level", "discriminator": "Level checked per procedure (warm, engine running) and is correct.", "category": "fluid-condition" },
+        { "cause": "Torque converter failure", "discriminator": "Full pushing power when cold — a failing converter would lack power at all temperatures. The fluid itself is dark brown with a burnt smell, pointing at fluid/clutches.", "category": "temperature-correlation" },
+        { "cause": "Shift solenoid or transmission electrical fault", "discriminator": "No fault codes displayed; the slip comes on gradually with temperature rather than dropping a gear suddenly.", "category": "fault-codes" }
+      ],
+      "hiddenFacts": [
+        "Bought used this spring with no service records at all — service history unknown.",
+        "Transmission fluid on the dipstick is dark brown and smells burnt.",
+        "Level is correct, checked warm with engine running per the manual.",
+        "Full power when cold; slip develops gradually as it warms, worst in 3rd gear on grades.",
+        "No fault codes on the display. Radiator and cooler fins are reasonably clean.",
+        "Serial/PIN NHC748210. Loader work and roading between sites."
+      ]
+    },
+    {
+      "id": "06-komatsu-pc210-cavitation",
+      "machine": { "year": "2020", "make": "Komatsu", "model": "PC210LC-11", "machineType": "Excavator", "hours": "3120" },
+      "surfaceProblem": "All hydraulic functions have gotten slow over the past two weeks — swing, boom, travel, everything. Engine runs strong. It's getting steadily worse.",
+      "trueRootCause": "Clogged suction strainer in the hydraulic tank causing pump cavitation — debris introduced during a field hydraulic oil change three weeks ago.",
+      "alternatives": [
+        { "cause": "Main hydraulic pump worn out", "discriminator": "Oil and filters were changed in the field three weeks ago and the symptom began right after — an introduced restriction, not gradual wear at 3,100 hours.", "category": "service-history" },
+        { "cause": "Engine power loss or derate", "discriminator": "Engine revs clean under load, no smoke, no derate lamp — only hydraulics are affected.", "category": "symptom-scope" },
+        { "cause": "Main relief valve stuck at low pressure", "discriminator": "Loud growling/rattling from the pump under load and foamy, aerated oil in the sight glass — a cavitation signature; a mis-set relief would not aerate the oil.", "category": "fluid-condition" }
+      ],
+      "hiddenFacts": [
+        "Operator changed the hydraulic oil and filters himself in the field about three weeks ago, in dusty conditions, using aftermarket oil.",
+        "The slowdown started within days of that service.",
+        "A growling, rattling noise from the pump area under load that wasn't there before.",
+        "Oil in the tank sight glass looks foamy/milky after the machine has been running.",
+        "Engine pulls strong, revs clean, no smoke, no warning lamps or codes.",
+        "Serial/PIN KMTPC210K54321."
+      ]
+    },
+    {
+      "id": "07-volvo-l90g-coolant-loss",
+      "machine": { "year": "2014", "make": "Volvo", "model": "L90G", "machineType": "Wheel loader", "hours": "9250" },
+      "surfaceProblem": "Losing coolant steadily — about a liter every couple of days of work — but I can't find a leak anywhere. No overheating so far.",
+      "trueRootCause": "EGR cooler internal leak — coolant passing into the exhaust stream; white sweet-smelling steam at cold start.",
+      "alternatives": [
+        { "cause": "Head gasket failure", "discriminator": "Engine oil is clean (no milkiness), coolant looks normal, no rough running, no overheating.", "category": "fluid-condition" },
+        { "cause": "External leak (water pump, hoses, radiator)", "discriminator": "Engine bay pressure-washed and inspected — no crust, no traces, ground always dry under the machine.", "category": "visual-inspection" },
+        { "cause": "Overfilled system burping the excess", "discriminator": "Loss continues from a correct fill level at a steady rate proportional to hours worked (~1L per 15-20 hours).", "category": "rate-trend" }
+      ],
+      "hiddenFacts": [
+        "White, sweet-smelling steam from the exhaust for the first minute after a cold start; gone once warm.",
+        "Coolant loss is steady at roughly a liter per 15-20 working hours, from a correct fill level.",
+        "Engine oil is clean on the dipstick — no milkiness. Coolant looks normal in the tank.",
+        "Engine bay was pressure-washed and inspected for leaks: nothing. Ground under the machine always dry.",
+        "No overheating, runs smooth, no codes.",
+        "Serial/PIN VCEL90GV1234502."
+      ]
+    },
+    {
+      "id": "08-jcb-540-boom-drift",
+      "machine": { "year": "2018", "make": "JCB", "model": "540-170", "machineType": "Telehandler", "hours": "5140" },
+      "surfaceProblem": "The boom slowly creeps down with a load on the forks — you can see it if you park loaded for ten minutes. It's been getting worse over the last month.",
+      "trueRootCause": "Lift cylinder piston seal bypass (internal leakage) — progressive wear; drift is confined to the lift circuit, worse warm, rate growing week over week.",
+      "alternatives": [
+        { "cause": "Load-holding / check valve leaking", "discriminator": "Hydraulic oil is clean and filters are on schedule with no contamination event — holding-valve failures are typically contamination-driven. (Final separation needs an isolation test; the interview should at least establish the contamination history.)", "category": "fluid-condition" },
+        { "cause": "Control valve spool leakage", "discriminator": "Only the lift circuit drifts — tilt and telescope hold firm. A worn spool would leak its paired functions.", "category": "symptom-scope" },
+        { "cause": "Normal thermal contraction of oil", "discriminator": "Roughly 10 cm of drift at the boom head per 10 minutes, persisting at steady ambient temperature, and the rate has grown over a month — thermal settle is small and constant.", "category": "rate-trend" }
+      ],
+      "hiddenFacts": [
+        "Only the lift circuit drifts; fork tilt and boom telescope hold position firmly.",
+        "About 10 cm of drop at the boom head per 10 minutes with a pallet on; noticeably worse when the machine is warm.",
+        "The drift rate has clearly increased over the past month.",
+        "No external oil on the lift cylinder rod or fittings; ground stays dry.",
+        "Hydraulic oil clean, filters changed on schedule, no known contamination event.",
+        "Serial/PIN JCB5AAJGC02214987."
+      ]
+    },
+    {
+      "id": "09-newholland-t7-gremlins",
+      "machine": { "year": "2016", "make": "New Holland", "model": "T7.210", "machineType": "Tractor", "hours": "5620" },
+      "surfaceProblem": "Random electrical glitches — the dash gauges flicker and reset, and sometimes the engine cuts out for a second and comes right back. Happens a few times a day.",
+      "trueRootCause": "Harness chafed/pinched during an aftermarket front-loader installation six weeks ago — intermittent open with vibration and loader impacts.",
+      "alternatives": [
+        { "cause": "Failing alternator or voltage regulator", "discriminator": "Charge voltage sits steady around 14V and there's no battery lamp; glitches correlate with bumps and loader impacts, not electrical load.", "category": "gauge-readings" },
+        { "cause": "Corroded or loose battery terminals", "discriminator": "Terminals were cleaned and tightened after the problem started; battery is a year old. No change.", "category": "maintenance-checks" },
+        { "cause": "Failing ignition switch", "discriminator": "Cutouts happen without anyone touching the key, and correlate with rough ground and the loader banging — vibration, not the switch.", "category": "operating-conditions" }
+      ],
+      "hiddenFacts": [
+        "A front loader was installed by a local shop about six weeks ago; the glitches began within days of the install.",
+        "Glitches happen on rough ground, or when the loader bangs down — vibration-correlated.",
+        "Wiggling the harness bundle near the loader mount once reproduced the flicker.",
+        "Charge voltage steady ~14V, no battery lamp. Terminals cleaned and tight; battery 1 year old.",
+        "The display occasionally flashes a momentary communication/CAN error during a glitch.",
+        "Serial/PIN ZGBE05621."
+      ]
+    },
+    {
+      "id": "10-takeuchi-tb260-water-fuel",
+      "machine": { "year": "2022", "make": "Takeuchi", "model": "TB260", "machineType": "Mini excavator", "hours": "1120" },
+      "surfaceProblem": "Started running rough last week — uneven idle, down on power, and it stalled twice at low idle. It ran perfectly before that.",
+      "trueRootCause": "Water-contaminated diesel from a new jobsite transfer tank the machine started refueling from about a week ago.",
+      "alternatives": [
+        { "cause": "Clogged air filter", "discriminator": "Air filter checked and clean; no black smoke under load.", "category": "maintenance-checks" },
+        { "cause": "Failing injectors", "discriminator": "1,120-hour machine with sudden onset days after switching fuel source — points at fuel supply, not injector wear.", "category": "symptom-onset" },
+        { "cause": "Fuel filter clogged by age or algae", "discriminator": "The water separator bowl shows a visible layer of free water and cloudy fuel; draining it smooths the engine for about an hour. Fuel filter was just changed at the 1,000-hour service.", "category": "fluid-condition" }
+      ],
+      "hiddenFacts": [
+        "The machine started refueling from a new jobsite transfer tank about a week ago; symptoms began a few days later.",
+        "The water separator bowl shows a visible water layer and the fuel looks cloudy.",
+        "Draining the separator makes it run smoother for about an hour, then rough again.",
+        "Air filter checked clean. No smoke. Fuel filter changed at the 1,000-hour service.",
+        "No fault codes on the display.",
+        "Serial/PIN 126002214."
+      ]
+    }
+  ]
+}

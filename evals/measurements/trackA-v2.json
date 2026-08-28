@@ -1,0 +1,2757 @@
+{
+  "label": "trackA-v2",
+  "runId": "2026-08-07-03-50",
+  "viewport": {
+    "width": 390,
+    "height": 660
+  },
+  "measuredAt": "2026-08-15T13:28:47.795Z",
+  "results": [
+    {
+      "id": "01-kubota-m7060-hard-cold-start",
+      "make": "Kubota",
+      "documentHeight": 13335,
+      "screens": 20.2,
+      "firstRankedProblemY": 544,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 495,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 3792,
+      "rank1CardHeight": 1361,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 168
+        },
+        {
+          "label": "Corrective action",
+          "offset": 218
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 332
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 530
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 664
+        },
+        {
+          "label": "Why it happens",
+          "offset": 735
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1018
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1131
+        },
+        {
+          "label": "Sources",
+          "offset": 1308
+        }
+      ],
+      "correctiveActionOffset": 218,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 437,
+        "safety": 2026,
+        "applicability": 2730,
+        "systems": 3426,
+        "ranked": 3690,
+        "operation": 7401,
+        "documented": 8671,
+        "paths": 9401,
+        "normals": 10320,
+        "priority": 11924,
+        "ledger": 12430,
+        "sources": 12858
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 377
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 1966
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2670
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3366
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3630
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 7341
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 8611
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 9341
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 10260
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 11864
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 12370
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 12675
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "2",
+          "3",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Weakened or failed individual glow plug(s)",
+      "htmlBytes": 50569
+    },
+    {
+      "id": "02-bobcat-s650-overheat-under-load",
+      "make": "Bobcat",
+      "documentHeight": 12154,
+      "screens": 18.4,
+      "firstRankedProblemY": 579,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 529,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": true,
+      "stopWorkY": 71,
+      "stopWorkAboveFold": true,
+      "stopWorkHasText": true,
+      "safetyOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4234,
+      "rank1CardHeight": 1720,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 139
+        },
+        {
+          "label": "Confidence",
+          "offset": 189
+        },
+        {
+          "label": "Corrective action",
+          "offset": 239
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 437
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 804
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 960
+        },
+        {
+          "label": "Why it happens",
+          "offset": 1031
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1356
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1511
+        },
+        {
+          "label": "Sources",
+          "offset": 1667
+        }
+      ],
+      "correctiveActionOffset": 239,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 472,
+        "safety": 2487,
+        "applicability": 3169,
+        "systems": 3796,
+        "ranked": 4132,
+        "operation": 7168,
+        "documented": 7877,
+        "paths": 8635,
+        "normals": 9129,
+        "priority": 10403,
+        "ledger": 11300,
+        "sources": 11776
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 412
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2427
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 3109
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3736
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 4072
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 7108
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 7817
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 8575
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 9069
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 10343
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 11240
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 11494
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium"
+        ],
+        "afterOne": [
+          "High",
+          "Medium"
+        ],
+        "afterTwo": [
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2"
+        ],
+        "afterTwo": [
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Restricted airflow through radiator/cooler pack due to accumulated debris",
+      "htmlBytes": 48723
+    },
+    {
+      "id": "03-case-sr210-battery-dead-morning",
+      "make": "Case",
+      "documentHeight": 11423,
+      "screens": 17.3,
+      "firstRankedProblemY": 530,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 481,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 3850,
+      "rank1CardHeight": 1551,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 169
+        },
+        {
+          "label": "Corrective action",
+          "offset": 219
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 417
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 657
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 833
+        },
+        {
+          "label": "Why it happens",
+          "offset": 905
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1208
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1321
+        },
+        {
+          "label": "Sources",
+          "offset": 1498
+        }
+      ],
+      "correctiveActionOffset": 219,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 423,
+        "safety": 1708,
+        "applicability": 2412,
+        "systems": 3120,
+        "ranked": 3749,
+        "operation": 6616,
+        "documented": 7346,
+        "paths": 8076,
+        "normals": 8880,
+        "priority": 10003,
+        "ledger": 10527,
+        "sources": 11027
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 363
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 1648
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2352
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3060
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3689
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 6556
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 7286
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 8016
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 8820
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 9943
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 10467
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 10763
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium"
+        ],
+        "afterOne": [
+          "High",
+          "Medium"
+        ],
+        "afterTwo": [
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2"
+        ],
+        "afterTwo": [
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "info",
+        "warning"
+      ],
+      "rankedFirstProblem": "Parasitic current draw from aftermarket LED beacon/work-light kit",
+      "htmlBytes": 48138
+    },
+    {
+      "id": "04-komatsu-wa270-black-smoke",
+      "make": "Komatsu",
+      "documentHeight": 11236,
+      "screens": 17,
+      "firstRankedProblemY": 531,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 481,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 3559,
+      "rank1CardHeight": 1509,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 168
+        },
+        {
+          "label": "Corrective action",
+          "offset": 218
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 374
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 614
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 770
+        },
+        {
+          "label": "Why it happens",
+          "offset": 841
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1166
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1279
+        },
+        {
+          "label": "Sources",
+          "offset": 1456
+        }
+      ],
+      "correctiveActionOffset": 218,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 424,
+        "safety": 1860,
+        "applicability": 2498,
+        "systems": 3145,
+        "ranked": 3457,
+        "operation": 6304,
+        "documented": 6992,
+        "paths": 7677,
+        "normals": 8742,
+        "priority": 9869,
+        "ledger": 10321,
+        "sources": 10820
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 364
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 1800
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2438
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3085
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3397
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 6244
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 6932
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 7617
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 8682
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 9809
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 10261
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 10576
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2"
+        ],
+        "afterTwo": [
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "info",
+        "warning"
+      ],
+      "rankedFirstProblem": "Severe air intake restriction from a dirty/overdue air filter element",
+      "htmlBytes": 47984
+    },
+    {
+      "id": "05-cat-259d3-cold-slow-hydraulics",
+      "make": "Caterpillar",
+      "documentHeight": 14311,
+      "screens": 21.7,
+      "firstRankedProblemY": 568,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 518,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4074,
+      "rank1CardHeight": 1424,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 140
+        },
+        {
+          "label": "Confidence",
+          "offset": 190
+        },
+        {
+          "label": "Corrective action",
+          "offset": 240
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 396
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 594
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 749
+        },
+        {
+          "label": "Why it happens",
+          "offset": 842
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1124
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1237
+        },
+        {
+          "label": "Sources",
+          "offset": 1372
+        }
+      ],
+      "correctiveActionOffset": 240,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 460,
+        "safety": 2249,
+        "applicability": 2953,
+        "systems": 3589,
+        "ranked": 3973,
+        "operation": 7895,
+        "documented": 9225,
+        "paths": 10010,
+        "normals": 11218,
+        "priority": 12648,
+        "ledger": 13123,
+        "sources": 13749
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 400
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2189
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2893
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3529
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3913
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 7835
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 9165
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 9950
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 11158
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 12588
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 13063
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 13651
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "3",
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Incorrect or unverified hydraulic fluid viscosity/type from the recent change or top-off",
+      "htmlBytes": 52926
+    },
+    {
+      "id": "06-hitachi-zx210-boom-slow-loaded",
+      "make": "Hitachi",
+      "documentHeight": 15005,
+      "screens": 22.7,
+      "firstRankedProblemY": 646,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 596,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": true,
+      "stopWorkY": 71,
+      "stopWorkAboveFold": true,
+      "stopWorkHasText": true,
+      "safetyOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4189,
+      "rank1CardHeight": 1488,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 168
+        },
+        {
+          "label": "Corrective action",
+          "offset": 219
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 374
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 614
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 770
+        },
+        {
+          "label": "Why it happens",
+          "offset": 820
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1208
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1321
+        },
+        {
+          "label": "Sources",
+          "offset": 1435
+        }
+      ],
+      "correctiveActionOffset": 219,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 539,
+        "safety": 2305,
+        "applicability": 3032,
+        "systems": 3680,
+        "ranked": 4087,
+        "operation": 7988,
+        "documented": 8925,
+        "paths": 9722,
+        "normals": 10833,
+        "priority": 12828,
+        "ledger": 13654,
+        "sources": 14231
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 479
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2245
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2972
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3620
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 4027
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 7928
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 8865
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 9662
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 10773
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 12768
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 13594
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 14171
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "3",
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Boom holding/overload (counterbalance) valve restriction or wear",
+      "htmlBytes": 53312
+    },
+    {
+      "id": "07-newholland-l228-weak-drive-both-sides",
+      "make": "New Holland",
+      "documentHeight": 15552,
+      "screens": 23.6,
+      "firstRankedProblemY": 676,
+      "firstRankedProblemAboveFold": false,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 626,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": true,
+      "stopWorkY": 71,
+      "stopWorkAboveFold": true,
+      "stopWorkHasText": true,
+      "safetyOrder": [
+        "danger",
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4355,
+      "rank1CardHeight": 1361,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 161
+        },
+        {
+          "label": "Confidence",
+          "offset": 211
+        },
+        {
+          "label": "Corrective action",
+          "offset": 261
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 417
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 594
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 707
+        },
+        {
+          "label": "Why it happens",
+          "offset": 778
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1018
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1132
+        },
+        {
+          "label": "Sources",
+          "offset": 1309
+        }
+      ],
+      "correctiveActionOffset": 261,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 568,
+        "safety": 2014,
+        "applicability": 3008,
+        "systems": 3596,
+        "ranked": 4254,
+        "operation": 9146,
+        "documented": 10602,
+        "paths": 11311,
+        "normals": 12137,
+        "priority": 13645,
+        "ledger": 14174,
+        "sources": 15136
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 508
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 1954
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2948
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3536
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 4194
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 9086
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 10542
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 11251
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 12077
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 13585
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 14114
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 14892
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "4",
+          "2",
+          "3",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "afterTwo": [
+          "4",
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "warning",
+        "danger",
+        "info"
+      ],
+      "rankedFirstProblem": "Hydrostatic charge-circuit restriction or low charge pressure (clogged hydrostatic filter, restricted suction screen, or marginal charge pump)",
+      "htmlBytes": 55311
+    },
+    {
+      "id": "08-deere-310sl-dies-under-load",
+      "make": "John Deere",
+      "documentHeight": 14958,
+      "screens": 22.7,
+      "firstRankedProblemY": 554,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 504,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info",
+        "info"
+      ],
+      "rank1CardTop": 4048,
+      "rank1CardHeight": 1656,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 169
+        },
+        {
+          "label": "Corrective action",
+          "offset": 219
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 417
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 678
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 833
+        },
+        {
+          "label": "Why it happens",
+          "offset": 905
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1292
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1427
+        },
+        {
+          "label": "Sources",
+          "offset": 1604
+        }
+      ],
+      "correctiveActionOffset": 219,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 446,
+        "safety": 2084,
+        "applicability": 3011,
+        "systems": 3611,
+        "ranked": 3947,
+        "operation": 8016,
+        "documented": 9379,
+        "paths": 10192,
+        "normals": 11281,
+        "priority": 12792,
+        "ledger": 13369,
+        "sources": 14374
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 386
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2024
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2951
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3551
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3887
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 7956
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 9319
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 10132
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 11221
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 12732
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 13309
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 14298
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "3",
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "warning",
+        "info",
+        "info"
+      ],
+      "rankedFirstProblem": "Fuel filter/water separator restriction from contaminated bulk fuel supply",
+      "htmlBytes": 53947
+    },
+    {
+      "id": "09-kubota-l3901-silent-no-crank",
+      "make": "Kubota",
+      "documentHeight": 13540,
+      "screens": 20.5,
+      "firstRankedProblemY": 576,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 526,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": false,
+      "stopWorkY": null,
+      "stopWorkAboveFold": false,
+      "stopWorkHasText": false,
+      "safetyOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4104,
+      "rank1CardHeight": 1509,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 168
+        },
+        {
+          "label": "Corrective action",
+          "offset": 218
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 374
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 593
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 749
+        },
+        {
+          "label": "Why it happens",
+          "offset": 883
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1145
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1237
+        },
+        {
+          "label": "Sources",
+          "offset": 1456
+        }
+      ],
+      "correctiveActionOffset": 218,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 469,
+        "safety": 2270,
+        "applicability": 3019,
+        "systems": 3714,
+        "ranked": 4002,
+        "operation": 8135,
+        "documented": 8982,
+        "paths": 9784,
+        "normals": 10874,
+        "priority": 11921,
+        "ledger": 12283,
+        "sources": 13037
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 409
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2210
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2959
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3654
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3942
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 8075
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 8922
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 9724
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 10814
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 11861
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 12223
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 12880
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "High"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "3",
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "warning",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Clutch safety interlock switch — worn, dirty, or misadjusted contacts",
+      "htmlBytes": 52223
+    },
+    {
+      "id": "10-doosan-dx140-milky-oil",
+      "make": "Doosan",
+      "documentHeight": 13173,
+      "screens": 20,
+      "firstRankedProblemY": 602,
+      "firstRankedProblemAboveFold": true,
+      "firstRankedProblemTag": "span.shortlist-problem @#identity",
+      "shortlistPresent": true,
+      "shortlistY": 552,
+      "legendY": null,
+      "legendSection": null,
+      "stopWorkPresent": true,
+      "stopWorkY": 71,
+      "stopWorkAboveFold": true,
+      "stopWorkHasText": true,
+      "safetyOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rank1CardTop": 4020,
+      "rank1CardHeight": 1614,
+      "rank1Fields": [
+        {
+          "label": "Rank",
+          "offset": 3
+        },
+        {
+          "label": "Problem",
+          "offset": 45
+        },
+        {
+          "label": "Likelihood",
+          "offset": 118
+        },
+        {
+          "label": "Confidence",
+          "offset": 168
+        },
+        {
+          "label": "Corrective action",
+          "offset": 218
+        },
+        {
+          "label": "Confirmation tests",
+          "offset": 416
+        },
+        {
+          "label": "Do not replace until",
+          "offset": 656
+        },
+        {
+          "label": "Applicable variant",
+          "offset": 812
+        },
+        {
+          "label": "Why it happens",
+          "offset": 925
+        },
+        {
+          "label": "What the operator notices",
+          "offset": 1271
+        },
+        {
+          "label": "Controller / fault-code evidence",
+          "offset": 1385
+        },
+        {
+          "label": "Sources",
+          "offset": 1561
+        }
+      ],
+      "correctiveActionOffset": 218,
+      "rankedLabels": [
+        "Rank",
+        "Problem",
+        "Likelihood",
+        "Confidence",
+        "Corrective action",
+        "Confirmation tests",
+        "Do not replace until",
+        "Applicable variant",
+        "Why it happens",
+        "What the operator notices",
+        "Controller / fault-code evidence",
+        "Sources"
+      ],
+      "sortButtons": [
+        {
+          "text": "rank↑",
+          "col": "0",
+          "defaultDir": "asc",
+          "pressed": "true"
+        },
+        {
+          "text": "likelihood",
+          "col": "2",
+          "defaultDir": "desc",
+          "pressed": "false"
+        },
+        {
+          "text": "confidence",
+          "col": "3",
+          "defaultDir": "desc",
+          "pressed": "false"
+        }
+      ],
+      "sectionTops": {
+        "identity": 495,
+        "safety": 2235,
+        "applicability": 2895,
+        "systems": 3558,
+        "ranked": 3918,
+        "operation": 8178,
+        "documented": 9081,
+        "paths": 9833,
+        "normals": 10826,
+        "priority": 11926,
+        "ledger": 12330,
+        "sources": 12757
+      },
+      "mobileControlButtons": [
+        "top",
+        "print"
+      ],
+      "jump": {
+        "present": true,
+        "matches": 12,
+        "total": 12,
+        "detail": [
+          {
+            "id": "identity",
+            "value": "identity",
+            "ok": true,
+            "scrollY": 435
+          },
+          {
+            "id": "safety",
+            "value": "safety",
+            "ok": true,
+            "scrollY": 2175
+          },
+          {
+            "id": "applicability",
+            "value": "applicability",
+            "ok": true,
+            "scrollY": 2835
+          },
+          {
+            "id": "systems",
+            "value": "systems",
+            "ok": true,
+            "scrollY": 3498
+          },
+          {
+            "id": "ranked",
+            "value": "ranked",
+            "ok": true,
+            "scrollY": 3858
+          },
+          {
+            "id": "operation",
+            "value": "operation",
+            "ok": true,
+            "scrollY": 8118
+          },
+          {
+            "id": "documented",
+            "value": "documented",
+            "ok": true,
+            "scrollY": 9021
+          },
+          {
+            "id": "paths",
+            "value": "paths",
+            "ok": true,
+            "scrollY": 9773
+          },
+          {
+            "id": "normals",
+            "value": "normals",
+            "ok": true,
+            "scrollY": 10766
+          },
+          {
+            "id": "priority",
+            "value": "priority",
+            "ok": true,
+            "scrollY": 11866
+          },
+          {
+            "id": "ledger",
+            "value": "ledger",
+            "ok": true,
+            "scrollY": 12270
+          },
+          {
+            "id": "sources",
+            "value": "sources",
+            "ok": true,
+            "scrollY": 12513
+          }
+        ]
+      },
+      "sortLikelihood": {
+        "present": true,
+        "col": 2,
+        "targetLabel": "Likelihood",
+        "before": [
+          "Medium",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "Medium",
+          "Medium",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Medium",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortConfidence": {
+        "present": true,
+        "col": 3,
+        "targetLabel": "Confidence",
+        "before": [
+          "Low",
+          "Medium",
+          "Low"
+        ],
+        "afterOne": [
+          "Medium",
+          "Low",
+          "Low"
+        ],
+        "afterTwo": [
+          "Low",
+          "Low",
+          "Medium"
+        ],
+        "pressed": "true"
+      },
+      "sortRank": {
+        "present": true,
+        "col": 0,
+        "targetLabel": "Rank",
+        "before": [
+          "3",
+          "2",
+          "1"
+        ],
+        "afterOne": [
+          "1",
+          "2",
+          "3"
+        ],
+        "afterTwo": [
+          "3",
+          "2",
+          "1"
+        ],
+        "pressed": "true"
+      },
+      "safetyModelOrder": [
+        "danger",
+        "warning",
+        "info"
+      ],
+      "rankedFirstProblem": "Internal engine oil cooler core leak (coolant intrudes into oil circuit)",
+      "htmlBytes": 51806
+    }
+  ]
+}

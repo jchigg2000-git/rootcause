@@ -1,0 +1,1352 @@
+{
+  "version": 3,
+  "derivedFrom": "scenarios-codes-v4.json (2026-08-20, 20 scenarios)",
+  "supersets": "scenarios-codes-v3-intake.json — c1..c8 and c10..c20 byte-identical; c9 repaired",
+  "created": "2026-08-19",
+  "purpose": "The twenty-scenario code set with the codes handed over ON THE INTAKE FORM instead of held back for the interview to extract. Twin of scenarios-codes-v3.json: every field byte-identical except that each scenario's code-STATUS hiddenFacts are deleted and re-voiced in the operator's words as the one `intake.faultCodes` key. No other intake key is set, so the code's presence at intake is the only variable against a v3 control. c1..c6 reuse the v1 intake strings verbatim, so the four banked 2026-08-19 arms stay comparable on those six. DELIBERATE DEPARTURE from scenarios-intake.json v4's decontamination rule, unchanged from v1: on the cases where the code IS operative evidence, handing it over is the hypothesis rather than a leak. Still forbidden and checked case by case: intake never carries a code's INTERPRETATION, and never a non-code fact — the packed cooler cores (c20), the crusty water-pump weep (c11), the 15W-40 on the service invoice (c12), the corroded ground stud (c18), the stiff turbo actuator (c9) and the rest all remain reachable only by asking.",
+  "categories": [
+    "fault-codes",
+    "code-provenance",
+    "service-history",
+    "symptom-detail",
+    "symptom-onset",
+    "symptom-scope",
+    "fluid-condition",
+    "visual-inspection",
+    "maintenance-checks",
+    "load-dependence",
+    "operating-conditions",
+    "recent-events",
+    "gauge-readings",
+    "rate-trend",
+    "temperature-correlation"
+  ],
+  "primaryEndpoint": "Behavioural, per README rule 4, and PAIRED: compare an arm to its control on DISCORDANT cases, never on pooled totals. This file exists because v2's effective n was 2 — four of its six cases were correct in every run and carried no information. Report the discordant count next to any claim.",
+  "knownEffects": "Handing the code over makes some cases easier BY CONSTRUCTION and no scorecard may credit that to a model or a prompt. Operative-code cases (c1, c5, c6, c15, c19): the code names the fault or the right circuit and is now free. c3: the intake string carries the stale code AND its provenance, which is close to the discriminator for its own red-herring alternative — that shape is only half-tested here. c7, c18: the VALUE of the intake field is highest here, because what the operator can say about the code list (all one timestamp; I cannot read the screen) is itself the diagnosis. c10: the field now carries 'a wrench symbol, no fault codes', which is the whole case. Nearly unaffected, and the closest things to null controls: c2, c11, c13, c14, c16, c17, c20 — in all of these the code was never the tell.",
+  "scenarios": [
+    {
+      "id": "c1-bobcat-t740-intermittent-stall",
+      "shape": "code-nails-it",
+      "machine": {
+        "year": "2019",
+        "make": "Bobcat",
+        "model": "T740",
+        "machineType": "Compact track loader",
+        "hours": "2140"
+      },
+      "intake": {
+        "faultCodes": "SPN 636 FMI 8 — it comes up active every time it cuts out. The stored list has that same code logged eleven times over the past two weeks, nothing else stored."
+      },
+      "surfaceProblem": "It dies on me out of nowhere — running along and the engine just quits like somebody turned the key off. Usually it fires right back up, sometimes I have to sit a couple minutes. Three or four times a day now.",
+      "trueRootCause": "Failing crankshaft (engine position) sensor or its circuit — an active SPN 636 FMI 8 is logged at the instant of every cutout; the engine dies instantly with no fuel-starvation behaviour and restarts once the signal returns.",
+      "alternatives": [
+        {
+          "cause": "Fuel starvation — plugged filter, water, air leak",
+          "discriminator": "No stumble, surge or power loss before it quits; it cuts out instantly. Filters were changed 60 hours ago and the logged code is an engine-position signal fault, not low rail pressure.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Loose battery terminal, bad ground, or a chafed main power feed",
+          "discriminator": "Nothing flickers — the display stays lit right through the stall and the hour meter keeps time; no low-voltage codes stored, terminals clean and tight.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Fuel shutoff solenoid or key-switch fault",
+          "discriminator": "The dash never loses power and the key switch behaves normally; the ECU logs the same engine-position code every time.",
+          "category": "fault-codes"
+        }
+      ],
+      "hiddenFacts": [
+        "The engine quits instantly, like a switch — no stumble, no surge, no smoke beforehand.",
+        "The display stays lit right through the stall and the machine cranks normally afterward.",
+        "Fuel filters were changed 60 hours ago at the dealer; fuel comes from the same supplier as always.",
+        "No low-voltage or charging codes; battery terminals are clean and tight and nothing flickers.",
+        "It happens hot or cold, loaded or empty — no pattern I can find.",
+        "Serial B4CM12140."
+      ],
+      "preRegistered": {
+        "correctRank1": "Crankshaft / engine position sensor or its circuit — the fault behind SPN 636 FMI 8.",
+        "acceptAlsoAsCorrect": [
+          "Engine position sensor wiring, connector or harness fault",
+          "Intermittent open in the crank sensor circuit",
+          "Crank position sensor signal loss"
+        ],
+        "scoredWrongIfRank1": [
+          "Fuel starvation / plugged fuel filter",
+          "Battery, ground or main power feed fault",
+          "Fuel shutoff solenoid or key switch",
+          "ECM / controller failure"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask",
+          "B2 active vs stored asked apart",
+          "report `codes` field quotes SPN 636 FMI 8 exactly"
+        ]
+      }
+    },
+    {
+      "id": "c2-deere-333g-regen-derate",
+      "shape": "code-is-a-symptom",
+      "machine": {
+        "year": "2019",
+        "make": "John Deere",
+        "model": "333G",
+        "machineType": "Compact track loader",
+        "hours": "3120"
+      },
+      "intake": {
+        "faultCodes": "Exhaust filter / soot level warning and a power derate showing right now — the dealer's handheld read it as SPN 3251 FMI 16 last time. Stored list has that same soot warning logged over and over the last few months, nothing else."
+      },
+      "surfaceProblem": "The exhaust filter warning keeps coming up and now the machine's gone into a power derate. Third time this year and I'm being told the filter's shot.",
+      "trueRootCause": "Soot loading caused by the duty cycle and by regeneration being cancelled, not by a failed filter: the machine idles most of a nine-hour day at light load inside a building and the operator presses the regen inhibit every time it asks, so it has not completed a regeneration in six months. Correct action is a parked/service regeneration plus a change in regen practice and duty cycle — replacing the exhaust filter fixes nothing and the problem returns.",
+      "alternatives": [
+        {
+          "cause": "Failed exhaust filter needing replacement",
+          "discriminator": "The filter has never been off the machine and no parked regeneration has ever been attempted; the machine has simply never been allowed to regenerate.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Differential-pressure sensor or its hoses reading false",
+          "discriminator": "The soot warnings track the work the machine does and started when it moved indoors and regens began being cancelled — the reading is telling the truth.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Leaking injector or excess fuel loading the filter",
+          "discriminator": "Oil level is not rising, no fuel smell in the oil, no misfire or rough running, fuel consumption normal.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Turbo or intake leak making soot",
+          "discriminator": "No black smoke, no whistle, no boost codes; power is normal right up until the derate comes in.",
+          "category": "symptom-detail"
+        }
+      ],
+      "hiddenFacts": [
+        "The dash asks me to run a regeneration nearly every day and I hit the inhibit button — we work inside a shop building and I can't have it burning off in there.",
+        "I can't remember the machine finishing a regeneration in the last six months.",
+        "It idles a lot — maybe six hours of a nine-hour day just sitting running while we load and sort.",
+        "The filter has never been off the machine and has never been ash-serviced. Oil and fuel filters are on schedule.",
+        "Oil level stays where it should; no fuel smell in the oil; no rough running or misfire.",
+        "No black smoke, no whistling, and no power complaint until the derate kicks in.",
+        "Serial 1T0333GXCKJ312034."
+      ],
+      "preRegistered": {
+        "correctRank1": "Soot loading because regeneration is repeatedly inhibited and the duty cycle is light-load idling — remedy is a parked/service regeneration and a change in regen practice, not a filter replacement.",
+        "acceptAlsoAsCorrect": [
+          "Incomplete or inhibited regeneration cycle",
+          "Excessive idling / light-load duty preventing DPF regeneration"
+        ],
+        "scoredWrongIfRank1": [
+          "Failed or plugged DPF requiring replacement",
+          "DPF differential pressure sensor failure",
+          "Injector leak",
+          "Turbocharger or intake leak"
+        ],
+        "scoringNote": "'The filter is plugged' is a true statement of state and is NOT a correct rank 1 on its own. The entry must name inhibited/incomplete regeneration or the idle duty cycle as the cause, in `problem` or `action`.",
+        "behavioural": [
+          "B1 verbatim code ask",
+          "B2 active vs stored asked apart",
+          "B4 rank 1 names the cause, not the coded component"
+        ]
+      }
+    },
+    {
+      "id": "c3-komatsu-pc138-tracks-crooked",
+      "shape": "stale-red-herring-code",
+      "machine": {
+        "year": "2016",
+        "make": "Komatsu",
+        "model": "PC138USLC-11",
+        "machineType": "Excavator",
+        "hours": "5240"
+      },
+      "intake": {
+        "faultCodes": "Nothing active — the monitor shows no live warning at all. There is one thing sitting in the stored list, SPN 3226 FMI 20, logged about eight months ago when the dealer replaced a sensor. It has run fine since."
+      },
+      "surfaceProblem": "It won't travel straight anymore — pulls hard to the right when I drive it across the yard. Digging and swinging are fine. There's also a code sitting in the monitor's list, I don't know if it matters.",
+      "trueRootCause": "The right track is over-tensioned and the right undercarriage is packed solid with dried clay after a week of digging in wet clay — mechanical drag on that side. The only code on the machine is a stored, inactive aftertreatment fault from a dealer repair eight months ago and is unrelated to the complaint.",
+      "alternatives": [
+        {
+          "cause": "Right travel motor or final drive failing",
+          "discriminator": "No whine, no heat off the right final drive, oil fine at the last service; the machine tracked straight until the wet-clay week.",
+          "category": "symptom-onset"
+        },
+        {
+          "cause": "Pilot circuit, travel solenoid or control valve fault",
+          "discriminator": "Both levers and the travel speed control behave normally, digging and swing are unaffected, and there is no active code of any kind.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "The fault code on the monitor / an aftertreatment problem",
+          "discriminator": "That code is in the stored list only — not active — logged eight months ago when a dealer replaced a sensor, and there is no engine symptom now.",
+          "category": "code-provenance"
+        },
+        {
+          "cause": "Worn sprocket and chain",
+          "discriminator": "Undercarriage was measured at the 5000-hour service and read within limits, and the pull appeared in one week rather than gradually.",
+          "category": "service-history"
+        }
+      ],
+      "hiddenFacts": [
+        "It started pulling right after a week of digging in wet clay; before that it tracked straight.",
+        "The right track has no slack in it at all — you cannot push it down by hand, where the left one gives a couple of inches. That whole right side is packed solid with dried clay and you can barely see the rollers.",
+        "No whine and no heat off the right final drive; the oil in it looked fine at the last service.",
+        "Digging power, swing and boom are all normal. No power complaints, no smoke, no derate.",
+        "Undercarriage was measured at the 5000-hour service and came back within limits.",
+        "Serial KMTPC188E01234."
+      ],
+      "preRegistered": {
+        "correctRank1": "Right-side track over-tension and undercarriage packed with clay — mechanical drag on the right side.",
+        "acceptAlsoAsCorrect": [
+          "Track tension too tight on the right side",
+          "Packed material in the right undercarriage causing drag"
+        ],
+        "scoredWrongIfRank1": [
+          "Travel motor or final drive failure",
+          "Control valve, pilot or travel solenoid fault",
+          "Anything naming the stored code or an aftertreatment fault as the cause of the pull",
+          "Worn sprocket and chain"
+        ],
+        "behavioural": [
+          "B2 active vs stored asked apart — this is the case that needs it",
+          "the report must classify the stored code as historic and unrelated, not treat it as live evidence",
+          "v2: the code is now named in the surface complaint, so an interview that never asks which code it is, or never establishes it is inactive, is a failure rather than an untested path"
+        ]
+      }
+    },
+    {
+      "id": "c4-sany-sy215c-unknown-code",
+      "shape": "code-the-model-should-not-know",
+      "machine": {
+        "year": "2019",
+        "make": "SANY",
+        "model": "SY215C",
+        "machineType": "Excavator",
+        "hours": "4310"
+      },
+      "intake": {
+        "faultCodes": "E-1147 comes up on the monitor when it happens. It clears itself when the power comes back."
+      },
+      "surfaceProblem": "There's a code up on the screen and the machine keeps going soft on me — the hydraulics lose power for a minute or two and then come back to normal. Started about two weeks ago.",
+      "trueRootCause": "A pump control (proportional) solenoid connector left loose after a hydraulic hose repair two weeks ago; it makes and breaks with machine vibration, dropping pump output intermittently and setting the monitor code. The displayed code E-1147 is manufacturer-specific and its meaning is NOT publicly documented — the correct behaviour is to say the meaning must come from the dealer or the machine's service manual, never to assert one.",
+      "alternatives": [
+        {
+          "cause": "Main hydraulic pump wearing out",
+          "discriminator": "It is intermittent and returns to full power on its own within a minute or two; a worn pump is weak all the time and worsens with heat, and this machine has full power between episodes.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Hydraulic oil low, contaminated, or overheating",
+          "discriminator": "Oil is full and clean, the temperature gauge sits normal, and episodes happen cold in the morning as well as hot.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Main relief or control valve fault",
+          "discriminator": "Every function goes soft at the same instant and recovers together, which points at pump control rather than one circuit's valve — and it began within a day or two of a repair where the pump harness was disturbed.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Air trapped or ingested at the repaired hydraulic hose",
+          "discriminator": "The episodes correlate with rough ground and machine vibration rather than with bleeding down over time, and they have self-cleared identically for two weeks — trapped air works itself out and does not switch a monitor code on and off with shaking.",
+          "category": "recent-events"
+        }
+      ],
+      "hiddenFacts": [
+        "It affects everything at once — boom, bucket, swing and travel all go weak together, then all come back together.",
+        "Full power between episodes; no noise change and no whine from the pump.",
+        "Hydraulic oil is full and clean and the temperature gauge is normal; it happens cold in the morning too.",
+        "A shop replaced a leaking hydraulic hose at the pump about two weeks ago — the trouble started within a day or two of getting it back.",
+        "It seems worse over rough ground or when the machine is shaking around.",
+        "No engine codes, the engine runs fine, no derate.",
+        "Serial SY215C90124310."
+      ],
+      "preRegistered": {
+        "correctRank1": "Loose or disturbed connector/harness on the pump control (proportional) solenoid from the recent hose repair — an intermittent pump-control circuit fault.",
+        "acceptAlsoAsCorrect": [
+          "Intermittent pump control solenoid circuit or wiring fault",
+          "Electrical connector disturbed during the recent hydraulic repair"
+        ],
+        "scoredWrongIfRank1": [
+          "Main hydraulic pump wear",
+          "Low or contaminated hydraulic oil",
+          "Main relief or control valve failure"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask — the operator said only 'a code', so the interview must ask what it reads",
+          "B3 the report must NOT assert a meaning for E-1147. Any stated definition ('E-1147 = pump pressure sensor circuit') is a FAIL of prompts.ts:49. Correct behaviour: name it manufacturer-specific and unverified, and send the operator to the dealer or service manual for the definition."
+        ]
+      }
+    },
+    {
+      "id": "c5-deere-320g-def-in-fuel",
+      "shape": "rare-but-clean",
+      "machine": {
+        "year": "2018",
+        "make": "John Deere",
+        "model": "320G",
+        "machineType": "Skid steer loader",
+        "hours": "2760"
+      },
+      "intake": {
+        "faultCodes": "Low fuel rail pressure — the dealer's reader called it SPN 157 FMI 18 — plus a power derate. Nothing stored before today."
+      },
+      "surfaceProblem": "It lost power and shut off about an hour after we fuelled up, and now it barely starts and won't pull at all. Ran perfect all morning before that.",
+      "trueRootCause": "DEF (diesel exhaust fluid) was put in the fuel tank from a mislabelled shop jug at the last fill — white crystalline deposits in the filter bowl and a sharp ammonia smell. The fuel system has to be drained and cleaned and the injection components assessed; changing filters alone will not fix it and running the machine further destroys the injection system.",
+      "alternatives": [
+        {
+          "cause": "Plugged fuel filter",
+          "discriminator": "Filters were new 40 hours ago and what is in the bowl is white crystal, not black sludge; the failure came within an hour of a fill.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Water in the fuel",
+          "discriminator": "The water separator has never alarmed and there is no water layer — the deposits are dry white crystals and the fuel smells sharp, like ammonia.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "High-pressure fuel pump or injector wear",
+          "discriminator": "The machine ran perfectly right up to an hour after a fill at 2760 hours; the onset is a fuelling event, not a wear curve.",
+          "category": "symptom-onset"
+        },
+        {
+          "cause": "Air in the fuel / suction-side leak",
+          "discriminator": "No leaks or loose fittings and nobody has worked on the fuel system — but the tank was filled from a shop jug that morning instead of the yard pump.",
+          "category": "recent-events"
+        }
+      ],
+      "hiddenFacts": [
+        "It ran perfectly all morning and quit about an hour after we filled it.",
+        "We filled it from a jug in the shop that morning instead of the yard pump, because the pump was down.",
+        "I did pull the clear filter bowl and look at it: it is not clean. There are white crystal-looking deposits sitting in the bottom of it, and the fuel smells sharp — like ammonia, not like diesel.",
+        "Fuel filters were changed 40 hours ago; there's no black sludge and the water separator has never alarmed.",
+        "No leaks, no loose fittings, and nobody has worked on the fuel system.",
+        "It cranks fine and will fire for a second or two, then dies.",
+        "Serial 1T0320GXKJF276021."
+      ],
+      "preRegistered": {
+        "correctRank1": "Wrong fluid — DEF or another non-diesel fluid — in the fuel tank from the last fill; fuel system contamination requiring drain and clean, not just filters.",
+        "acceptAlsoAsCorrect": [
+          "Contaminated fuel from the jug used at the last fill",
+          "DEF contamination of the fuel system"
+        ],
+        "scoredWrongIfRank1": [
+          "Plugged fuel filter",
+          "Water in fuel",
+          "High-pressure fuel pump or injector wear",
+          "Air leak in the fuel supply"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask",
+          "does the interview ask what happened around the machine — the fuelling event — per the recent-events rule shipped in 401d892",
+          "does the report tell the operator to stop running the machine"
+        ]
+      }
+    },
+    {
+      "id": "c6-cat-924k-low-boost",
+      "shape": "code-is-a-symptom",
+      "machine": {
+        "year": "2017",
+        "make": "Caterpillar",
+        "model": "924K",
+        "machineType": "Wheel loader",
+        "hours": "6890"
+      },
+      "intake": {
+        "faultCodes": "Low boost pressure — the dealer's reader showed SPN 102 FMI 18. Nothing else active. The same code is in the stored list a number of times over the last two weeks."
+      },
+      "surfaceProblem": "It's gone flat — no power going into the pile, lots of black smoke, and there's a hiss when I get on it. Getting worse the last couple weeks.",
+      "trueRootCause": "A split charge-air-cooler hose at the cooler-end clamp — a real low-boost condition. The active low-boost code is reporting the leak truthfully; replacing the boost pressure sensor fixes nothing.",
+      "alternatives": [
+        {
+          "cause": "Boost pressure sensor failed",
+          "discriminator": "There is an audible hiss under load and an oily split visible at the charge-air hose clamp — the machine really is down on boost, so the sensor is reporting a true condition.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Turbocharger failure",
+          "discriminator": "No change in turbo whine, no oil in the intake piping, and the hiss is at the cooler hose rather than the turbo.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Plugged air filter",
+          "discriminator": "The restriction indicator has not tripped and the element was changed 100 hours ago and is clean.",
+          "category": "maintenance-checks"
+        },
+        {
+          "cause": "Plugged exhaust filter / aftertreatment restriction",
+          "discriminator": "No exhaust-filter or regen warnings at all, and the only active code is the low boost one.",
+          "category": "fault-codes"
+        }
+      ],
+      "hiddenFacts": [
+        "There's a loud hiss under the hood when I load the engine; it goes away at idle.",
+        "Black smoke under load and the machine is slow to build power.",
+        "The rubber hose between the turbo and the charge air cooler has an oily split right at the clamp on the cooler end — you can see it with the hood up.",
+        "Air filter element was changed 100 hours ago and the restriction indicator has not tripped.",
+        "No exhaust filter or regen warnings, and no derate message.",
+        "Turbo sounds the same as always and there's no oil in the intake piping.",
+        "Serial CAT0924KLR9M06890."
+      ],
+      "preRegistered": {
+        "correctRank1": "Charge-air (boost) leak — the split charge-air-cooler hose at its clamp.",
+        "acceptAlsoAsCorrect": [
+          "Intake / boost air leak between the turbocharger and the intake manifold",
+          "Failed charge-air-cooler hose or clamp"
+        ],
+        "scoredWrongIfRank1": [
+          "Boost pressure sensor failure",
+          "Turbocharger failure",
+          "Plugged air filter",
+          "Exhaust filter / DPF restriction"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask",
+          "B4 rank 1 names the leak, not the boost pressure sensor the code points at"
+        ]
+      }
+    },
+    {
+      "id": "c7-case-580n-many-codes-at-once",
+      "shape": "cascade — many codes, one electrical cause",
+      "machine": {
+        "year": "2018",
+        "make": "Case",
+        "model": "580N",
+        "machineType": "Backhoe loader",
+        "hours": "4180"
+      },
+      "intake": {
+        "faultCodes": "A long list, right across several modules — most of them say low voltage or supply out of range. The dealer's printout has them all logged inside the same minute."
+      },
+      "surfaceProblem": "A whole row of warning lights came on at once the other morning and the dealer's guy pulled a list of codes off it as long as your arm. Machine still runs but everything feels off.",
+      "trueRootCause": "A failing alternator — system voltage sags to about 11.8V with the engine running, and every module on the bus logs its own low-voltage or out-of-range fault at the same instant. Replacing the alternator clears the whole list; chasing the individual codes replaces working parts.",
+      "alternatives": [
+        {
+          "cause": "Multiple independent module or sensor failures",
+          "discriminator": "Every code carries the same timestamp and they all appeared in one moment — separate components do not fail simultaneously.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "CAN bus wiring or terminator fault",
+          "discriminator": "The modules are all still communicating and reporting; a bus fault produces no-communication codes, not in-range low-voltage ones.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "ECM failure",
+          "discriminator": "The ECM is logging and reporting normally, and the fault set spans modules the ECM does not power.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Bad battery or loose terminal",
+          "discriminator": "The battery load-tests fine and the terminals are clean and tight; voltage is low with the engine RUNNING, which is the charging system's job, not the battery's.",
+          "category": "gauge-readings"
+        }
+      ],
+      "hiddenFacts": [
+        "The battery light on the dash has been flickering at idle for a couple of weeks and nobody thought much of it.",
+        "With a meter on the battery, engine running at high idle, it reads about 11.8 volts. Key off it reads 12.5.",
+        "Work lights and the dash dim noticeably when the engine drops to low idle, and brighten when you rev it.",
+        "The battery is two years old and load-tests fine at the parts store.",
+        "Battery terminals and the main ground strap are clean and tight — somebody already checked those.",
+        "No smoke, no noise, no fluid leaks, and the engine itself runs and pulls the same as always.",
+        "The alternator belt is intact and tight, and the alternator pulley turns with the belt.",
+        "Serial JJGN580NCJC12345."
+      ],
+      "preRegistered": {
+        "correctRank1": "Failing alternator / charging system output low — the code storm is downstream of low system voltage.",
+        "acceptAlsoAsCorrect": [
+          "Charging system fault causing low system voltage",
+          "Alternator not charging, producing bus-wide undervoltage faults"
+        ],
+        "scoredWrongIfRank1": [
+          "Multiple independent module or sensor failures",
+          "CAN bus wiring fault",
+          "ECM failure",
+          "Battery failure or loose terminal"
+        ],
+        "behavioural": [
+          "does the interview recognise a code CASCADE rather than working the list one code at a time",
+          "does it ask for a charging-voltage reading",
+          "the report must not recommend replacing any of the individually-coded components"
+        ]
+      }
+    },
+    {
+      "id": "c8-volvo-ec220e-overheat-code-cold-oil",
+      "shape": "code contradicts the symptom — the sensor is lying",
+      "machine": {
+        "year": "2019",
+        "make": "Volvo",
+        "model": "EC220E",
+        "machineType": "Excavator",
+        "hours": "3960"
+      },
+      "intake": {
+        "faultCodes": "Hydraulic oil temperature high. It's showing within a minute of a cold start."
+      },
+      "surfaceProblem": "It throws a hydraulic oil overheat warning and derates, but the oil is stone cold — I can put my hand flat on the tank. Happens first thing in the morning before we've done anything.",
+      "trueRootCause": "A failed hydraulic oil temperature sensor or an open in its circuit, reading full-scale high. The oil really is cold; the machine is protecting itself against a temperature that does not exist. The fix is the sensor or its wiring, not the cooling system.",
+      "alternatives": [
+        {
+          "cause": "Genuine hydraulic overheating",
+          "discriminator": "The tank is cold to the hand and an infrared gun reads about 40°F on it; the warning appears at cold start before any work is done.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "Blocked oil cooler or failed cooler fan",
+          "discriminator": "The cooler cores are clean and clear, the fan runs, and the oil is not hot in the first place.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Wrong or degraded hydraulic oil",
+          "discriminator": "The oil was changed at the last service with the specified grade, looks and smells normal, and a viscosity problem does not produce a full-scale temperature reading on a cold machine.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Overloaded or undersized system / operator duty cycle",
+          "discriminator": "It happens on the first key-on of the day with the machine sitting still, before any load at all.",
+          "category": "load-dependence"
+        }
+      ],
+      "hiddenFacts": [
+        "The hydraulic tank is cold to the touch and an infrared thermometer reads about 40°F on the tank wall when the warning is showing.",
+        "The gauge on the monitor jumps straight to the top of its range rather than climbing gradually.",
+        "The oil cooler cores are clean, the fan runs, and there is no debris packed in front of the radiator.",
+        "Hydraulic oil was changed at the 3500-hour service with the grade in the book; it looks clean and smells normal.",
+        "Oil level is correct in the sight glass, no foam, no milkiness.",
+        "The machine works normally when it lets you work — full power, no slowdown, no whine.",
+        "Nobody has done any electrical or sensor work on it, but the harness runs down the right side of the tank where the boom hoses have rubbed a groove in the guard.",
+        "Serial VCEC220EJ0812345."
+      ],
+      "preRegistered": {
+        "correctRank1": "Hydraulic oil temperature sensor or its circuit failed, reading high — the oil is not actually hot.",
+        "acceptAlsoAsCorrect": [
+          "Open or shorted hydraulic oil temperature sensor circuit / wiring",
+          "False temperature signal from a failed sender"
+        ],
+        "scoredWrongIfRank1": [
+          "Genuine hydraulic overheating",
+          "Blocked cooler or failed cooler fan",
+          "Wrong or degraded hydraulic oil",
+          "Overload / duty cycle"
+        ],
+        "behavioural": [
+          "does the interview ask for an INDEPENDENT temperature observation rather than trusting the code",
+          "the report must say the sensor is contradicted by physical evidence",
+          "pairs deliberately with c6, where the low-boost code was telling the truth — the same shape resolved the other way"
+        ]
+      }
+    },
+    {
+      "id": "c9-jcb-3cx-codes-cleared-cold-derate",
+      "shape": "the codes were cleared before anyone diagnosed anything",
+      "machine": {
+        "year": "2016",
+        "make": "JCB",
+        "model": "3CX",
+        "machineType": "Backhoe loader",
+        "hours": "6740"
+      },
+      "intake": {
+        "faultCodes": "Nothing showing now — the dealer cleared them both times before I could write them down. I remember the word 'boost' being on the screen."
+      },
+      "surfaceProblem": "It goes into a power derate on cold mornings, then comes right after twenty minutes or so. The dealer plugged in twice, cleared the codes both times, and told me to bring it back when it's actually doing it.",
+      "trueRootCause": "A sticking variable-geometry turbo actuator. The mechanism binds when cold, the ECM detects the actuator not reaching commanded position, derates, and releases once everything warms and frees up. Freeing or replacing the actuator is the fix; there is nothing wrong with the fuel system.",
+      "alternatives": [
+        {
+          "cause": "Fuel gelling or a waxing fuel filter in cold weather",
+          "discriminator": "It happens at 40°F as readily as at 20°F, on treated winter fuel, and a fuel restriction does not clear itself after twenty minutes of running.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "DPF soot loading / regeneration problem",
+          "discriminator": "No exhaust filter warning has ever appeared, regens complete normally, and the derate lifts on its own without a regen.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Coolant temperature sensor reading low, holding the engine in warm-up",
+          "discriminator": "The temperature gauge climbs normally and reaches operating temperature in the usual time.",
+          "category": "gauge-readings"
+        },
+        {
+          "cause": "EGR valve sticking",
+          "discriminator": "There is no black smoke and no rough running during the derate, and the actuator rod on the turbo is visibly stiff to move by hand when cold.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Boost / manifold-pressure or intake-air-temperature sensor, or its connector, reading falsely when cold or damp",
+          "discriminator": "It follows the thermometer and not the weather — a dry cold morning does it exactly as a foggy one, and it has never done it on a damp morning above 45°F, where a condensation-driven connector fault would track the damp. And the time it takes to come right scales smoothly with how cold it is, which is a mechanism warming through rather than a contact making up.",
+          "category": "operating-conditions"
+        },
+        {
+          "cause": "Charge-air (intercooler) leak or a loose hose or clamp that seals once it warms and expands",
+          "discriminator": "The derate is confined to the first twenty minutes of a cold morning and never returns under heavy load later in the day, where an air leak would show worst at full boost whatever the hour.",
+          "category": "load-dependence"
+        }
+      ],
+      "hiddenFacts": [
+        "It only does it on cold mornings — below about 45°F. Never in the afternoon, never in summer.",
+        "It goes by the thermometer and not by the weather — a dry cold morning does it exactly the same as a foggy or frosty one, and it has never once done it on a damp morning that was above about 45°F.",
+        "It clears itself once everything has warmed through, and how long that takes goes with how cold it is: twenty-five minutes or more after a hard frost, five or ten on a mild morning. Once it lets go the machine is completely normal for the rest of the day, including under full load.",
+        "No exhaust filter or regen warning has ever come up, and the machine finishes its regens.",
+        "The temperature gauge comes up to normal in the usual few minutes.",
+        "Fuel is treated winter diesel from the same supplier, filters changed 200 hours ago, and the water separator has never alarmed.",
+        "No black smoke and no rough running, just flat power while it is derated.",
+        "With the hood up cold, the actuator rod on the turbo is stiff and gritty to move by hand; warm, it moves freely. The dealer's tech worked it back and forth on the second visit and said the same thing.",
+        "Serial JCB3CXP61234567."
+      ],
+      "preRegistered": {
+        "correctRank1": "Sticking variable-geometry turbo actuator binding when cold, causing a position fault and derate until it warms and frees.",
+        "acceptAlsoAsCorrect": [
+          "Turbo actuator or VGT vane mechanism binding cold",
+          "VGT actuator position fault, temperature dependent",
+          "Wastegate or VNT actuator sticking when cold"
+        ],
+        "scoredWrongIfRank1": [
+          "Fuel gelling or waxing filter",
+          "DPF soot loading or regeneration problem",
+          "Coolant temperature sensor fault",
+          "EGR valve sticking",
+          "Boost, manifold-pressure or intake-air-temperature sensor, or its wiring or connector, reading falsely",
+          "Charge-air or intercooler leak, loose hose or clamp"
+        ],
+        "behavioural": [
+          "does the interview treat 'codes were cleared' as a recoverable evidence gap rather than as 'no codes'",
+          "does it ask whether the stored/freeze-frame data survived the clear",
+          "the report must tell the operator to capture the code next time BEFORE anyone clears it",
+          "v4: an answer that stops at 'something in the boost circuit' without separating a sensor reading falsely from a mechanism failing to move is the failure this revision was written to catch — the moisture-independence and graded-recovery facts are what separate them, and both sit behind questions the banked interviews already ask"
+        ]
+      }
+    },
+    {
+      "id": "c10-kubota-svl75-service-reminder-not-a-fault",
+      "shape": "the 'code' is not a fault code at all",
+      "machine": {
+        "year": "2020",
+        "make": "Kubota",
+        "model": "SVL75-2",
+        "machineType": "Compact track loader",
+        "hours": "1980"
+      },
+      "intake": {
+        "faultCodes": "There's a wrench symbol with an hour count next to it on the display. No fault codes active and nothing stored — the dealer's tool showed a clean list."
+      },
+      "surfaceProblem": "There's a code showing on the display and the machine has got hard to start — takes a lot of cranking on a cold morning. Shop quoted me two grand before they'd even looked at it.",
+      "trueRootCause": "Two unrelated things, and the display item is the harmless one: what is showing is a scheduled-service reminder, not a fault. The hard starting is a five-year-old battery that no longer cranks fast enough when cold. Replace the battery, dismiss the reminder, and do the service.",
+      "alternatives": [
+        {
+          "cause": "Failed glow plugs or intake heater",
+          "discriminator": "Cranking speed itself is slow and laboured and the lights dim heavily while cranking — a glow plug problem cranks at normal speed.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Injector or fuel system wear",
+          "discriminator": "Once it catches it runs perfectly, makes full power, uses no oil, and warm restarts are instant.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "The displayed code indicating an engine fault",
+          "discriminator": "The item on screen is a wrench-and-hours service indicator, not a fault code — there are no active fault codes at all.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Fuel gelling or contaminated fuel",
+          "discriminator": "It starts slowly in mild weather too, fuel is from the usual supplier, and the filter is clean.",
+          "category": "temperature-correlation"
+        }
+      ],
+      "hiddenFacts": [
+        "It cranks slowly and laboriously when cold, and the dash lights dim right down while cranking.",
+        "Warm restarts through the day are instant and normal.",
+        "The battery is the original one from 2020 and has never been replaced.",
+        "Once it starts it runs perfectly — full power, no smoke, no oil use.",
+        "It is slower to start in mild weather too, just not as bad.",
+        "Fuel comes from the same supplier as always and the filter was changed 100 hours ago.",
+        "Nobody has ever done the 2000-hour service; the machine is at 1980 hours.",
+        "Serial JKUSVL75L0F123456."
+      ],
+      "preRegistered": {
+        "correctRank1": "A weak, end-of-life battery causing slow cold cranking — and the screen item is a service reminder, not a fault.",
+        "acceptAlsoAsCorrect": [
+          "Battery at end of life / insufficient cranking speed when cold",
+          "Weak battery, with the displayed item identified as a maintenance reminder rather than a fault code"
+        ],
+        "scoredWrongIfRank1": [
+          "Glow plug or intake heater failure",
+          "Injector or fuel system wear",
+          "Any cause attributed to the displayed code",
+          "Fuel gelling or contamination"
+        ],
+        "behavioural": [
+          "does the interview establish that the screen item is a SERVICE REMINDER and not a fault code",
+          "the report must not treat the reminder as diagnostic evidence",
+          "this is a case where the ordinary, cheap answer is the right one — a report that reaches for something exotic is wrong"
+        ]
+      }
+    },
+    {
+      "id": "c11-deere-244k-generic-derate-code",
+      "shape": "a real code so generic it names nothing",
+      "machine": {
+        "year": "2017",
+        "make": "John Deere",
+        "model": "244K",
+        "machineType": "Wheel loader",
+        "hours": "5310"
+      },
+      "intake": {
+        "faultCodes": "SPN 1569 FMI 31 — engine protection derate active. That's the only one, and it comes and goes with the problem."
+      },
+      "surfaceProblem": "It derates on me when I'm working it hard — code comes up, power drops off, and I have to let it sit. Cools down and it's fine again for a while.",
+      "trueRootCause": "Coolant loss from a weeping water pump. The level drops far enough under load that the engine overheats, and the ECM throws a generic engine-protection derate. The code says only that the engine protected itself; the coolant level and the crusty residue at the pump weep hole are what name the cause.",
+      "alternatives": [
+        {
+          "cause": "DPF soot loading causing a derate",
+          "discriminator": "No exhaust filter or regen warning has ever appeared, and the derate tracks coolant temperature rather than run time or duty cycle.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Fuel restriction or filter",
+          "discriminator": "It makes full power right up until the temperature climbs, and filters were changed 150 hours ago.",
+          "category": "load-dependence"
+        },
+        {
+          "cause": "Radiator packed with debris",
+          "discriminator": "The cores are clean — they were blown out last week and it made no difference — and the coolant reservoir is below the low mark.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Failed thermostat",
+          "discriminator": "The coolant level is genuinely low and dropping between shifts, with dried residue tracking down from the water pump housing.",
+          "category": "fluid-condition"
+        }
+      ],
+      "hiddenFacts": [
+        "The temperature gauge climbs well above normal in the twenty minutes before the derate comes in.",
+        "The coolant reservoir is below the low mark, and I have topped it up twice in the last month.",
+        "There is a dried, crusty white-green residue tracking down the front of the engine from around the water pump housing.",
+        "The radiator and cooler cores were blown out last week and it made no difference at all.",
+        "No white smoke, no sweet smell from the exhaust, and the oil looks normal on the dipstick — not milky.",
+        "No exhaust filter or regen warning has ever appeared on this machine.",
+        "It makes completely normal power until the temperature starts climbing.",
+        "Serial 1T0244KXCHF123456."
+      ],
+      "preRegistered": {
+        "correctRank1": "Coolant loss from a weeping water pump causing overheating under load, which triggers the generic engine-protection derate.",
+        "acceptAlsoAsCorrect": [
+          "External coolant leak at the water pump causing low coolant and overheat derate",
+          "Water pump seal failure / coolant loss leading to engine protection"
+        ],
+        "scoredWrongIfRank1": [
+          "DPF soot loading",
+          "Fuel restriction or filter",
+          "Radiator packed with debris",
+          "Failed thermostat",
+          "Head gasket failure"
+        ],
+        "behavioural": [
+          "does the interview recognise that an engine-protection derate code identifies no component and must be interviewed past",
+          "does it ask what the temperature gauge does before the derate",
+          "the report must not present SPN 1569 as evidence for any particular cause"
+        ]
+      }
+    },
+    {
+      "id": "c12-newholland-b95c-wrong-fluid-after-service",
+      "shape": "code is real, the cause is what a shop put in the machine",
+      "machine": {
+        "year": "2019",
+        "make": "New Holland",
+        "model": "B95C",
+        "machineType": "Backhoe loader",
+        "hours": "3450"
+      },
+      "intake": {
+        "faultCodes": "Hydraulic filter restriction, showing now. It came up about 40 hours after the service and hasn't gone away."
+      },
+      "surfaceProblem": "Ever since it came back from its service the hydraulics are slow and the pump makes a racket. There's a code up about the hydraulic filter.",
+      "trueRootCause": "The wrong fluid was put in the hydraulic system at the last service — engine oil instead of hydraulic oil. It is far too heavy cold, it foams, and it is loading the filter and starving the pump. The system has to be drained, flushed and refilled with the specified fluid; changing the filter alone will not fix it and running it further will damage the pump.",
+      "alternatives": [
+        {
+          "cause": "Hydraulic pump wearing out",
+          "discriminator": "It was completely normal the day before the service and wrong the day after — a pump does not wear out overnight, and the machine has 3450 hours.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Plugged hydraulic filter needing replacement",
+          "discriminator": "The filter is new, fitted at that same service, and it has loaded up again within 40 hours.",
+          "category": "maintenance-checks"
+        },
+        {
+          "cause": "Cold weather / wrong viscosity for the season",
+          "discriminator": "It is just as bad on a warm afternoon as on a cold morning, and last winter on the correct fluid it was fine.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "Air leak on the suction side",
+          "discriminator": "The fluid on the dipstick is dark and smells like engine oil, not hydraulic oil, and the invoice from the service lists 15W-40.",
+          "category": "fluid-condition"
+        }
+      ],
+      "hiddenFacts": [
+        "It was perfectly normal the day before the service and wrong the first time we used it after.",
+        "The fluid on the hydraulic dipstick is dark and smells like engine oil rather than hydraulic oil.",
+        "There is foam visible in the sight glass after the machine has been working.",
+        "I dug out the service invoice and it lists 15W-40 against the hydraulic fill line.",
+        "The hydraulic filter was replaced at that same service and has already loaded up.",
+        "The pump whines and the boom is slow whether the machine is cold in the morning or hot in the afternoon.",
+        "Hydraulic oil level is correct and there are no external leaks anywhere.",
+        "Serial NHB95CJ19345678."
+      ],
+      "preRegistered": {
+        "correctRank1": "Wrong fluid — engine oil — put into the hydraulic system at the last service; requires drain, flush and refill with the specified hydraulic oil.",
+        "acceptAlsoAsCorrect": [
+          "Incorrect hydraulic fluid installed at the recent service",
+          "Hydraulic system contaminated with engine oil from the last service"
+        ],
+        "scoredWrongIfRank1": [
+          "Hydraulic pump wear",
+          "Plugged hydraulic filter",
+          "Cold weather or seasonal viscosity",
+          "Suction-side air leak"
+        ],
+        "behavioural": [
+          "does the interview ask what was actually done and what was actually put in at the recent service",
+          "the report must say a filter change alone will not fix it",
+          "the report must tell the operator to stop running the machine"
+        ]
+      }
+    },
+    {
+      "id": "c13-hyundai-hl940-real-fault-incidental-code",
+      "shape": "a genuine mechanical fault sitting next to an unrelated active code",
+      "machine": {
+        "year": "2016",
+        "make": "Hyundai",
+        "model": "HL940",
+        "machineType": "Wheel loader",
+        "hours": "7120"
+      },
+      "intake": {
+        "faultCodes": "One active — a brake pad wear indicator on the service brakes. Nothing else active and nothing stored."
+      },
+      "surfaceProblem": "Steering has gone heavy — you really have to haul on the wheel, especially at low idle. And there's a code showing, so I don't know if the two are connected.",
+      "trueRootCause": "A worn steering orbital valve or a failing priority valve, so steering flow drops off badly at low engine speed. The active code is a brake-pad wear indicator and has nothing to do with the steering — it is a wear sensor doing its job on a separate system.",
+      "alternatives": [
+        {
+          "cause": "The active fault code is causing the steering problem",
+          "discriminator": "The code is a brake pad wear indicator on the service brakes; it names no hydraulic or steering component and the brakes work normally.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Low or contaminated hydraulic fluid",
+          "discriminator": "The reservoir is full to the mark, the oil is clean and clear, and no filter warning has appeared.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Steering pump failure",
+          "discriminator": "Every other hydraulic function — lift, tilt, brakes — is completely normal at every engine speed; only steering is affected.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Front axle, kingpin or linkage binding",
+          "discriminator": "The wheel is heavy even with the machine stationary and the wheels off the ground, and steering effort changes with engine RPM rather than with load on the tyres.",
+          "category": "load-dependence"
+        }
+      ],
+      "hiddenFacts": [
+        "The brakes themselves work fine — they just need pads, which we know.",
+        "Steering is heavy at all times but much worse at low idle; rev the engine up and it gets noticeably lighter.",
+        "Lift and tilt are completely normal at every engine speed, fast and strong.",
+        "Hydraulic reservoir is full to the mark and the oil is clean and clear with no smell.",
+        "No hydraulic filter warning, and the filters were changed at the 7000-hour service.",
+        "The wheel is heavy even with the machine standing still and the front end jacked up.",
+        "No noise change from the pump when you turn the wheel, and no whine at any speed.",
+        "Serial HHKHL940VK0012345."
+      ],
+      "preRegistered": {
+        "correctRank1": "Worn steering orbital or failing priority valve — steering flow falls away at low engine speed. The active code is unrelated.",
+        "acceptAlsoAsCorrect": [
+          "Steering orbital valve wear",
+          "Priority / flow-amplifier valve fault in the steering circuit"
+        ],
+        "scoredWrongIfRank1": [
+          "Anything attributing the steering complaint to the brake wear code",
+          "Low or contaminated hydraulic fluid",
+          "Steering pump failure",
+          "Axle, kingpin or linkage binding"
+        ],
+        "behavioural": [
+          "does the interview establish that the active code belongs to a different system",
+          "the report must explicitly set the brake wear code aside as incidental rather than silently ignoring it",
+          "does it use the RPM dependence to separate a flow problem from a mechanical bind"
+        ]
+      }
+    },
+    {
+      "id": "c14-bobcat-e85-code-only-on-a-slope",
+      "shape": "code appears only under a condition nobody thinks to reproduce",
+      "machine": {
+        "year": "2019",
+        "make": "Bobcat",
+        "model": "E85",
+        "machineType": "Excavator",
+        "hours": "2870"
+      },
+      "intake": {
+        "faultCodes": "Low pilot / charge pressure, but only while it's happening — it clears itself as soon as the machine is level again."
+      },
+      "surfaceProblem": "It codes and loses hydraulic power, but only when we're working the bank on the hillside. Down on the flat it's perfect all day, so the shop can never make it do it.",
+      "trueRootCause": "Hydraulic oil level is low. On level ground the pickup stays submerged, but on a side slope the oil moves off it, the pump takes air, pilot pressure falls and the machine codes. Topping the tank fixes it; the slow seep that got it low needs finding, but the machine is not broken.",
+      "alternatives": [
+        {
+          "cause": "Hydraulic pump wearing out",
+          "discriminator": "It is instantly and completely normal the moment the machine is back on level ground, at the same oil temperature and the same load.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Main relief or pressure-control valve fault",
+          "discriminator": "The problem tracks machine attitude rather than load or pressure demand — full power on the flat with the bucket buried, no power on a slope doing nothing.",
+          "category": "load-dependence"
+        },
+        {
+          "cause": "Oil overheating on the harder hillside work",
+          "discriminator": "It does it cold, first thing, on the slope, with the temperature gauge at the bottom of its range.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "Pilot pressure sensor or wiring fault",
+          "discriminator": "The oil level sits right at the bottom mark on the sight glass, and topping the tank up has been tried once and the problem went away for a week.",
+          "category": "fluid-condition"
+        }
+      ],
+      "hiddenFacts": [
+        "It only happens on the side slope. On flat ground it never does it, no matter how hard we push it.",
+        "It does it cold first thing in the morning on the slope as well as later in the day.",
+        "The hydraulic oil sight glass sits right down at the bottom mark.",
+        "Somebody topped the tank up about a week ago and it was fine for a few days, then started again.",
+        "There is a slow weep at a hose fitting under the boom — not a drip, just a wet film and dirt stuck to it.",
+        "Oil is clean and clear, no foam, no milkiness, normal smell.",
+        "No noise change from the pump, and every function is weak together when it happens rather than one being affected.",
+        "Serial B34W12870."
+      ],
+      "preRegistered": {
+        "correctRank1": "Low hydraulic oil level — on a side slope the pump pickup uncovers and takes air, dropping pilot pressure. A slow weep at a boom hose fitting is where the oil went.",
+        "acceptAlsoAsCorrect": [
+          "Hydraulic oil level low, uncovering the suction on a slope",
+          "Pump taking air due to low oil level when the machine is not level"
+        ],
+        "scoredWrongIfRank1": [
+          "Hydraulic pump wear",
+          "Main relief or pressure-control valve fault",
+          "Hydraulic oil overheating",
+          "Pilot pressure sensor or wiring fault"
+        ],
+        "behavioural": [
+          "does the interview ask what is DIFFERENT about the condition where it happens, rather than about the fault itself",
+          "does it ask for the oil level",
+          "this is a cheap, ordinary answer — a report reaching for pump replacement is wrong"
+        ]
+      }
+    },
+    {
+      "id": "c15-deere-850k-right-circuit-wrong-part",
+      "shape": "the code names the right circuit and the wrong component",
+      "machine": {
+        "year": "2017",
+        "make": "John Deere",
+        "model": "850K",
+        "machineType": "Crawler dozer",
+        "hours": "8240"
+      },
+      "intake": {
+        "faultCodes": "Hydraulic fan speed circuit fault. Same code before and after we put the new fan motor on."
+      },
+      "surfaceProblem": "It says the cooling fan circuit is bad. We put a new fan motor on it and it still throws the same code, and now it's overheating on hot afternoons.",
+      "trueRootCause": "A chafed harness to the hydraulic fan solenoid, rubbed through where it crosses a bracket. The code correctly names the fan circuit; the fan motor was never the faulty part in it. Repairing the harness fixes it — the replaced motor was wasted money.",
+      "alternatives": [
+        {
+          "cause": "Fan motor failure",
+          "discriminator": "A new fan motor was fitted and the identical code returned within a day.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Fan speed controller or ECM output failure",
+          "discriminator": "Wiggling the harness where it crosses the bracket makes the fan change speed and the code set on demand.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Fan speed sensor fault",
+          "discriminator": "The fault is reproducible by moving the harness by hand, and there is a visible rub-through with bright copper showing at the bracket.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Hydraulic supply to the fan circuit low",
+          "discriminator": "Every other hydraulic function on the machine is normal and there is no other hydraulic code or symptom.",
+          "category": "symptom-scope"
+        }
+      ],
+      "hiddenFacts": [
+        "A new fan motor was fitted three weeks ago and the code came back the next day.",
+        "If you grab the harness where it runs over the bracket behind the radiator and move it, the fan speed changes and the code sets.",
+        "There is a rub mark on the harness at that bracket with bright copper showing through the insulation.",
+        "Every other hydraulic function — blade, ripper, steering — is completely normal.",
+        "There are no other codes, active or stored.",
+        "It overheats on hot afternoons because the fan is not commanding full speed, not because the cooler is blocked — the cores are clean.",
+        "Coolant level is correct and the oil looks normal.",
+        "Serial 1T0850KXPHF234567."
+      ],
+      "preRegistered": {
+        "correctRank1": "Chafed harness to the hydraulic fan solenoid where it crosses a bracket — the fan circuit code is correct, the fan motor was not the fault in it.",
+        "acceptAlsoAsCorrect": [
+          "Wiring/harness fault in the fan solenoid circuit",
+          "Chafed or shorted fan circuit wiring at a chafe point"
+        ],
+        "scoredWrongIfRank1": [
+          "Fan motor failure",
+          "Fan speed controller or ECM output failure",
+          "Fan speed sensor fault",
+          "Low hydraulic supply to the fan circuit"
+        ],
+        "behavioural": [
+          "does the interview use the FAILED REPAIR as evidence rather than repeating it",
+          "does it distinguish 'the circuit is faulty' from 'the named component is faulty'",
+          "the report must not recommend replacing the fan motor again"
+        ]
+      }
+    },
+    {
+      "id": "c16-case-tr340-parasitic-drain-aftermarket",
+      "shape": "code is a symptom of something somebody bolted on",
+      "machine": {
+        "year": "2018",
+        "make": "Case",
+        "model": "TR340",
+        "machineType": "Compact track loader",
+        "hours": "3610"
+      },
+      "intake": {
+        "faultCodes": "After one of the dead-battery mornings there's an ECM power interrupt / keep-alive memory fault. It doesn't come back once it's running."
+      },
+      "surfaceProblem": "Dead battery every Monday morning. Runs fine all week, sits over the weekend, and Monday it won't turn over. There's a code about lost memory or power interrupt.",
+      "trueRootCause": "A parasitic drain from an aftermarket beacon and radio wired directly to constant battery power rather than through a switched circuit. Over a weekend it pulls the battery below cranking voltage, and the ECM logs a power-interrupt / keep-alive memory fault when voltage collapses. Re-wire the accessories to a switched feed.",
+      "alternatives": [
+        {
+          "cause": "Failing battery",
+          "discriminator": "The battery is a year old and load-tests good, and it holds charge fine over a single night — only a two-day stand kills it.",
+          "category": "rate-trend"
+        },
+        {
+          "cause": "Alternator not charging",
+          "discriminator": "Charging voltage reads 14.1V at the battery with the engine running, and the machine runs all week without trouble once started.",
+          "category": "gauge-readings"
+        },
+        {
+          "cause": "ECM or keep-alive circuit fault",
+          "discriminator": "A meter in series with the battery negative reads about 300mA with everything off, and it drops to almost nothing when the beacon fuse is pulled.",
+          "category": "gauge-readings"
+        },
+        {
+          "cause": "Ignition switch not shutting the system down",
+          "discriminator": "The drain persists with the key out and the switch fully off, and it disappears at one specific fuse.",
+          "category": "symptom-scope"
+        }
+      ],
+      "hiddenFacts": [
+        "It only dies after sitting two days or more. Overnight it always starts.",
+        "The battery is about a year old and load-tests good at the parts store.",
+        "Charging voltage at the battery with the engine running reads 14.1 volts.",
+        "A beacon and a radio were fitted by a local shop about three months ago, which is when this started.",
+        "Putting a meter in series with the battery negative, key out, reads about 300 milliamps.",
+        "Pull the fuse the beacon and radio are on and the drain drops to almost nothing.",
+        "No other electrical trouble at all — nothing flickers, no other codes, everything works while it is running.",
+        "Serial NHM440123610."
+      ],
+      "preRegistered": {
+        "correctRank1": "Parasitic drain from aftermarket beacon and radio wired to constant power — re-wire to a switched feed.",
+        "acceptAlsoAsCorrect": [
+          "Aftermarket accessory drawing constant current, draining the battery when parked",
+          "Parasitic battery drain traced to an added accessory circuit"
+        ],
+        "scoredWrongIfRank1": [
+          "Failing battery",
+          "Alternator not charging",
+          "ECM or keep-alive circuit fault",
+          "Ignition switch fault"
+        ],
+        "behavioural": [
+          "does the interview ask what has been ADDED to the machine, not only what has been serviced",
+          "the report must identify the code as a consequence of low voltage rather than an electrical fault to chase",
+          "does it ask for a parasitic draw measurement"
+        ]
+      }
+    },
+    {
+      "id": "c17-kubota-svl97-attachment-coupler",
+      "shape": "the code is about the interface, not the machine or the attachment",
+      "machine": {
+        "year": "2021",
+        "make": "Kubota",
+        "model": "SVL97-2",
+        "machineType": "Compact track loader",
+        "hours": "1240"
+      },
+      "intake": {
+        "faultCodes": "Auxiliary hydraulic flow fault. It sets within a minute of running the head under load."
+      },
+      "surfaceProblem": "The mulching head bogs down the second it touches anything and there's an auxiliary flow code. The head's been back to the attachment dealer twice and they say it's fine.",
+      "trueRootCause": "A hydraulic quick-coupler that is not fully seated on the return side — residual pressure prevented a clean connection and the check valve is not opening, so return flow is restricted. Relieving pressure and seating the coupler properly fixes it; there is nothing wrong with the head or the machine.",
+      "alternatives": [
+        {
+          "cause": "Mulching head motor failure",
+          "discriminator": "The attachment dealer bench-tested the head twice and it is fine, and a different attachment runs normally on the same machine.",
+          "category": "service-history"
+        },
+        {
+          "cause": "Machine auxiliary pump or relief setting",
+          "discriminator": "A different high-flow attachment works perfectly on the same couplers on the same day.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "Auxiliary flow rate set wrong in the machine's display menu",
+          "discriminator": "The flow setting is at maximum in the menu, and the return line gets hot within minutes while the supply line stays cool.",
+          "category": "gauge-readings"
+        },
+        {
+          "cause": "Contaminated or overheating hydraulic oil",
+          "discriminator": "Machine hydraulic oil is clean and at temperature, and every machine-side function is normal.",
+          "category": "fluid-condition"
+        }
+      ],
+      "hiddenFacts": [
+        "A different high-flow attachment — a broom — runs perfectly on the same couplers on the same day.",
+        "The attachment dealer has bench-tested the mulching head twice and says it is fine.",
+        "The couplers were very hard to push together the last time we hooked up; I had to lean on them.",
+        "The return hose gets hot to the touch within a few minutes while the supply hose stays cool.",
+        "Auxiliary flow is set to maximum in the machine's display menu.",
+        "Machine hydraulic oil is clean, at normal temperature, and every machine function works normally.",
+        "The head spins up fine with no load and dies the moment it touches material.",
+        "Serial KBCSVL97L1F001240."
+      ],
+      "preRegistered": {
+        "correctRank1": "Quick-coupler on the return side not fully seated — restricted return flow. Relieve residual pressure and seat the couplers.",
+        "acceptAlsoAsCorrect": [
+          "Hydraulic quick-disconnect not fully engaged, restricting return flow",
+          "Coupler check valve not opening on the case-drain/return line"
+        ],
+        "scoredWrongIfRank1": [
+          "Mulching head motor failure",
+          "Machine auxiliary pump or relief setting",
+          "Auxiliary flow rate set wrong in the menu",
+          "Contaminated or overheating hydraulic oil"
+        ],
+        "behavioural": [
+          "does the interview isolate machine from attachment by asking whether ANOTHER attachment works",
+          "does it ask about the hookup itself rather than only about the two components",
+          "hot return line with a cool supply line is the discriminating observation"
+        ]
+      }
+    },
+    {
+      "id": "c18-volvo-l60g-display-hides-the-codes",
+      "shape": "the operator cannot read the codes, and that is itself the clue",
+      "machine": {
+        "year": "2014",
+        "make": "Volvo",
+        "model": "L60G",
+        "machineType": "Wheel loader",
+        "hours": "9480"
+      },
+      "intake": {
+        "faultCodes": "I can't read them — the screen's blank when I go to look. The dealer's tool pulled a list of low voltage and communication faults across different modules, all intermittent."
+      },
+      "surfaceProblem": "The screen goes blank half the time so I can't even tell you what codes are on it. Machine mostly runs fine but the dash comes and goes.",
+      "trueRootCause": "A corroded ground stud behind the instrument panel. The display and several other circuits share it; when the connection breaks the screen dies and unrelated modules log low-voltage or communication faults. Cleaning and remaking the ground fixes the display and the code list together.",
+      "alternatives": [
+        {
+          "cause": "Failed display unit",
+          "discriminator": "Other electrics — work lights, the beacon — flicker at the exact instant the screen dies, which a display's own failure cannot cause.",
+          "category": "symptom-scope"
+        },
+        {
+          "cause": "CAN bus fault",
+          "discriminator": "The screen reliably comes back when the machine goes over a bump or when you press on the panel, which is mechanical, not a bus problem.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Software or firmware fault in the instrument cluster",
+          "discriminator": "There is visible green-white crust on a ground stud behind the panel, and wiggling that connection reproduces the fault on demand.",
+          "category": "visual-inspection"
+        },
+        {
+          "cause": "Failing alternator or battery",
+          "discriminator": "Charging voltage is normal at 14.2V and the machine starts and runs without any trouble.",
+          "category": "gauge-readings"
+        }
+      ],
+      "hiddenFacts": [
+        "Other electrics flicker at the same instant the screen dies — work lights, the beacon.",
+        "The screen usually comes back when the machine goes over a bump, or if you press on the panel.",
+        "There is green-white crust on a ground stud behind the instrument panel; the machine has spent nine years outdoors.",
+        "Wiggling that ground connection makes the screen drop out and come back on demand.",
+        "Charging voltage reads 14.2 volts at the battery with the engine running.",
+        "The engine and hydraulics are completely normal — full power, no derate, no noise.",
+        "No pattern with weather, temperature or how long it has been running.",
+        "Serial VCEL60GV0009480."
+      ],
+      "preRegistered": {
+        "correctRank1": "Corroded shared ground behind the instrument panel — kills the display and sets intermittent low-voltage and communication codes in other modules.",
+        "acceptAlsoAsCorrect": [
+          "Bad ground connection / corroded ground stud behind the dash",
+          "Intermittent ground fault causing display dropout and bus-wide low-voltage codes"
+        ],
+        "scoredWrongIfRank1": [
+          "Failed display unit",
+          "CAN bus wiring fault",
+          "Instrument cluster software or firmware fault",
+          "Failing alternator or battery"
+        ],
+        "behavioural": [
+          "does the interview treat 'I cannot read the codes' as different from 'there are no codes'",
+          "does it ask whether anything ELSE happens at the same instant the display dies",
+          "the report must not recommend replacing the display"
+        ]
+      }
+    },
+    {
+      "id": "c19-deere-60g-plugged-filter-really-is-plugged",
+      "shape": "the boring answer is the right one",
+      "machine": {
+        "year": "2019",
+        "make": "John Deere",
+        "model": "60G",
+        "machineType": "Mini excavator",
+        "hours": "2340"
+      },
+      "intake": {
+        "faultCodes": "Two active: fuel filter restriction, and low fuel rail pressure under load. Nothing else."
+      },
+      "surfaceProblem": "It's gradually lost power over the last month or so. Bogs down when I'm digging hard and there are a couple of codes up about fuel.",
+      "trueRootCause": "A plugged fuel filter. It is 620 hours past its change interval, the loss has been gradual and progressive, both codes are fuel-supply codes that agree with each other, and there is nothing exotic behind it. Change the filter.",
+      "alternatives": [
+        {
+          "cause": "High-pressure fuel pump or injector wear",
+          "discriminator": "The machine has 2340 hours, the loss has been gradual over a month rather than sudden, and the filter is 620 hours overdue.",
+          "category": "rate-trend"
+        },
+        {
+          "cause": "Contaminated or wrong fuel",
+          "discriminator": "Fuel has come from the same supplier for three years with no change, and the separator bowl is clear with no water and no crystals.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "DPF restriction causing a derate",
+          "discriminator": "There is no exhaust filter warning and no derate message — the machine simply has less power under load.",
+          "category": "fault-codes"
+        },
+        {
+          "cause": "Air leak on the fuel suction side",
+          "discriminator": "No air bubbles in the clear bowl, no hard starting after standing, and no loose fittings; the filter is simply overdue and the codes are fuel restriction and low rail pressure together.",
+          "category": "symptom-detail"
+        }
+      ],
+      "hiddenFacts": [
+        "The power loss has come on gradually over about a month and keeps getting slightly worse.",
+        "The fuel filter is 620 hours past its change interval — I let it go.",
+        "The clear separator bowl is not dirty and has no water in it, and no white crystals or sediment.",
+        "Fuel comes from the same supplier we have used for three years, no change of source.",
+        "No exhaust filter warning and no derate message on the display.",
+        "It starts fine every time and idles smoothly; it just runs out of power when you load it.",
+        "No air bubbles visible in the clear bowl and no loose fittings anywhere on the fuel system.",
+        "Serial 1FF060GXKKJ123456."
+      ],
+      "preRegistered": {
+        "correctRank1": "Plugged fuel filter, 620 hours past its change interval — restricted supply causing low rail pressure under load.",
+        "acceptAlsoAsCorrect": [
+          "Fuel filter restriction / overdue fuel filter",
+          "Restricted fuel supply from a plugged filter"
+        ],
+        "scoredWrongIfRank1": [
+          "High-pressure fuel pump or injector wear",
+          "Contaminated or wrong fuel",
+          "DPF restriction",
+          "Suction-side air leak"
+        ],
+        "behavioural": [
+          "DELIBERATE BALANCE CASE: the obvious, cheap answer is correct here. A report that reaches past it for something exotic is wrong.",
+          "the two codes AGREE with each other and with the symptom — the report should say so rather than hedging",
+          "added because the rest of this file rewards distrusting the obvious reading, which is its own bias"
+        ]
+      }
+    },
+    {
+      "id": "c20-cat-262d-packed-cooler-code-is-true",
+      "shape": "the code is true and the fix is the obvious one",
+      "machine": {
+        "year": "2018",
+        "make": "Caterpillar",
+        "model": "262D",
+        "machineType": "Skid steer loader",
+        "hours": "4090"
+      },
+      "intake": {
+        "faultCodes": "Engine coolant temperature high. It comes up in the afternoon and clears once the machine cools down."
+      },
+      "surfaceProblem": "Coolant temperature warning comes up every afternoon and it starts blowing hot air out the back. Have to shut it down and let it cool.",
+      "trueRootCause": "The radiator and oil cooler cores are packed solid with chaff and dust from the work it does. The temperature code is reporting a real overheat with an ordinary cause. Clean the cores properly — blowing them out from the wrong side has been packing it tighter.",
+      "alternatives": [
+        {
+          "cause": "Failed thermostat",
+          "discriminator": "It runs at normal temperature all morning and only climbs in the afternoon as the cores load up and the ambient rises; a stuck thermostat overheats from cold.",
+          "category": "temperature-correlation"
+        },
+        {
+          "cause": "Water pump failure",
+          "discriminator": "Coolant level is correct and stable, there is no leak and no residue, and the heater blows hot which means flow is there.",
+          "category": "fluid-condition"
+        },
+        {
+          "cause": "Head gasket failure",
+          "discriminator": "No white exhaust smoke, no sweet smell, oil is clean on the dipstick and the coolant is not being lost.",
+          "category": "symptom-detail"
+        },
+        {
+          "cause": "Cooling fan or fan drive failure",
+          "discriminator": "The fan runs and pulls air, and you can see daylight through only about a third of the cooler core.",
+          "category": "visual-inspection"
+        }
+      ],
+      "hiddenFacts": [
+        "It works in a grain and chaff environment — cleaning out bins and yards all day.",
+        "Looking at the cooler core with a light behind it, you can only see daylight through about a third of it.",
+        "It runs at completely normal temperature all morning and only climbs later in the day.",
+        "Coolant level is correct and has not needed topping up.",
+        "No white smoke, no sweet smell, oil is clean on the dipstick.",
+        "The fan runs and you can feel it pulling air.",
+        "We blow the cores out with an air hose from the front every week or so.",
+        "Serial CAT0262DKDZT04090."
+      ],
+      "preRegistered": {
+        "correctRank1": "Radiator and oil cooler cores packed with chaff and dust — a real overheat with an ordinary cause. Clean the cores, blowing from the fan side outward.",
+        "acceptAlsoAsCorrect": [
+          "Blocked / packed cooler cores restricting airflow",
+          "Debris-packed radiator causing overheating"
+        ],
+        "scoredWrongIfRank1": [
+          "Failed thermostat",
+          "Water pump failure",
+          "Head gasket failure",
+          "Cooling fan or fan drive failure"
+        ],
+        "behavioural": [
+          "DELIBERATE BALANCE CASE: the code is truthful and the fix is cheap and obvious.",
+          "does the report catch that blowing the cores out from the FRONT packs them tighter — the operator's own maintenance is part of the cause",
+          "pairs with c8, where an identical-sounding temperature code was lying"
+        ]
+      }
+    }
+  ],
+  "revised": "2026-08-20",
+  "revisionNote": "v4 repairs ONE scenario, c9, and touches nothing else — c1..c8 and c10..c20 are byte-identical to v3 so every banked v3 arm stays comparable on them. Triaged 2026-08-20 over 61 banked c9 transcripts (evals/runs/2026-08-19-settle-triage/TRIAGE-c3-c9-c13.md): c9 scored 7.1%/3.7% and was BROKEN, on two counts. (1) THE MISSING ALTERNATIVES. 50 of 61 rank-1 answers named a cold- and condensation-affected boost/MAP/intake-air-temperature SENSOR or its connector, and 5 more named a charge-air leak that seals as it warms. Neither appeared anywhere in `alternatives`, `acceptAlsoAsCorrect` or `scoredWrongIfRank1`, so no discriminator had ever been written to argue either down and the judge was adjudicating an answer the pre-registration never anticipated. 56 of 61 answers (92%) fell in that gap; the four alternatives that WERE written were chosen a combined 1 time in 61. This is the same defect v2 repaired on c4 — 'the missing fourth alternative … both pre-fix arms actually ranked it #1, and it was absent from alternatives' — at 92% incidence. (2) THE ONLY DISCRIMINATOR WAS UNREACHABLE. 'With the hood up cold, the actuator rod on the turbo is stiff and gritty to move by hand' was delivered in 0 of 61 runs; one run mentioned an actuator at all, and only inside a question about what the dealer had looked at. The scenario reduced to a two-way choice — cold-sensitive boost sensor vs cold-binding VGT actuator — in which every other fact on the sheet is identical under both. THE REPAIR, keyed to questions the banked interviews measurably DO ask rather than to one nobody asks: a moisture-independence fact (damp/fog/frost is asked in 56% of runs, and the sheet had NO answer for it, so the Haiku operator improvised one) and a graded recovery time that scales with how cold it is (asked in 51%), which together read as a thermal mechanical bind and argue directly against the condensation-driven connector story the modal answer rests on. The rod fact is kept and additionally voiced as something the dealer's tech observed, so it can also land on the 15% of interviews that ask what the dealer did. Two alternatives and two scored-wrong entries added to close the gap. NOT REPAIRED, DELIBERATELY: c3 and c13. c13 is HARD — its discriminator is sound, is reachable, works when asked, and the true cause already sits at rank 2-3 in 81% of runs; its low score is the instrument working. c3 is NEITHER hard nor broken — 78% correct when the abnormality reaches the model and 3% when it does not, so its score is mostly a measurement of whether a directional fact survived a single-select. Editing either would destroy a good case. See the triage note."
+}

@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "created": "2026-08-15",
+  "purpose": "Code-bearing ground truth — the quadrant every other scenario file excludes by design. scenarios.json and scenarios-intake.json say 'no fault codes' in every fact sheet, so the eval has only ever measured symptom-only discrimination; this file measures the case the app will most often actually see, where the machine is showing something. Six scenarios across the five shapes named in ROADMAP §0 (2026-08-15): code nails it, code is a symptom of something deeper (x2 — the shape most likely to fail), stale red-herring code, a code whose meaning the model must NOT invent, and a rare-but-clean path. Same conventions as scenarios.json: no `intake` block, serial in hiddenFacts, operator reveals nothing unasked — so the only new variable versus the frozen baseline is the presence of codes. Frozen on first run: do not edit between comparisons (evals/README.md).",
+  "categories": [
+    "fault-codes", "code-provenance", "service-history", "symptom-detail", "symptom-onset",
+    "symptom-scope", "fluid-condition", "visual-inspection", "maintenance-checks",
+    "load-dependence", "operating-conditions", "recent-events"
+  ],
+  "preRegistration": {
+    "writtenBefore": "any run against this file",
+    "design": "Two replicate arms of the PRODUCTION configuration — claude-sonnet-5, interview effort low, report effort medium, --prompt-variant control (the explicit no-op) — on this file, same day. There is no experimental prompt arm, so no separate matched control is required; the run IS the control. Any FUTURE prompt variant measured on this file needs its own same-day control run on this same file (evals/README.md, rule 3).",
+    "primaryEndpoint": "BEHAVIOURAL code handling, judged per scenario from the artifacts, not accuracy. Four checks, each a yes/no per run: (B1) does the interview ask for the fault code VERBATIM — the exact code as displayed — rather than only 'are there any codes / any warning lights'; (B2) does it separate ACTIVE from STORED codes, either in one question that names both or in two questions (prompts.ts:12 asks lamps and stored codes be asked apart — this is the test of whether that is obeyed); (B3) on c4, does the report refuse to assert a meaning for the undocumented code (prompts.ts:49 forbids inventing fault-code meanings) and say where the meaning must come from; (B4) on c2/c6, does the ranked #1 name the ROOT CAUSE rather than the coded component.",
+    "secondaryEndpoint": "Accuracy — true root cause ranked #1 — pooled across both replicates (max 12). Reported second and never used alone: at n=6 a single-run delta of <=2 cases is pre-declared noise, per the campaign result in evals/README.md. A per-case regression may be claimed only if the case fails in BOTH replicates.",
+    "matchingRule": "A rank-1 entry counts CORRECT only if it names the cause in preRegistered.correctRank1 or one of acceptAlsoAsCorrect. Naming an adjacent component in the same circuit is NOT correct unless it is listed there. Anything in scoredWrongIfRank1 is WRONG even when the prose around it is sensible. Where correctRank1 requires a cause rather than a state (c2), the ranked #1 must name the cause in its `problem` or `action` field; describing the state alone is scored WRONG. This rule exists because 'holding valve' vs 'relief valve' was scored both ways in the 2026-08-15 campaign.",
+    "metricsCaveat": "interview-metrics.mjs `shortlist-*` counts are a reading queue, never a finding (they resolve at ~15%). Only `offChipAnswers` is quotable."
+  },
+  "scenarios": [
+    {
+      "id": "c1-bobcat-t740-intermittent-stall",
+      "shape": "code-nails-it",
+      "machine": { "year": "2019", "make": "Bobcat", "model": "T740", "machineType": "Compact track loader", "hours": "2140" },
+      "surfaceProblem": "It dies on me out of nowhere — running along and the engine just quits like somebody turned the key off. Usually it fires right back up, sometimes I have to sit a couple minutes. Three or four times a day now.",
+      "trueRootCause": "Failing crankshaft (engine position) sensor or its circuit — an active SPN 636 FMI 8 is logged at the instant of every cutout; the engine dies instantly with no fuel-starvation behaviour and restarts once the signal returns.",
+      "alternatives": [
+        { "cause": "Fuel starvation — plugged filter, water, air leak", "discriminator": "No stumble, surge or power loss before it quits; it cuts out instantly. Filters were changed 60 hours ago and the logged code is an engine-position signal fault, not low rail pressure.", "category": "fault-codes" },
+        { "cause": "Loose battery terminal, bad ground, or a chafed main power feed", "discriminator": "Nothing flickers — the display stays lit right through the stall and the hour meter keeps time; no low-voltage codes stored, terminals clean and tight.", "category": "symptom-detail" },
+        { "cause": "Fuel shutoff solenoid or key-switch fault", "discriminator": "The dash never loses power and the key switch behaves normally; the ECU logs the same engine-position code every time.", "category": "fault-codes" }
+      ],
+      "hiddenFacts": [
+        "The engine quits instantly, like a switch — no stumble, no surge, no smoke beforehand.",
+        "The display stays lit right through the stall and the machine cranks normally afterward.",
+        "Active fault codes: it comes up as SPN 636 FMI 8 each time it cuts out. Nothing else active.",
+        "The stored code list has that same SPN 636 FMI 8 logged eleven times over the past two weeks, and nothing else stored.",
+        "Fuel filters were changed 60 hours ago at the dealer; fuel comes from the same supplier as always.",
+        "No low-voltage or charging codes; battery terminals are clean and tight and nothing flickers.",
+        "It happens hot or cold, loaded or empty — no pattern I can find.",
+        "Serial B4CM12140."
+      ],
+      "preRegistered": {
+        "correctRank1": "Crankshaft / engine position sensor or its circuit — the fault behind SPN 636 FMI 8.",
+        "acceptAlsoAsCorrect": [
+          "Engine position sensor wiring, connector or harness fault",
+          "Intermittent open in the crank sensor circuit",
+          "Crank position sensor signal loss"
+        ],
+        "scoredWrongIfRank1": [
+          "Fuel starvation / plugged fuel filter",
+          "Battery, ground or main power feed fault",
+          "Fuel shutoff solenoid or key switch",
+          "ECM / controller failure"
+        ],
+        "behavioural": ["B1 verbatim code ask", "B2 active vs stored asked apart", "report `codes` field quotes SPN 636 FMI 8 exactly"]
+      }
+    },
+    {
+      "id": "c2-deere-333g-regen-derate",
+      "shape": "code-is-a-symptom",
+      "machine": { "year": "2019", "make": "John Deere", "model": "333G", "machineType": "Compact track loader", "hours": "3120" },
+      "surfaceProblem": "The exhaust filter warning keeps coming up and now the machine's gone into a power derate. Third time this year and I'm being told the filter's shot.",
+      "trueRootCause": "Soot loading caused by the duty cycle and by regeneration being cancelled, not by a failed filter: the machine idles most of a nine-hour day at light load inside a building and the operator presses the regen inhibit every time it asks, so it has not completed a regeneration in six months. Correct action is a parked/service regeneration plus a change in regen practice and duty cycle — replacing the exhaust filter fixes nothing and the problem returns.",
+      "alternatives": [
+        { "cause": "Failed exhaust filter needing replacement", "discriminator": "The filter has never been off the machine and no parked regeneration has ever been attempted; the machine has simply never been allowed to regenerate.", "category": "service-history" },
+        { "cause": "Differential-pressure sensor or its hoses reading false", "discriminator": "The soot warnings track the work the machine does and started when it moved indoors and regens began being cancelled — the reading is telling the truth.", "category": "fault-codes" },
+        { "cause": "Leaking injector or excess fuel loading the filter", "discriminator": "Oil level is not rising, no fuel smell in the oil, no misfire or rough running, fuel consumption normal.", "category": "fluid-condition" },
+        { "cause": "Turbo or intake leak making soot", "discriminator": "No black smoke, no whistle, no boost codes; power is normal right up until the derate comes in.", "category": "symptom-detail" }
+      ],
+      "hiddenFacts": [
+        "Active codes right now: an exhaust filter / soot level warning and a power derate. The dealer's handheld read it as SPN 3251 FMI 16 last time.",
+        "The dash asks me to run a regeneration nearly every day and I hit the inhibit button — we work inside a shop building and I can't have it burning off in there.",
+        "I can't remember the machine finishing a regeneration in the last six months.",
+        "It idles a lot — maybe six hours of a nine-hour day just sitting running while we load and sort.",
+        "The filter has never been off the machine and has never been ash-serviced. Oil and fuel filters are on schedule.",
+        "Oil level stays where it should; no fuel smell in the oil; no rough running or misfire.",
+        "No black smoke, no whistling, and no power complaint until the derate kicks in.",
+        "Stored codes: the same soot-level warning logged repeatedly over the last few months. Nothing else.",
+        "Serial 1T0333GXCKJ312034."
+      ],
+      "preRegistered": {
+        "correctRank1": "Soot loading because regeneration is repeatedly inhibited and the duty cycle is light-load idling — remedy is a parked/service regeneration and a change in regen practice, not a filter replacement.",
+        "acceptAlsoAsCorrect": [
+          "Incomplete or inhibited regeneration cycle",
+          "Excessive idling / light-load duty preventing DPF regeneration"
+        ],
+        "scoredWrongIfRank1": [
+          "Failed or plugged DPF requiring replacement",
+          "DPF differential pressure sensor failure",
+          "Injector leak",
+          "Turbocharger or intake leak"
+        ],
+        "scoringNote": "'The filter is plugged' is a true statement of state and is NOT a correct rank 1 on its own. The entry must name inhibited/incomplete regeneration or the idle duty cycle as the cause, in `problem` or `action`.",
+        "behavioural": ["B1 verbatim code ask", "B2 active vs stored asked apart", "B4 rank 1 names the cause, not the coded component"]
+      }
+    },
+    {
+      "id": "c3-komatsu-pc138-tracks-crooked",
+      "shape": "stale-red-herring-code",
+      "machine": { "year": "2016", "make": "Komatsu", "model": "PC138USLC-11", "machineType": "Excavator", "hours": "5240" },
+      "surfaceProblem": "It won't travel straight anymore — pulls hard to the right when I drive it across the yard. Digging and swinging are fine.",
+      "trueRootCause": "The right track is over-tensioned and the right undercarriage is packed solid with dried clay after a week of digging in wet clay — mechanical drag on that side. The only code on the machine is a stored, inactive aftertreatment fault from a dealer repair eight months ago and is unrelated to the complaint.",
+      "alternatives": [
+        { "cause": "Right travel motor or final drive failing", "discriminator": "No whine, no heat off the right final drive, oil fine at the last service; the machine tracked straight until the wet-clay week.", "category": "symptom-onset" },
+        { "cause": "Pilot circuit, travel solenoid or control valve fault", "discriminator": "Both levers and the travel speed control behave normally, digging and swing are unaffected, and there is no active code of any kind.", "category": "fault-codes" },
+        { "cause": "The fault code on the monitor / an aftertreatment problem", "discriminator": "That code is in the stored list only — not active — logged eight months ago when a dealer replaced a sensor, and there is no engine symptom now.", "category": "code-provenance" },
+        { "cause": "Worn sprocket and chain", "discriminator": "Undercarriage was measured at the 5000-hour service and read within limits, and the pull appeared in one week rather than gradually.", "category": "service-history" }
+      ],
+      "hiddenFacts": [
+        "Active codes: none. The monitor shows no live warning at all.",
+        "In the stored code list there is one entry, SPN 3226 FMI 20, logged about eight months ago. The dealer replaced a sensor back then and it has run fine since.",
+        "It started pulling right after a week of digging in wet clay; before that it tracked straight.",
+        "The right track is visibly tighter than the left and that whole side is packed solid with dried clay — you can barely see the rollers.",
+        "No whine and no heat off the right final drive; the oil in it looked fine at the last service.",
+        "Digging power, swing and boom are all normal. No power complaints, no smoke, no derate.",
+        "Undercarriage was measured at the 5000-hour service and came back within limits.",
+        "Serial KMTPC188E01234."
+      ],
+      "preRegistered": {
+        "correctRank1": "Right-side track over-tension and undercarriage packed with clay — mechanical drag on the right side.",
+        "acceptAlsoAsCorrect": [
+          "Track tension too tight on the right side",
+          "Packed material in the right undercarriage causing drag"
+        ],
+        "scoredWrongIfRank1": [
+          "Travel motor or final drive failure",
+          "Control valve, pilot or travel solenoid fault",
+          "Anything naming the stored code or an aftertreatment fault as the cause of the pull",
+          "Worn sprocket and chain"
+        ],
+        "behavioural": ["B2 active vs stored asked apart — this is the case that needs it", "the report must classify the stored code as historic and unrelated, not treat it as live evidence"]
+      }
+    },
+    {
+      "id": "c4-sany-sy215c-unknown-code",
+      "shape": "code-the-model-should-not-know",
+      "machine": { "year": "2019", "make": "SANY", "model": "SY215C", "machineType": "Excavator", "hours": "4310" },
+      "surfaceProblem": "There's a code up on the screen and the machine keeps going soft on me — the hydraulics lose power for a minute or two and then come back to normal. Started about two weeks ago.",
+      "trueRootCause": "A pump control (proportional) solenoid connector left loose after a hydraulic hose repair two weeks ago; it makes and breaks with machine vibration, dropping pump output intermittently and setting the monitor code. The displayed code E-1147 is manufacturer-specific and its meaning is NOT publicly documented — the correct behaviour is to say the meaning must come from the dealer or the machine's service manual, never to assert one.",
+      "alternatives": [
+        { "cause": "Main hydraulic pump wearing out", "discriminator": "It is intermittent and returns to full power on its own within a minute or two; a worn pump is weak all the time and worsens with heat, and this machine has full power between episodes.", "category": "symptom-detail" },
+        { "cause": "Hydraulic oil low, contaminated, or overheating", "discriminator": "Oil is full and clean, the temperature gauge sits normal, and episodes happen cold in the morning as well as hot.", "category": "fluid-condition" },
+        { "cause": "Main relief or control valve fault", "discriminator": "Every function goes soft at the same instant and recovers together, which points at pump control rather than one circuit's valve — and it began within a day or two of a repair where the pump harness was disturbed.", "category": "symptom-scope" }
+      ],
+      "hiddenFacts": [
+        "The monitor shows E-1147 when it happens. It clears itself when the power comes back.",
+        "It affects everything at once — boom, bucket, swing and travel all go weak together, then all come back together.",
+        "Full power between episodes; no noise change and no whine from the pump.",
+        "Hydraulic oil is full and clean and the temperature gauge is normal; it happens cold in the morning too.",
+        "A shop replaced a leaking hydraulic hose at the pump about two weeks ago — the trouble started within a day or two of getting it back.",
+        "It seems worse over rough ground or when the machine is shaking around.",
+        "No engine codes, the engine runs fine, no derate.",
+        "Serial SY215C90124310."
+      ],
+      "preRegistered": {
+        "correctRank1": "Loose or disturbed connector/harness on the pump control (proportional) solenoid from the recent hose repair — an intermittent pump-control circuit fault.",
+        "acceptAlsoAsCorrect": [
+          "Intermittent pump control solenoid circuit or wiring fault",
+          "Electrical connector disturbed during the recent hydraulic repair"
+        ],
+        "scoredWrongIfRank1": [
+          "Main hydraulic pump wear",
+          "Low or contaminated hydraulic oil",
+          "Main relief or control valve failure"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask — the operator said only 'a code', so the interview must ask what it reads",
+          "B3 the report must NOT assert a meaning for E-1147. Any stated definition ('E-1147 = pump pressure sensor circuit') is a FAIL of prompts.ts:49. Correct behaviour: name it manufacturer-specific and unverified, and send the operator to the dealer or service manual for the definition."
+        ]
+      }
+    },
+    {
+      "id": "c5-deere-320g-def-in-fuel",
+      "shape": "rare-but-clean",
+      "machine": { "year": "2018", "make": "John Deere", "model": "320G", "machineType": "Skid steer loader", "hours": "2760" },
+      "surfaceProblem": "It lost power and shut off about an hour after we fuelled up, and now it barely starts and won't pull at all. Ran perfect all morning before that.",
+      "trueRootCause": "DEF (diesel exhaust fluid) was put in the fuel tank from a mislabelled shop jug at the last fill — white crystalline deposits in the filter bowl and a sharp ammonia smell. The fuel system has to be drained and cleaned and the injection components assessed; changing filters alone will not fix it and running the machine further destroys the injection system.",
+      "alternatives": [
+        { "cause": "Plugged fuel filter", "discriminator": "Filters were new 40 hours ago and what is in the bowl is white crystal, not black sludge; the failure came within an hour of a fill.", "category": "fluid-condition" },
+        { "cause": "Water in the fuel", "discriminator": "The water separator has never alarmed and there is no water layer — the deposits are dry white crystals and the fuel smells sharp, like ammonia.", "category": "fluid-condition" },
+        { "cause": "High-pressure fuel pump or injector wear", "discriminator": "The machine ran perfectly right up to an hour after a fill at 2760 hours; the onset is a fuelling event, not a wear curve.", "category": "symptom-onset" },
+        { "cause": "Air in the fuel / suction-side leak", "discriminator": "No leaks or loose fittings and nobody has worked on the fuel system — but the tank was filled from a shop jug that morning instead of the yard pump.", "category": "recent-events" }
+      ],
+      "hiddenFacts": [
+        "Active codes: low fuel rail pressure — the dealer's reader called it SPN 157 FMI 18 — plus a power derate. Nothing stored before today.",
+        "It ran perfectly all morning and quit about an hour after we filled it.",
+        "We filled it from a jug in the shop that morning instead of the yard pump, because the pump was down.",
+        "The clear filter bowl has white crystal-looking deposits in it, and the fuel smells sharp — like ammonia, not like diesel.",
+        "Fuel filters were changed 40 hours ago; there's no black sludge and the water separator has never alarmed.",
+        "No leaks, no loose fittings, and nobody has worked on the fuel system.",
+        "It cranks fine and will fire for a second or two, then dies.",
+        "Serial 1T0320GXKJF276021."
+      ],
+      "preRegistered": {
+        "correctRank1": "Wrong fluid — DEF or another non-diesel fluid — in the fuel tank from the last fill; fuel system contamination requiring drain and clean, not just filters.",
+        "acceptAlsoAsCorrect": [
+          "Contaminated fuel from the jug used at the last fill",
+          "DEF contamination of the fuel system"
+        ],
+        "scoredWrongIfRank1": [
+          "Plugged fuel filter",
+          "Water in fuel",
+          "High-pressure fuel pump or injector wear",
+          "Air leak in the fuel supply"
+        ],
+        "behavioural": [
+          "B1 verbatim code ask",
+          "does the interview ask what happened around the machine — the fuelling event — per the recent-events rule shipped in 401d892",
+          "does the report tell the operator to stop running the machine"
+        ]
+      }
+    },
+    {
+      "id": "c6-cat-924k-low-boost",
+      "shape": "code-is-a-symptom",
+      "machine": { "year": "2017", "make": "Caterpillar", "model": "924K", "machineType": "Wheel loader", "hours": "6890" },
+      "surfaceProblem": "It's gone flat — no power going into the pile, lots of black smoke, and there's a hiss when I get on it. Getting worse the last couple weeks.",
+      "trueRootCause": "A split charge-air-cooler hose at the cooler-end clamp — a real low-boost condition. The active low-boost code is reporting the leak truthfully; replacing the boost pressure sensor fixes nothing.",
+      "alternatives": [
+        { "cause": "Boost pressure sensor failed", "discriminator": "There is an audible hiss under load and an oily split visible at the charge-air hose clamp — the machine really is down on boost, so the sensor is reporting a true condition.", "category": "visual-inspection" },
+        { "cause": "Turbocharger failure", "discriminator": "No change in turbo whine, no oil in the intake piping, and the hiss is at the cooler hose rather than the turbo.", "category": "symptom-detail" },
+        { "cause": "Plugged air filter", "discriminator": "The restriction indicator has not tripped and the element was changed 100 hours ago and is clean.", "category": "maintenance-checks" },
+        { "cause": "Plugged exhaust filter / aftertreatment restriction", "discriminator": "No exhaust-filter or regen warnings at all, and the only active code is the low boost one.", "category": "fault-codes" }
+      ],
+      "hiddenFacts": [
+        "Active code: the dealer's reader showed SPN 102 FMI 18 — low boost pressure. Nothing else active.",
+        "There's a loud hiss under the hood when I load the engine; it goes away at idle.",
+        "Black smoke under load and the machine is slow to build power.",
+        "The rubber hose between the turbo and the charge air cooler has an oily split right at the clamp on the cooler end — you can see it with the hood up.",
+        "Air filter element was changed 100 hours ago and the restriction indicator has not tripped.",
+        "No exhaust filter or regen warnings, and no derate message.",
+        "Turbo sounds the same as always and there's no oil in the intake piping.",
+        "Stored codes: the same low boost code logged a number of times over the last two weeks.",
+        "Serial CAT0924KLR9M06890."
+      ],
+      "preRegistered": {
+        "correctRank1": "Charge-air (boost) leak — the split charge-air-cooler hose at its clamp.",
+        "acceptAlsoAsCorrect": [
+          "Intake / boost air leak between the turbocharger and the intake manifold",
+          "Failed charge-air-cooler hose or clamp"
+        ],
+        "scoredWrongIfRank1": [
+          "Boost pressure sensor failure",
+          "Turbocharger failure",
+          "Plugged air filter",
+          "Exhaust filter / DPF restriction"
+        ],
+        "behavioural": ["B1 verbatim code ask", "B4 rank 1 names the leak, not the boost pressure sensor the code points at"]
+      }
+    }
+  ]
+}
