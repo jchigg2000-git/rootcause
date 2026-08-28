@@ -2,7 +2,25 @@
   "name": "rootcause",
   "version": "0.1.0",
   "private": true,
+  "description": "Heavy-equipment diagnostic intake and field reporting: an operator describes a machine and a symptom, answers a short model-led interview, and downloads a standalone HTML field report.",
   "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "Justin Higgins",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jchigg2000-git/rootcause.git"
+  },
+  "homepage": "https://github.com/jchigg2000-git/rootcause#readme",
+  "bugs": {
+    "url": "https://github.com/jchigg2000-git/rootcause/issues"
+  },
+  "keywords": [
+    "heavy-equipment",
+    "diagnostics",
+    "field-service",
+    "field-report",
+    "llm",
+    "anthropic"
+  ],
   "engines": {
     "node": ">=22.13.0"
   },
