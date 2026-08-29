@@ -19,7 +19,6 @@ import {
   useState,
 } from "react";
 import {
-  MAX_IMAGES,
   MAX_IMAGE_BYTES,
   SUPPORTED_IMAGE_TYPES,
   type InterviewQuestion,
@@ -91,8 +90,10 @@ type InterviewResponse = {
   status: "needs_more_information" | "ready";
   message: string;
   questions: InterviewQuestion[];
-  /** Wire-only; the reducer carries it into the transcript and the bubble
-   *  strips it back off. Absent in production — see `contract.ts`. */
+  /** Wire-only, and live: the prompt asks for it every turn and the model
+   *  sends it. The reducer carries it into the transcript and the bubble
+   *  strips it back off, so it is never rendered — see `contract.ts` for why
+   *  it exists at all. */
   reasoning?: string;
   caseId?: string;
 };
@@ -119,7 +120,7 @@ const initialForm: EquipmentForm = {
   problem: "",
 };
 
-export function DiagnosticApp() {
+export function DiagnosticApp({ maxPhotos }: { maxPhotos: number }) {
   // Everything the interview flow can be — phase, transcript, questions, chip
   // selections, error — lives in one reducer (app/lib/interview-machine.ts).
   // The handlers below only dispatch and run the network calls; every guard
@@ -523,8 +524,9 @@ export function DiagnosticApp() {
         setSavedMachines(loaded);
         // Deep link from a machine card: /?machine=<id>. Plain window.location
         // rather than useSearchParams — a one-shot read on mount, not a
-        // subscription. An id not in the caller's own list is silently
-        // ignored, so not-yours reads exactly like not-exists.
+        // subscription. An id not in the fetched list is silently ignored: the
+        // only way to hold one is a link to a machine since deleted, and the
+        // form works without it.
         const wanted = new URLSearchParams(window.location.search).get("machine");
         const match = wanted ? loaded.find((candidate) => candidate.id === wanted) : undefined;
         if (match) applyPick(match);
@@ -545,6 +547,27 @@ export function DiagnosticApp() {
   // The machine fills instantly, then a Haiku call writes a
   // matching operator complaint into the problem field. A scenario failure
   // keeps the machine fill — the demo affordance degrades, never blocks.
+  /**
+   * Back to the intake form after a report, or after a first call that failed.
+   *
+   * Keeps the machine identity and clears the fault: the next diagnosis is
+   * usually the same machine and a different symptom, and retyping the
+   * year/make/model is the part nobody wants to do twice. Photos go, because
+   * they belong to the fault that was just closed out. Object URLs are revoked
+   * here rather than left to the unmount cleanup, which does not run — the
+   * component stays mounted across the reset.
+   */
+  function startAnotherDiagnosis() {
+    for (const image of selectedImages) URL.revokeObjectURL(image.previewUrl);
+    setSelectedImages([]);
+    setAttachments([]);
+    setForm((current) => ({ ...current, problem: "" }));
+    setReply("");
+    setIntakeError("");
+    setPickedMachineId("");
+    dispatch({ type: "DIAGNOSIS_RESET" });
+  }
+
   const [randomizing, setRandomizing] = useState(false);
   async function fillRandomMachine() {
     const machine = randomMachine();
@@ -574,11 +597,13 @@ export function DiagnosticApp() {
 
   function selectImages(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
-    const remaining = MAX_IMAGES - selectedImages.length;
+    const remaining = maxPhotos - selectedImages.length;
     const rejections: string[] = [];
 
     if (files.length > remaining) {
-      rejections.push(`You can attach up to ${MAX_IMAGES} photos.`);
+      rejections.push(
+        `You can attach up to ${maxPhotos} ${maxPhotos === 1 ? "photo" : "photos"}.`,
+      );
     }
 
     const accepted = files
@@ -1016,15 +1041,17 @@ export function DiagnosticApp() {
           </section>
 
           {/* Entry points for the two saved-data pages plus the PIN spec
-              lookup. These are separate pages and deliberately NOT header
-              links — the header is for account details. Spec lookup moved up
-              here from the Describe step so it sits beside the report library
-              and machine inventory. */}
+              lookup. Sized as cards on the intake stage rather than folded into
+              the masthead nav: these are where a run starts, and they are only
+              useful before one is under way, while the header carries the two
+              install-wide pages that stay relevant on every stage. Spec lookup
+              moved up here from the Describe step so it sits beside the report
+              library and machine inventory. */}
           <nav className="workspace" aria-label="Saved records and spec lookup">
             <a href="/library">
               <img src="/icons/reports.png" width={26} height={26} alt="" />
               <strong>Report library</strong>
-              <span>Every diagnosis you have run—reopen it, or download it again.</span>
+              <span>Every diagnosis this install has run—reopen it, or download it again.</span>
               <b className="go" aria-hidden="true">→</b>
             </a>
             <a href="/inventory">
@@ -1216,7 +1243,10 @@ export function DiagnosticApp() {
                   <span className="photo-plus" aria-hidden="true">+</span>
                   <span>
                     <strong>Add machine photos</strong>
-                    <small>JPEG, PNG, or WebP · up to {MAX_IMAGES} photos · {MAX_IMAGE_MEGABYTES} MB each</small>
+                    <small>
+                      JPEG, PNG, or WebP · up to {maxPhotos} {maxPhotos === 1 ? "photo" : "photos"} ·{" "}
+                      {MAX_IMAGE_MEGABYTES} MB each
+                    </small>
                   </span>
                 </label>
                 {selectedImages.length > 0 && (
@@ -1348,10 +1378,22 @@ export function DiagnosticApp() {
                 {machine.error && (
                   <div className="conversation-error">
                     <p className="form-error" role="alert">{machine.error}</p>
-                    {machine.phase === "turn-failed" && !turnsSpent && (
-                      <button type="button" className="ghost-button" onClick={() => void retryTurn()}>
-                        Try again
-                      </button>
+                    {machine.phase === "turn-failed" && (
+                      <div className="turn-failed-actions">
+                        {!turnsSpent && (
+                          <button type="button" className="ghost-button" onClick={() => void retryTurn()}>
+                            Try again
+                          </button>
+                        )}
+                        {/* A retry re-sends the same transcript. When the fault
+                            is in the intake itself — an unconfigured provider,
+                            a machine typed wrong — retrying can only fail the
+                            same way, so the escape back to the form belongs
+                            here too. */}
+                        <button type="button" className="ghost-button" onClick={startAnotherDiagnosis}>
+                          Start over
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -1731,6 +1773,9 @@ export function DiagnosticApp() {
                 </button>
                 <button className="ghost-button" type="button" onClick={printReport}>
                   Print / save as PDF <span aria-hidden="true">⎙</span>
+                </button>
+                <button className="ghost-button" type="button" onClick={startAnotherDiagnosis}>
+                  Start another diagnosis
                 </button>
               </div>
               <p className="report-actions-hint">

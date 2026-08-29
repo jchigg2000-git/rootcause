@@ -28,8 +28,10 @@ const runMachineSchema = createSchemaRunner(machineSchema);
 // Grown databases predate label in 0006's CREATE; see that file's comment.
 const labelGuard = createColumnGuard("machine", "label", "TEXT");
 // Databases that predate the removal of accounts carry a NOT NULL owner column
-// on both tables, which would reject every insert below. 0006 and 0007 drop the
-// indexes over it first, because SQLite refuses DROP COLUMN while one stands.
+// on both tables, which would reject every insert below. `machine.user_id` was
+// indexed, and SQLite refuses DROP COLUMN while an index stands, so 0006 drops
+// `machine_user_id_idx` first; `machine_service.user_id` never had an index and
+// needs no such step.
 const machineUserIdDropper = createColumnDropper("machine", "user_id");
 const serviceUserIdDropper = createColumnDropper("machine_service", "user_id");
 

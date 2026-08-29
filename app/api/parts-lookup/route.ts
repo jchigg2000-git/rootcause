@@ -8,7 +8,7 @@ import {
 import { clean, validateRequest, type PartsLookupRequest } from "./contract";
 import { parsePartsJson, PARTS_JSON_SCHEMA } from "./schema";
 import { jsonError, jsonResponse } from "../../lib/http.ts";
-import { recordUsage } from "../../lib/budget.ts";
+import { recordUsage } from "../../lib/usage.ts";
 import { getMachine } from "../../lib/inventory.ts";
 import type { MachineRecord } from "../inventory/contract.ts";
 import { providerConfigured, runChat, type ChatRequest } from "../diagnose/providers.ts";

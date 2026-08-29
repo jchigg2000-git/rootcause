@@ -27,9 +27,9 @@ export type Action = "interview" | "report";
 
 /**
  * The only two models a report request may pick directly. A narrow literal
- * union rather than the full model catalog (`app/lib/settings.ts`) — this is
- * an operator-facing thoroughness choice on one request, not the server-wide
- * default chosen in Settings.
+ * union rather than the full model catalog (`app/lib/settings.ts`), because
+ * this overrides the stored default for one request and an arbitrary id must
+ * never reach the provider that way. Nothing in the UI sets it today.
  */
 export const REPORT_MODEL_OPTIONS = ["claude-sonnet-5", "claude-opus-5"] as const;
 export type ReportModel = (typeof REPORT_MODEL_OPTIONS)[number];
@@ -86,12 +86,19 @@ export type DiagnosisRequest = {
   /** Set once the first interview turn returns one. Absent means "create a new case". */
   caseId?: string;
   /**
-   * An inventory machine the operator picked at intake. The server re-checks
-   * ownership before trusting it; absent or foreign falls back to the fuzzy
-   * year/make/model match `autosaveMachineFromIntake` has always done.
+   * An inventory machine the operator picked at intake. The route resolves it
+   * inside `refreshMachineFromIntake`'s own UPDATE, so an unknown or deleted id
+   * changes zero rows and falls through to the fuzzy year/make/model match
+   * `autosaveMachineFromIntake` has always done — a diagnosis never fails over
+   * a stale machine id.
    */
   machineId?: string;
-  /** Report-thoroughness pick from the intake UI. Only meaningful when `action` is "report". */
+  /**
+   * Per-request report-model override. No shipped client sends it — the intake
+   * picker that did was removed — and it is kept only so a caller driving the
+   * route directly can ask for one report at Opus depth. Only meaningful when
+   * `action` is "report".
+   */
   reportModel?: ReportModel;
 };
 
@@ -273,8 +280,8 @@ const CODE_REQUEST_PATTERNS: readonly RegExp[] = [
 // (1622 unique) in the 28 banked run dirs: the whole-word verb list above
 // missed 24 distinct shapes of the form "has anyone CHECKED / PULLED / SCANNED
 // for stored fault codes?" — the most common code ask in the corpus and,
-// per `runs/2026-08-19-codes-postfix/scorecard.md`, the exact ask whose missing
-// active-vs-stored clause the fix was written for. It also missed the three
+// per that run's scorecard, the exact ask whose missing active-vs-stored
+// clause the fix was written for. It also missed the three
 // categorical dash asks the campaign counted as a separate failure mode.
 // Corrected list: 71 hits, and every one of the 7 code-mentioning questions it
 // declines names a code the operator already has in hand. The one residual

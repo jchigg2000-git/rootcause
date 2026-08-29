@@ -11,14 +11,20 @@ disclosure wherever service information was missing rather than a guess dressed 
 figure.
 
 **See what it produces before running anything** —
-[`docs/2014-JD-344K-field-report.html`](docs/2014-JD-344K-field-report.html) is a real
-rendered report. Download it and open it locally; it is one self-contained file with no
-external assets.
+[`docs/2014-JD-344K-field-report.html`](docs/2014-JD-344K-field-report.html) is the
+reference rendering the report template implements. Download it and open it locally; it
+is one self-contained file with no external assets. (It came out of the originating
+prompt rather than out of the shipped renderer, so it differs in small ways — no CSP
+`<meta>`, a slightly older class vocabulary — but the structure, the evidence labels and
+the house style are what the code targets. `docs/2014-JD-350G-field-report.html` beside
+it is the *previous* house style, kept as a before-picture.)
 
 The report follows a fixed 12-section contract covering safety, machine identity,
 symptom evidence, ranked causes, diagnostic procedure, parts, and the limits of what
-could be established. The full specification is in
-[`sample-prompt.md`](sample-prompt.md).
+could be established. The authoritative contract is
+[`app/api/diagnose/report-schema.ts`](app/api/diagnose/report-schema.ts);
+[`sample-prompt.md`](sample-prompt.md) is the originating prompt it was derived from, and
+its own header lists where the running app deliberately diverges.
 
 ## Stack
 
@@ -30,7 +36,7 @@ could be established. The full specification is in
 
 ## Quickstart
 
-Requires Node.js 22.13 or newer.
+Requires Node.js 22.18 or newer.
 
 ```bash
 cp .env.example .env
@@ -41,8 +47,14 @@ npm run dev
 Then open `http://localhost:5211`. The port is pinned with `strictPort`, so it is
 either 5211 or a startup failure — never a silent reassignment.
 
-You need **at least one** provider key in `.env` before a diagnosis will run. The app
-starts and renders without one; only the model call fails, and it says so plainly.
+You need a provider key in `.env` before a diagnosis will run. The app starts and
+renders without one; only the model call fails, and it says so plainly.
+
+**Out of the box that key is `ANTHROPIC_API_KEY`.** The shipped default model is
+`claude-sonnet-5`, so a fresh install calls Anthropic — an install with only `HF_TOKEN`
+set gets *"The selected model's provider is not configured on the server"* on its first
+diagnosis. To run on Hugging Face instead, open `/settings` and pick an HF model from
+the catalog (or "Server default (HF_MODEL)").
 
 > **There is no sign-in.** RootCause has no authentication at all, so anyone who can
 > reach the port can run diagnoses against your provider key and read everything the
@@ -51,8 +63,12 @@ starts and renders without one; only the model call fails, and it says so plainl
 
 ## Configuration
 
-A model's provider comes from `MODEL_CATALOG` in `app/lib/settings.ts`, so only the key
-for the provider you actually select is required.
+A model's provider comes from `MODEL_CATALOG` in `app/lib/settings.ts`, so the diagnostic
+interview and the report need only the key for the provider you select. **Two surfaces do
+not follow that setting and are Anthropic-only regardless of it**: parts lookup is pinned
+to `claude-sonnet-5` because it needs grounded search, and the intake's "Randomize
+machine" button is pinned to `claude-haiku-4-5`. Without `ANTHROPIC_API_KEY` those two are
+unavailable, and everything else still works on Hugging Face.
 
 | Variable | Provider | Notes |
 |---|---|---|
@@ -84,7 +100,8 @@ whole of the threat model, so it decides how you may deploy it:
 
 For anything beyond your own machine, put something in front: a reverse proxy that does
 the authentication, an SSH tunnel, or a private network. Do not put it on the public
-internet.
+internet. Behind a proxy that terminates TLS, set `VINEXT_TRUST_PROXY=1` as well, or the
+server builds its redirects from the plain-HTTP request it sees on the inside.
 
 [`SECURITY.md`](SECURITY.md) has the longer version, including what is still worth
 reporting as a vulnerability given all of the above.
@@ -105,10 +122,16 @@ gitignored, so each machine grows its own.
 - **Default machine** (this browser only) — prefills the intake form. Stored in
   localStorage and synced across tabs; never sent to the server.
 
-The token ceiling is worth understanding, because it is the only spend limit in the
-app. A diagnosis that stops converging keeps calling the model for as long as the tab
-is open; the ceiling ends it. The default is 400,000 tokens per case, comfortably above
-a normal one. Setting it to 0 turns the guard off, and nothing else is watching.
+The token ceiling is worth understanding, because it is the only spend limit in the app
+— and it is narrower than that sounds. It counts tokens **per diagnostic case** and it is
+checked in **one place, `/api/diagnose`**. A diagnosis that stops converging keeps calling
+the model for as long as the tab is open; the ceiling ends it. The default is 400,000
+tokens per case, comfortably above a normal one, and 0 turns it off.
+
+Nothing else is capped at all. Spec lookup, parts lookup and the "Randomize machine"
+button each place billable calls with no ceiling of any kind. Parts lookup is the
+expensive one: a single measured lookup spent 115,628 tokens on research plus 5,339
+formatting, to return three priced listings.
 
 ## Commands
 
@@ -127,7 +150,7 @@ The initial request contains machine details, the reported problem, and up to fo
 
 Photos are uploaded on the first interview turn and again with the report request. Follow-up replies carry only the file names, so a long interview does not re-send the same images on every turn.
 
-The generated report follows the 12-section evidence and safety contract in `sample-prompt.md`. Missing service information, serial applicability, and unavailable normal values must be disclosed rather than guessed. A rendered example is in [`docs/`](docs/).
+The generated report follows the 12-section evidence and safety contract. Missing service information, serial applicability, and unavailable normal values must be disclosed rather than guessed. The reference rendering the template implements is in [`docs/`](docs/).
 
 ## The case corpus
 
@@ -157,7 +180,7 @@ The model never writes HTML. It returns report **data** as JSON, and the server 
 
 - `app/api/diagnose/report-schema.ts` defines the contract — the fixed 12-section list, the evidence-label vocabulary, the allowed content blocks — and coerces the model's reply defensively, so a missing or malformed field degrades to a readable report instead of a failure.
 - `app/api/diagnose/report-template.ts` owns the document: doctype, head, stylesheet, section identity, order and numbering, contents rail, sortable ranked table, print rules, and footer. Its styling is carried from the reference report in [`docs/`](docs/).
-- The request uses `response_format: { type: "json_object" }`. Free-form generation of a ~10 KB JSON object intermittently emits an unescaped quote — inch marks alone guarantee it — and a document whose string boundaries have moved cannot be repaired. Models that reject `response_format` fall back to an unconstrained call.
+- The request is constrained, and how depends on the provider. Anthropic gets schema-constrained decoding (`output_config.format` with the report's JSON schema), which pins the shape and not merely the syntax. The OpenAI-compatible path gets `response_format: { type: "json_object" }`, with an unconstrained retry on HTTP 400 because not every router model accepts the parameter. Either way the constraint is load-bearing: free-form generation of a ~10 KB JSON object intermittently emits an unescaped quote — inch marks alone guarantee it — and a document whose string boundaries have moved cannot be repaired.
 
 Because the server authors the HTML, safety is escaping rather than sanitizing: every model-supplied string passes through `escapeHtml`, source URLs are restricted to `http(s)`, and unrecognized evidence labels are dropped. The document also carries a `Content-Security-Policy` `<meta>` — the only layer that survives the download, since a file opened from `file://` has no response headers and no iframe sandbox — and the preview iframe runs under `sandbox="allow-scripts allow-modals"`, with no same-origin, forms, or popups.
 
@@ -169,8 +192,11 @@ Changes to the prompts or the interview loop are measured, not argued about. The
 in [`evals/`](evals/) replays scripted equipment scenarios through the real pipeline and
 scores the result.
 
+The harness is Anthropic-only and needs `ANTHROPIC_API_KEY` in `.env`, whichever provider
+the app itself is configured for.
+
 ```bash
-node evals/run-eval.mjs                 # the full set — bills your provider key
+node evals/run-eval.mjs                 # the full set — bills your Anthropic key
 node evals/run-eval.mjs --only 03,07    # a subset
 node evals/run-eval.mjs --sim-free-text # the chips-hidden control arm
 ```

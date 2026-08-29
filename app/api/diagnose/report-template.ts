@@ -513,16 +513,17 @@ const GAP_NOTE =
 
 /**
  * The evidence legend. Lives in §1 rather than beside the ranked table: the
- * labels are used from the core finding onward, and `sample-prompt.md:89` puts
- * the vocabulary before the first thing that speaks it.
+ * labels are used from the core finding onward, and the originating prompt's
+ * "Use these evidence labels throughout the report" list puts the vocabulary
+ * before the first thing that speaks it.
  */
 function renderLegend(): string {
   return `<div class="legend">${Object.keys(EVIDENCE_LABELS).map(badge).join("")}</div>`;
 }
 
 /**
- * The first-screen shortlist `sample-prompt.md:162` asks for and the reference
- * implements (§1 `.priority-list` + `#field-action`). Without it the report's
+ * The first-screen shortlist the originating prompt asks for and the reference
+ * rendering implements (§1 `.priority-list` + `#field-action`). Without it the report's
  * answer to "what is wrong" first appears in the ranked table, ~3800px down at
  * 390x660 -- past the fold in 10/10 frozen fixtures.
  *

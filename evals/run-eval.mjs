@@ -7,8 +7,8 @@
  * it knows the hidden facts, answers only what is asked, honestly, and never
  * volunteers the discriminating evidence unprompted.
  *
- * Deliberately bypasses the HTTP route: no auth, and no eval junk written into
- * the case library or machine inventory. The parts of the route this file
+ * Deliberately bypasses the HTTP route, so a run writes no eval junk into the
+ * case library or the machine inventory. The parts of the route this file
  * mirrors instead of importing (they are not exported) are marked MIRROR — if
  * `machineContext` or `buildChatRequest` in `app/api/diagnose/route.ts`
  * change, update here.

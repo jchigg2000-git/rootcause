@@ -16,7 +16,7 @@ import { parseReportJson } from "./report-schema";
 import { composeAssistantContent } from "../../lib/interview-machine.ts";
 import { renderReport } from "./report-template";
 import { SETTINGS_DEFAULTS, getSettings, providerFor } from "../../lib/settings.ts";
-import { recordUsage } from "../../lib/budget.ts";
+import { recordUsage } from "../../lib/usage.ts";
 import { autosaveMachineFromIntake, refreshMachineFromIntake } from "../../lib/inventory.ts";
 import {
   addCaseTokens,
@@ -58,8 +58,11 @@ export async function POST(request: Request) {
   // arrive here.
   const settings = env.APP_DB ? await getSettings(env.APP_DB) : SETTINGS_DEFAULTS;
 
+  // The intake form is handed this same number by `app/page.tsx`, so a caller
+  // who trips this is either a stale tab or something other than the app.
   if ((body.attachments?.length ?? 0) > settings.maxPhotos) {
-    return jsonError(`Attach no more than ${settings.maxPhotos} photos.`, 400);
+    const photos = settings.maxPhotos === 1 ? "photo" : "photos";
+    return jsonError(`Attach no more than ${settings.maxPhotos} ${photos}.`, 400);
   }
 
   // `reportModel`, when a caller sends one, overrides the stored server

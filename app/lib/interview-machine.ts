@@ -127,7 +127,8 @@ export type InterviewAction =
   | { type: "RETRY_REQUESTED" }
   | { type: "REQUEST_FAILED"; error: string }
   | { type: "REPORT_REQUESTED" }
-  | { type: "REPORT_RENDERED"; html: string };
+  | { type: "REPORT_RENDERED"; html: string }
+  | { type: "DIAGNOSIS_RESET" };
 
 export const INITIAL_INTERVIEW_STATE: InterviewState = {
   phase: "intake",
@@ -152,7 +153,8 @@ const SENDABLE: ReadonlyArray<InterviewPhase> = [
 /**
  * The interview has no turn left that the report could survive.
  *
- * ⚠ The threshold is MAX − 2, and the two is load-bearing. A round appends the
+ * ⚠ The threshold is MAX − 1, and the `+ 2` in the expression below is what
+ * puts it there. A round appends the
  * operator's message on the way out and the model's on the way back, so the
  * transcript only ever holds an ODD count — 1, 3, 5, 7, 9, 11, 13. It is never
  * 12. `validateRequest` rejects anything longer than MAX for BOTH actions, so
@@ -212,11 +214,6 @@ export function nextCursor(state: InterviewState): number {
 }
 
 /**
- * The assistant side of the wire format: message, then each question on its
- * own numbered line. `composeReply` numbers the operator's answers against
- * these same 1-based indexes, so the two functions must move together.
- */
-/**
  * The marker on the wire-only reasoning line.
  *
  * The transcript is simultaneously the payload the model receives and the
@@ -226,6 +223,12 @@ export function nextCursor(state: InterviewState): number {
  */
 export const REASONING_PREFIX = "[private reasoning] ";
 
+/**
+ * The assistant side of the wire format: the reasoning line, the message, then
+ * each question on its own numbered line. `composeReply` numbers the operator's
+ * answers against these same 1-based indexes, so the two functions must move
+ * together.
+ */
 export function composeAssistantContent(
   message: string,
   questions: readonly InterviewQuestion[],
@@ -350,6 +353,20 @@ export function interviewReducer(
       // caseId and report included — rather than patching fields one by one.
       if (state.phase !== "intake") return state;
       return { ...INITIAL_INTERVIEW_STATE, phase: "awaiting-model" };
+
+    // The way back to the intake form. `INTERVIEW_STARTED` is guarded on
+    // `phase === "intake"` and is dispatched only by the intake form's own
+    // submit handler, so without this action a delivered report — or a first
+    // call that failed — left the form unmounted with no path back to it, and
+    // a second diagnosis needed a full page reload.
+    //
+    // Deliberately not allowed mid-interview: answers that have not been sent
+    // are still retractable there, and a control that silently discards them
+    // does not belong beside them. It is offered only where the case is over
+    // (`report`) or stuck (`turn-failed`).
+    case "DIAGNOSIS_RESET":
+      if (state.phase !== "report" && state.phase !== "turn-failed") return state;
+      return { ...INITIAL_INTERVIEW_STATE };
 
     case "ASSISTANT_REPLIED": {
       if (state.phase !== "awaiting-model") return state;

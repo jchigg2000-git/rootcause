@@ -92,14 +92,44 @@ test("reads are never refused, whatever origin they claim", () => {
   }
 });
 
-test("a state-changing call from another origin is refused", () => {
+test("a state-changing call from another site is refused", () => {
   for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
     assert.equal(isCrossOriginWrite(method, "https://evil.test", null, ORIGIN), true, method);
   }
-  // Origin absent but Sec-Fetch-Site present: browsers always send the second,
-  // and page script cannot forge it, so it decides on its own.
   assert.equal(isCrossOriginWrite("POST", null, "cross-site", ORIGIN), true);
   assert.equal(isCrossOriginWrite("POST", null, "same-site", ORIGIN), true);
+  // A different port is a different origin to the browser, so it is to us.
+  assert.equal(isCrossOriginWrite("POST", "http://localhost:9999", null, ORIGIN), true);
+});
+
+test("Sec-Fetch-Site decides alone whenever the browser sent it", () => {
+  // It is the browser's own verdict and page script cannot set it, so it beats
+  // an Origin the proxy layer may have made unrecognisable.
+  assert.equal(isCrossOriginWrite("POST", "https://evil.test", "same-origin", ORIGIN), false);
+  assert.equal(isCrossOriginWrite("POST", ORIGIN, "cross-site", ORIGIN), true);
+});
+
+test("a TLS-terminating proxy does not turn every write into a 403", () => {
+  // The browser is at https://rootcause.example.com; the app sees the request
+  // arrive over plain HTTP on the inside. Comparing whole origins would refuse
+  // this — and it is the deployment SECURITY.md tells people to use.
+  const behindProxy = "http://rootcause.example.com";
+  assert.equal(
+    isCrossOriginWrite("POST", "https://rootcause.example.com", null, behindProxy),
+    false,
+    "scheme mismatch from TLS termination must not read as cross-site",
+  );
+  // The host still has to match.
+  assert.equal(
+    isCrossOriginWrite("POST", "https://evil.test", null, behindProxy),
+    true,
+  );
+});
+
+test("an opaque or unparseable Origin is treated as cross-site", () => {
+  // A sandboxed iframe posts the literal string "null".
+  assert.equal(isCrossOriginWrite("POST", "null", null, ORIGIN), true);
+  assert.equal(isCrossOriginWrite("POST", "not a url", null, ORIGIN), true);
 });
 
 test("the app's own requests, and requests from no browser at all, pass", () => {

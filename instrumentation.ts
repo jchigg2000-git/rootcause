@@ -14,7 +14,7 @@ import path from "node:path";
 import { openDatabase, closeDatabases } from "./app/lib/db.ts";
 import { env } from "./app/lib/server-env.ts";
 import { ensureSettingsSchema } from "./app/lib/settings.ts";
-import { ensureUsageLedgerSchema } from "./app/lib/budget.ts";
+import { ensureUsageLedgerSchema } from "./app/lib/usage.ts";
 import { ensureCaseOutcomeSchema } from "./app/lib/library.ts";
 import { ensureDiagnosticCaseSchema, ensureReportSchema } from "./app/lib/cases.ts";
 import { ensureMachineSchema, ensureMachineServiceSchema } from "./app/lib/inventory.ts";

@@ -22,21 +22,35 @@ export function normalizePath(pathname: string): string {
 export const isApiPath = (pathname: string) => pathname.startsWith("/api/");
 
 /**
- * Refuse a state-changing API call that came from another origin.
+ * Refuse a state-changing API call that came from another site.
  *
- * This is no longer CSRF defence — there is no session cookie left for an
- * attacker to ride. It is a spend guard. `/api/diagnose`, `/api/spec-lookup`
- * and `/api/parts-lookup` all reach a billable provider key, and a page the
- * operator happens to visit can otherwise `fetch("http://localhost:5211/…")`
- * in the background and run up their bill. Nothing is stolen; the cost is the
- * attack.
+ * This is not CSRF defence — there is no session cookie left for an attacker to
+ * ride. It is a spend guard. `/api/diagnose`, `/api/spec-lookup`,
+ * `/api/parts-lookup` and `/api/random-scenario` all reach a billable provider
+ * key, and a page the operator happens to be visiting can otherwise
+ * `fetch("http://localhost:5211/…")` in the background and run up their bill.
+ * Nothing is stolen; the cost is the attack.
  *
- * Two signals, because either alone fails open. `Origin` is absent on some
- * requests browsers make and on every `curl`. `Sec-Fetch-Site` is always sent
- * by browsers and cannot be set from page script, so a cross-site value is
- * refused even when `Origin` is missing. A request carrying NEITHER header is
- * not a browser — it is a script or a terminal, which the operator ran
- * themselves — so it is allowed through rather than blocked.
+ * **`Sec-Fetch-Site` decides on its own whenever it is present.** It is the
+ * browser's own verdict about the initiating document, and it is a forbidden
+ * header name, so page script cannot set it. It is also the only signal a proxy
+ * cannot disturb — which matters, because the deployment this app tells people
+ * to use is behind one.
+ *
+ * **Falling back to `Origin`, only the HOST is compared, never the scheme.**
+ * Behind a TLS-terminating proxy the browser sends `Origin: https://host` while
+ * the server sees `http://host` internally, so comparing whole origins refuses
+ * every write in exactly the configuration `SECURITY.md` recommends. That was
+ * the bug this shape exists to avoid. Comparing hosts is still the real control:
+ * a genuinely cross-site page is at a different host, and an attacker who
+ * already controls `http://` on your own hostname has beaten you elsewhere.
+ *
+ * An unparseable or opaque `Origin` — the literal `null` a sandboxed frame
+ * sends — counts as cross-site and is refused.
+ *
+ * A request carrying NEITHER header is not a browser: it is a script or a
+ * terminal, which the operator ran themselves, and it carries no ambient
+ * authority for a third party to borrow. It passes.
  */
 export function isCrossOriginWrite(
   method: string,
@@ -45,9 +59,18 @@ export function isCrossOriginWrite(
   appOrigin: string,
 ): boolean {
   if (!STATE_CHANGING.has(method)) return false;
-  if (origin && origin !== appOrigin) return true;
-  if (secFetchSite && secFetchSite !== "same-origin" && secFetchSite !== "none") return true;
+  if (secFetchSite) return secFetchSite !== "same-origin" && secFetchSite !== "none";
+  if (origin) return !sameHost(origin, appOrigin);
   return false;
+}
+
+/** Host and port, ignoring the scheme. Anything unparseable is not same-host. */
+function sameHost(origin: string, appOrigin: string): boolean {
+  try {
+    return new URL(origin).host === new URL(appOrigin).host;
+  } catch {
+    return false;
+  }
 }
 
 /**

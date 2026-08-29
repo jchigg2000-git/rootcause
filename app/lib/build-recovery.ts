@@ -71,14 +71,31 @@ export function isStaleBuildError(reason: unknown): boolean {
  * These arrive as an `error` event on the element rather than as a thrown
  * exception, so they carry no message to match on: the element's URL is the
  * only signal available.
+ *
+ * **Same-origin is checked, not assumed.** The DOM absolutizes `src`/`href`, so
+ * what arrives here is usually a full URL — and a substring test for `/assets/`
+ * matches `https://some-cdn.example/assets/tag.js` just as happily as our own
+ * chunk. A third party's asset failing is not our deploy, and the reload this
+ * triggers discards unsent interview answers, so a false positive here costs
+ * the operator real work.
  */
-export function isStaleBuildAsset(tagName: unknown, url: unknown): boolean {
+export function isStaleBuildAsset(
+  tagName: unknown,
+  url: unknown,
+  appOrigin: unknown,
+): boolean {
   if (typeof tagName !== "string" || typeof url !== "string") return false;
   const tag = tagName.toLowerCase();
   if (tag !== "script" && tag !== "link") return false;
-  // Same-origin build output only. A third-party script failing is not our
-  // deploy, and must not reload the page.
-  return url.startsWith("/assets/") || url.includes("/assets/");
+  // A root-relative URL is ours by construction — there is no origin to check.
+  if (url.startsWith("/")) return url.startsWith("/assets/");
+  if (typeof appOrigin !== "string" || !appOrigin) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.origin === appOrigin && parsed.pathname.startsWith("/assets/");
+  } catch {
+    return false;
+  }
 }
 
 /** How long after a recovery reload another one is refused. */

@@ -37,9 +37,15 @@ npm test
 All three should be clean. `npm test` runs pure contract and logic tests — no network, no
 database, no build step.
 
+The Node floor is **22.18**, and it is set by the tests rather than by the app: they
+import the TypeScript sources directly, and Node only strips types without a flag from
+22.18 onward. On anything older `npm test` dies with `ERR_UNKNOWN_FILE_EXTENSION` for
+`.ts` while the app itself runs fine. Do not lower it without adding
+`--experimental-strip-types` to the `test` script.
+
 ## Getting it running
 
-See the Quickstart in [README.md](README.md). Short version: Node 22.13+, `cp .env.example
+See the Quickstart in [README.md](README.md). Short version: Node 22.18+, `cp .env.example
 .env`, `npm install`, `npm run dev`, then `http://localhost:5211`.
 
 You need one provider key to run a diagnosis, but not to start the app or to work on
@@ -80,9 +86,10 @@ adding a `createColumnGuard` in the table's ensure function — see `machine.lab
 Removing one is the mirror image, `createColumnDropper`, and any index over the column
 has to be dropped in the `.sql` first.
 
-The files are numbered 0002–0009, and that is not a mistake to tidy. There is no 0001
-(it held the auth schema) and no 0010 (a payments integration). Reusing either number
-would make an old reference ambiguous about which schema it meant.
+The files are numbered 0002–0009, and the gaps are not a mistake to tidy. 0001 held the
+auth schema, 0010 a payments integration, and 0011/0012 the access codes and allowances
+that went with the auth removal. All four are burned — reusing one makes an old reference
+ambiguous about which schema it meant. The next migration is 0013.
 
 **The model returns JSON; the server renders the HTML.** Three files move together —
 `app/api/diagnose/report-schema.ts` (the contract), `report-template.ts` (the document and

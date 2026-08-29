@@ -1,6 +1,10 @@
 /**
  * Token accounting. This module RECORDS; it does not enforce.
  *
+ * It was `budget.ts` while there were budgets to enforce — a monthly ceiling,
+ * then per-code allowances. Both are gone, and nothing that remains here can
+ * refuse anything, so the name follows the ledger rather than the concept.
+ *
  * The ledger lives in APP_DB, deliberately NOT observability.db: the
  * observability store is prunable exhaust with a one-way data flow, and its
  * 14-day retention would silently erase the numbers this is kept for. Routes

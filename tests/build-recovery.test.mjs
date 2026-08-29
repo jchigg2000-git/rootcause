@@ -52,15 +52,29 @@ test("does not reload the page for an ordinary application error", () => {
 });
 
 test("matches a failed build asset only for our own script and link tags", () => {
-  assert.equal(isStaleBuildAsset("SCRIPT", "/assets/diagnostic-app-B2ErXVZV.js"), true);
-  assert.equal(isStaleBuildAsset("link", "https://rootcause.example/assets/index-C_EMfXIj.css"), true);
+  const HERE = "https://rootcause.example";
+  assert.equal(isStaleBuildAsset("SCRIPT", "/assets/diagnostic-app-B2ErXVZV.js", HERE), true);
+  assert.equal(isStaleBuildAsset("link", `${HERE}/assets/index-C_EMfXIj.css`, HERE), true);
   // Not a build artifact: an <img> that 404s must never reload the page.
-  assert.equal(isStaleBuildAsset("IMG", "/assets/photo.png"), false);
+  assert.equal(isStaleBuildAsset("IMG", "/assets/photo.png", HERE), false);
   // Not our assets: a third-party script failing is not our deploy.
-  assert.equal(isStaleBuildAsset("SCRIPT", "https://cdn.example.com/tag.js"), false);
-  assert.equal(isStaleBuildAsset("SCRIPT", "/icons/logo.png"), false);
-  assert.equal(isStaleBuildAsset(null, "/assets/x.js"), false);
-  assert.equal(isStaleBuildAsset("SCRIPT", null), false);
+  assert.equal(isStaleBuildAsset("SCRIPT", "https://cdn.example.com/tag.js", HERE), false);
+  assert.equal(isStaleBuildAsset("SCRIPT", "/icons/logo.png", HERE), false);
+  assert.equal(isStaleBuildAsset(null, "/assets/x.js", HERE), false);
+  assert.equal(isStaleBuildAsset("SCRIPT", null, HERE), false);
+});
+
+test("a third party's own /assets/ path is not our deploy", () => {
+  // The DOM absolutizes src/href, so a substring test for "/assets/" would
+  // match this — and the reload it triggers throws away unsent answers.
+  const HERE = "https://rootcause.example";
+  assert.equal(isStaleBuildAsset("SCRIPT", "https://cdn.example.com/assets/tag.js", HERE), false);
+  assert.equal(isStaleBuildAsset("link", "https://fonts.example/assets/x.css", HERE), false);
+  // A different port on the same host is still a different origin.
+  assert.equal(isStaleBuildAsset("SCRIPT", "https://rootcause.example:8443/assets/x.js", HERE), false);
+  // Unparseable, or no origin to compare against: refuse rather than reload.
+  assert.equal(isStaleBuildAsset("SCRIPT", "not a url", HERE), false);
+  assert.equal(isStaleBuildAsset("SCRIPT", `${HERE}/assets/x.js`, ""), false);
 });
 
 test("the cooldown is what stops a reload loop on a genuinely broken build", () => {

@@ -95,8 +95,10 @@ export function LibraryView() {
       const loaded = await load();
       // Deep link from a machine card: /library?open=<caseId> goes straight to
       // the reading view. Plain window.location rather than useSearchParams —
-      // this is a one-shot read on mount, not a subscription. An id that is
-      // not in the caller's list is silently ignored: not-yours == not-exists.
+      // this is a one-shot read on mount, not a subscription. An id that is not
+      // in the fetched list is silently ignored rather than reported, because
+      // the only way to get one is a link to a case that has since been
+      // deleted, and the library is right there behind it.
       const openId = new URLSearchParams(window.location.search).get("open");
       const entry = openId ? loaded.find((candidate) => candidate.id === openId) : undefined;
       if (entry?.hasReport) await openReport(entry);

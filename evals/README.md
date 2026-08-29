@@ -180,7 +180,7 @@ reads a banked directory expects one you generated yourself.
 - `run-eval.mjs` — the harness. Imports the live prompts/schemas/parsers from
   `app/api/diagnose/` and mirrors the wire call `providers.ts` makes (marked
   `MIRROR` where route internals aren't exported). Bypasses the HTTP route on
-  purpose: no auth, no eval junk in the case library or machine inventory.
+  purpose, so a run writes no eval junk into the case library or the inventory.
   A Haiku operator answers only what's asked, honestly, never volunteering.
 - `runs/<stamp>/run-<id>.json` — one artifact per scenario: full interview
   rounds, wire transcript, the report's ranked list, token usage.

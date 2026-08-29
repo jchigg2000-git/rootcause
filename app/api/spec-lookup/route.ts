@@ -8,7 +8,7 @@ import {
 import { clean, validateRequest, type SpecLookupRequest } from "./contract";
 import { parseSpecJson, SPEC_JSON_SCHEMA } from "./schema";
 import { SETTINGS_DEFAULTS, getSettings, providerFor } from "../../lib/settings.ts";
-import { recordUsage } from "../../lib/budget.ts";
+import { recordUsage } from "../../lib/usage.ts";
 import {
   groundingSupported,
   providerConfigured,

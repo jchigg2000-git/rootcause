@@ -9,7 +9,7 @@
  */
 import { env } from "../../lib/server-env.ts";
 import { jsonError, jsonResponse } from "../../lib/http.ts";
-import { recordUsage } from "../../lib/budget.ts";
+import { recordUsage } from "../../lib/usage.ts";
 import { providerFor } from "../../lib/settings.ts";
 import { providerConfigured, runChat } from "../diagnose/providers.ts";
 

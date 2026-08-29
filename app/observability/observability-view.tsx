@@ -50,7 +50,7 @@ export function ObservabilityView() {
   }
 
   return (
-    <main className="settings-shell obs-shell">
+    <main className="settings-shell">
       <header className="settings-head">
         <Link className="settings-logo" href="/" aria-label="RootCause HME home">
           <LogoMark size={40} />

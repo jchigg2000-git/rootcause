@@ -80,10 +80,11 @@ SQLite refuses `DROP COLUMN` while one stands. This is not tidying: the `user_id
 it exists for were `NOT NULL`, so a database that still carries one rejects every insert
 the current code makes.
 
-Migration numbering runs **0002–0009**, and the two gaps are deliberate. 0001 held the
-auth schema and 0010 held a payments integration; both features are gone. Do not renumber
-to close either gap — reusing a number makes an old reference ambiguous about which schema
-it meant.
+The shipped files are **0002–0009**. Four numbers are burned and none of them may be
+reused: **0001** (the auth schema), **0010** (a payments integration), and **0011** /
+**0012** (access codes and the allowances they granted). All four held schemas that
+existed and were removed, so reusing a number makes an old reference ambiguous about which
+one it meant. **The next migration is 0013.**
 
 ## There is no authentication
 
@@ -114,14 +115,17 @@ It does two things to every request, both in `app/lib/request-guard.ts`:
   HTTPS in the browser for a year and breaks every other project on the machine.
 - **A same-origin check on state-changing API calls.** This is *not* CSRF defence — there
   is no session cookie left to ride. It is a spend guard: `/api/diagnose`,
-  `/api/spec-lookup` and `/api/parts-lookup` all reach a billable key, and without it a
-  page the operator happens to be visiting can `fetch("http://localhost:5211/…")` in the
-  background and run up their bill.
+  `/api/spec-lookup`, `/api/parts-lookup` and `/api/random-scenario` all reach a billable
+  key, and without it a page the operator happens to be visiting can
+  `fetch("http://localhost:5211/…")` in the background and run up their bill.
 
-  Two signals, because either alone fails open. `Origin` is absent on some browser
-  requests and on every `curl`; `Sec-Fetch-Site` is always sent by browsers and cannot be
-  set from page script. A request carrying **neither** is not a browser — it is a script
-  the operator ran themselves — so it passes rather than being blocked.
+  **`Sec-Fetch-Site` decides alone when it is present.** It is the browser's own verdict
+  and a forbidden header name, so page script cannot set it — and it is the only signal a
+  reverse proxy cannot disturb. Falling back to `Origin`, only the **host** is compared,
+  never the scheme: behind TLS termination the browser sends `https://host` while the
+  server sees `http://host`, so comparing whole origins would 403 every write in exactly
+  the deployment `SECURITY.md` recommends. A request carrying **neither** header is not a
+  browser — it is a script the operator ran themselves — so it passes.
 
 `request-guard.ts` stays free of the database and of the `?raw` schema imports so it runs
 under a plain `node --test`. Keep it that way.
@@ -138,6 +142,10 @@ the refusal is `{"error":"Cross-origin request rejected."}` in JSON with the hea
 
 - **It is not decoration and it is not a leftover.** It is what ends an interview that
   never converges. Nothing else in the app is watching the spend.
+- ⚠ **It guards one route.** `/api/spec-lookup`, `/api/parts-lookup` and
+  `/api/random-scenario` are billable and have no ceiling at all. Parts lookup is the
+  expensive one — a measured 115,628 + 5,339 tokens per click. `README.md` and
+  `SECURITY.md` say so plainly; keep them saying it.
 - **It fails OPEN.** An unreadable case row is a storage problem, not evidence of a
   runaway, and refusing a diagnosis over it would break the app for an unrelated fault.
   There is no entitlement to protect any more, so there is nothing left that has to fail
@@ -163,9 +171,14 @@ the Settings page. Nothing refuses a request over that number.
 Adding a section means editing `REPORT_SECTIONS` and the prompt's section-id list together, or
 the model emits content for an id the template never renders.
 
-Report requests use `response_format: { type: "json_object" }` with a fallback to an
-unconstrained call on HTTP 400. **Do not remove the constraint** — unconstrained generation of a
-report-sized JSON object fails intermittently on unescaped quotes.
+Report requests are constrained, and how depends on the provider — `response_format` appears
+in the OpenAI-compatible client only. Anthropic, which is the default path, gets
+`output_config.format` with `REPORT_JSON_SCHEMA`: strictly stronger, because it constrains the
+shape rather than only the syntax, and it has no 400 fallback. The OpenAI-compatible/HF client
+gets `response_format: { type: "json_object" }` with a retry as an unconstrained call on HTTP
+400, because not every model behind a router accepts the parameter. **Do not remove either
+constraint** — unconstrained generation of a report-sized JSON object fails intermittently on
+unescaped quotes.
 
 Two stylesheet rules, both asserted by `tests/diagnose-contract.test.mjs`:
 
@@ -266,11 +279,13 @@ inventory and settings. **Do not reintroduce `<datalist>` or `list=`.**
   the catalog is full of compounds whose distinguishing word comes last (`Wheel loader`) and of
   run-together queries (`350glc` → `350G LC`).
 
-`/?machine=<id>` is read **once on mount** against the caller's own fetched list. An id not in
-the list is silently ignored. A picked machine sends `machineId` to `/api/diagnose`, and the
-route trusts it only after `refreshMachineFromIntake` proves ownership *inside its own UPDATE*;
-a foreign or unknown id changes zero rows and falls through to a fuzzy match, so **a diagnosis
-never fails over a bad machine id.**
+`/?machine=<id>` is read **once on mount** against the list the page already fetched; an id
+not in it is silently ignored. A picked machine sends `machineId` to `/api/diagnose`, and the
+route resolves it *inside `refreshMachineFromIntake`'s own UPDATE* rather than in a preceding
+SELECT a concurrent delete could invalidate. An unknown or deleted id therefore changes zero
+rows and falls through to the fuzzy year/make/model match, so **a diagnosis never fails over a
+stale machine id.** (There is no ownership in that statement and no owner column to put in it
+— see "There is no authentication" above.)
 
 ## Fetches on the Settings page never use `try`
 
@@ -314,8 +329,9 @@ Three rules keep it safe to ignore:
 
 - **One-way data flow, enforced by import direction.** `app/lib/observability.ts` imports nothing
   from providers or the data layer. Emitters call it; it never calls them. That is what makes the
-  subsystem rippable — delete the file, the store and one `runChat` emit, and nothing else
-  notices.
+  subsystem rippable: nothing in the request path depends on it, so removing it is a closed list —
+  the module, `db/observability.db`, the `runChat` emit, the `ensureObservabilitySchema` call in
+  `instrumentation.ts`, and the `/api/observability` route with its `/observability` page.
 - **Emits are fire-and-forget and can never throw.** The single telemetry emit lives in `runChat`,
   keyed by the required `ChatRequest.operation` tag, so a new billable call site gets telemetry by
   existing — it just has to name its operation.

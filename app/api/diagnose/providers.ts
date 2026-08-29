@@ -46,9 +46,10 @@ export type ChatRequest = ChatRequestBase &
 type ChatRequestBase = {
   model: string;
   /**
-   * Telemetry label — which billable pathway this call is (`interview`,
-   * `report`, `spec-research`, `spec-format`). Required so every new call
-   * site shows up named on the observability page rather than as a blank.
+   * Telemetry label — which billable pathway this call is. Today: `interview`,
+   * `report`, `spec-research`, `spec-format`, `parts-research`, `parts-format`,
+   * `random-scenario`. Required rather than optional so a new call site shows
+   * up named on the observability page instead of as a blank.
    */
   operation: string;
   /** Provider-neutral: becomes a system message or a top-level field. */

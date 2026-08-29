@@ -34,7 +34,7 @@ export type Fetched<T> = { ok: true; data: T } | { ok: false; message: string };
  * The difference between *"the server refused"* and *"I could not reach the
  * server"* is kept HERE, in the wording, and deliberately not in the type: it
  * changes what to say, never what to do. Promoting it to a second failure arm
- * would hand six call sites a branch to take, and the one that forgot to take
+ * would hand every call site a branch to take, and the one that forgot to take
  * it would be silent in exactly the way this module exists to prevent.
  */
 export const UNREACHABLE_MESSAGE =
@@ -47,8 +47,8 @@ export const GENERIC_FAILURE_MESSAGE = "That request could not be completed.";
  * The server's own `{ error }` sentence, when it sent one worth showing.
  *
  * Every route in this app answers a refusal with `{ error }` (`jsonError`), and
- * those strings are written for the operator — "Reports must be a whole number
- * (0 for unlimited)." beats any wording the client could invent. A blank or
+ * those strings are written for the operator — "That model is not in the
+ * approved catalog." beats any wording the client could invent. A blank or
  * non-string `error` counts as absent so the caller's fallback takes over.
  */
 function serverMessage(body: unknown): string {
@@ -81,8 +81,8 @@ export async function requestJson<T>(
     return { ok: false, message: UNREACHABLE_MESSAGE };
   }
 
-  // One read, and it is allowed to fail. A gateway's HTML, a login page served
-  // for an expired session, and an empty body all arrive here having promised
+  // One read, and it is allowed to fail. A proxy's HTML error page, a body
+  // truncated mid-flight, and an empty body all arrive here having promised
   // otherwise in their Content-Type.
   let body: unknown;
   let parsed = true;

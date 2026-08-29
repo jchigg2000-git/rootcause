@@ -1,9 +1,9 @@
 /** JSON responses for route handlers. */
 
-export const jsonResponse = (body: unknown, status = 200, extraHeaders?: HeadersInit) =>
+export const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...extraHeaders },
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 
 /**

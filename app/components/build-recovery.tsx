@@ -70,7 +70,10 @@ export function BuildRecovery() {
     // the bubble phase.
     const onError = (event: Event) => {
       const target = event.target as (HTMLElement & { src?: string; href?: string }) | null;
-      if (target && isStaleBuildAsset(target.tagName, target.src ?? target.href ?? "")) {
+      if (
+        target &&
+        isStaleBuildAsset(target.tagName, target.src ?? target.href ?? "", window.location.origin)
+      ) {
         recover();
         return;
       }

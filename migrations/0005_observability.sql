@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS llm_telemetry (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   -- ISO-8601 UTC, the same convention every timestamp in this app uses.
   ts            TEXT NOT NULL,
-  -- interview | report | spec-research | spec-format (ChatRequest.operation).
+  -- The ChatRequest.operation tag: interview, report, spec-research,
+  -- spec-format, parts-research, parts-format, random-scenario.
   operation     TEXT NOT NULL,
   provider      TEXT NOT NULL,
   model         TEXT NOT NULL,

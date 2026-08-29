@@ -2321,9 +2321,12 @@ p.ask-question:focus-visible,
   background: var(--paper-soft);
 }
 
-.muted {
-  color: var(--muted);
-  font-size: 0.88rem;
+/* Retry and the escape back to intake sit side by side when a turn fails, and
+   wrap rather than squeeze on a narrow phone. */
+.turn-failed-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* ---------------------------------------------------- header nav */
@@ -3078,8 +3081,8 @@ summary:focus-visible {
 
 /* --- The intake stage's entry points: the two saved-data pages plus spec
    lookup, which moved up here from the Describe workflow step to sit beside
-   the report library and machine inventory. NOT header links — the header is
-   account chrome. Compact
+   the report library and machine inventory. Cards rather than header links:
+   these start a run and are only useful before one is under way. Compact
    icon-beside-text rows, one step lighter than `.workflow` above (no accent
    top rule) so the procedure strip stays the louder of the two. --- */
 .workspace {

@@ -1,6 +1,6 @@
 import { env } from "../../lib/server-env.ts";
 import { jsonError, jsonResponse } from "../../lib/http.ts";
-import { monthlyTokensUsed } from "../../lib/budget.ts";
+import { monthlyTokensUsed } from "../../lib/usage.ts";
 
 /**
  * Month-to-date token spend, from the usage ledger.

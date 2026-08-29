@@ -5,7 +5,8 @@
 There is no sign-in, no account, and no API key of its own. Every page and every
 API route answers whoever asks. Anyone who can reach the port can:
 
-- run diagnoses, spec lookups and parts lookups, **which spend your provider key**;
+- run diagnoses, spec lookups, parts lookups and the "Randomize machine" scenario
+  writer, **all of which spend your provider key**;
 - read every case and report the install has stored;
 - add, edit and delete machines in the inventory;
 - change the server settings, including which model is used.
@@ -18,7 +19,9 @@ every host on the network it is attached to can reach it. If you run the product
 server, put it behind something:
 
 - keep it on `localhost` and reach it over an SSH tunnel;
-- or put a reverse proxy in front and make the proxy do the authentication;
+- or put a reverse proxy in front and make the proxy do the authentication (set
+  `VINEXT_TRUST_PROXY=1` so the server reads `X-Forwarded-Proto` and stops building
+  redirects back to plain HTTP);
 - or keep it on a private network — a VPN, a tailnet — and nothing else.
 
 Do not put it on the public internet. The first thing that finds it will spend your
@@ -60,9 +63,11 @@ the server fetch a URL of your choosing, or to get script into a generated repor
   expose one through a `NEXT_PUBLIC_*` or `VITE_*` variable — they are billable.
 - **Set `DB_DIR` to a persistent path in any deployment.** On a container host the
   default `./db` is replaced on every deploy, which silently discards your data.
-- **The per-diagnosis token ceiling is the only spend limit in the app.** It lives in
-  Settings, defaults to 400,000 tokens, and ends an interview that stops converging.
-  Setting it to 0 disables it, and nothing else is watching.
+- **The per-diagnosis token ceiling is the only spend limit in the app, and it covers one
+  route.** It lives in Settings, defaults to 400,000 tokens, counts per diagnostic case,
+  and is checked in `/api/diagnose` only. Spec lookup, parts lookup and the "Randomize
+  machine" button all place billable calls with no ceiling at all — a single parts lookup
+  was measured at 115,628 + 5,339 tokens. Setting the ceiling to 0 removes even that one.
 - **Photos and field text go to your inference provider** as part of the request.
   Whatever their retention policy is, is the retention policy for that data.
 

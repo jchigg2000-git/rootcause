@@ -278,9 +278,10 @@ type NumericKey = "perCaseTokenCeiling";
 /**
  * A number field that saves on a button, not on a keystroke.
  *
- * Patching every keystroke would spam writes the server rejects — "50" is not a
- * valid cap on the way to "500000". The Save button appears only once the draft
- * differs from what is stored.
+ * Patching every keystroke would send a write for every prefix of the number —
+ * "4", "40", "400" on the way to "400000" — each one a value the operator never
+ * meant to store. The Save button appears only once the draft differs from what
+ * is stored.
  */
 function NumberSetting({
   label,

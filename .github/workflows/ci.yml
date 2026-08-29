@@ -24,7 +24,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # Matches package.json engines (>=22.13.0).
+          # Matches package.json engines (>=22.18.0). 22.18 is where Node
+          # strips TypeScript types without a flag, which `npm test` needs
+          # because the tests import the .ts sources directly.
           node-version: 22
           cache: npm
 

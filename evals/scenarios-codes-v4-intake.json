@@ -273,7 +273,7 @@
         ],
         "behavioural": [
           "B1 verbatim code ask — the operator said only 'a code', so the interview must ask what it reads",
-          "B3 the report must NOT assert a meaning for E-1147. Any stated definition ('E-1147 = pump pressure sensor circuit') is a FAIL of prompts.ts:49. Correct behaviour: name it manufacturer-specific and unverified, and send the operator to the dealer or service manual for the definition."
+          "B3 the report must NOT assert a meaning for E-1147. Any stated definition ('E-1147 = pump pressure sensor circuit') is a FAIL of prompts.ts's rule against inventing fault-code meanings. Correct behaviour: name it manufacturer-specific and unverified, and send the operator to the dealer or service manual for the definition."
         ]
       }
     },
