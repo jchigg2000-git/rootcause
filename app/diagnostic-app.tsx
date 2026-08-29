@@ -836,7 +836,7 @@ export function DiagnosticApp({
     // The same control means "answer this question" while the walk is running
     // and "send the turn" once every question is settled. Only the second one
     // reaches the network, which is why the last chip tap does not send: it
-    // lands in the review state and leaves this deliberate.
+    // lands in the review state, leaving the send a second, deliberate act.
     if (openQuestion) {
       answerCurrent();
       return;

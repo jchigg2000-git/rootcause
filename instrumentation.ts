@@ -67,8 +67,7 @@ export async function register(): Promise<void> {
  * A container host SIGTERMs the old container on every deploy, and that is
  * typically the ONLY way this process ever ends in production. Node's default
  * SIGTERM disposition exits without running any JS, so better-sqlite3 never
- * closed and never
- * checkpointed; see the note on `closeDatabases`.
+ * closed and never checkpointed; see the note on `closeDatabases`.
  *
  * Three things are load-bearing here:
  *

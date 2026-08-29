@@ -17,10 +17,10 @@ import type { MachineRecord, ServiceEntry } from "../api/inventory/contract.ts";
  * never from the header, which is reserved for account details.
  *
  * Full-width expandable cards: the header row is year/make/model, then the
- * operator's label, with Edit pinned far right;
- * expanding shows dated maintenance history, the machine's diagnostics, and
- * the actions. Machines also arrive here automatically — running a diagnostic
- * auto-saves its intake machine.
+ * operator's label, with Edit pinned far right; expanding shows dated
+ * maintenance history, the machine's diagnostics, and the actions. Machines
+ * also arrive here automatically — running a diagnostic auto-saves its intake
+ * machine.
  *
  * Every field is free text, exactly as intake is: the catalog suggests through
  * the shared combobox, it never constrains, so an unlisted machine still goes in.

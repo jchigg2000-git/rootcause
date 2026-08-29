@@ -3,8 +3,8 @@
  *
  * Decided 2026-08-18: the only ways in are a one-time token and the owner's
  * skeleton key. Replaces both Stripe billing and email/password signup: there
- * is no self-serve account, so a code handed out
- * by the owner is the entire customer on-ramp.
+ * is no self-serve account, so a code handed out by the owner is the entire
+ * customer on-ramp.
  *
  * Storage posture matches `sessions` exactly — only the SHA-256 of the code is
  * persisted, so a dump of auth.db cannot be redeemed. The plaintext is returned

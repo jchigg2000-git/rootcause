@@ -133,9 +133,8 @@ const MAX_OPTIONS_PER_QUESTION = 5;
  * intermittent?", "how long has it done this?") — stripping the chips off those
  * costs the operator a keyboard and buys nothing. Re-run
  * `evals/interview-metrics.mjs` over your own run directories after any edit
- * here;
- * it prints every question this fires on, so a false positive is visible
- * without billing a model.
+ * here — it prints every question this fires on, so a false positive is
+ * visible without billing a model.
  *
  * Two notes on specific entries:
  * - Bare `code`/`codes` is in, because in this domain the word has no other

@@ -79,7 +79,9 @@ export const SEMANTIC = {
  * Per-manufacturer report chrome.
  *
  * A report wears the livery of the machine it diagnoses, so a Deere report is
- * distinguishable from a Cat report at a glance across a cab.
+ * distinguishable from a Cat report at a glance across a cab. The theme is
+ * resolved server-side by `themeForMake` from the intake `make` — it is
+ * document chrome, like section numbering, and is never model-supplied.
  * Only the chrome moves — masthead, hazard stripe, rails, chips. Body surface,
  * type and every semantic above stay fixed, so two reports are comparable at a
  * glance and only their livery differs.

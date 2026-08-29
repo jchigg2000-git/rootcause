@@ -12,11 +12,10 @@ type Context = { params: Promise<{ id: string }> };
  * The store holds JSON, not HTML, and `renderReport` is a pure function of it,
  * so this rebuilds the document at the *current* template — a report saved
  * before the livery work landed comes back in its manufacturer's colours.
- * `parseReportJson`
- * is run again rather than trusting the stored blob: it is the same defensive
- * coercion the model output goes through, it is idempotent over its own
- * output, and it means a row written by an older schema cannot reach the
- * template with a shape the template does not expect.
+ * `parseReportJson` is run again rather than trusting the stored blob: it is
+ * the same defensive coercion the model output goes through, it is idempotent
+ * over its own output, and it means a row written by an older schema cannot
+ * reach the template with a shape the template does not expect.
  *
  * The make comes from the case row (server-side intake), never from the report
  * JSON — report colour is document chrome, like section numbering, and is

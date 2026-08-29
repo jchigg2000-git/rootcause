@@ -21,12 +21,13 @@
  *    touch. Neither failure is visible without a screen reader or a phone.
  *
  * 2. The popup is portalled to `document.body` and positioned `fixed`. Three
- *    ancestors clip an in-flow absolute popup — `.app-shell` (globals.css:139,
- *    a horizontal-scroll guard for the skewed wordmark), `.intake-form` (:302,
- *    the rounded-corner clip) and `.settings-card` (:1593). `.inventory-form`
- *    and `.spec-lookup-form` have none, so "simplifying" the portal away breaks
- *    two pages out of four, only near the bottom of a scrolled form. ARIA wiring
- *    is by id reference, so the portal costs nothing in accessibility terms.
+ *    ancestors in `globals.css` clip an in-flow absolute popup, each on its
+ *    own `overflow: hidden` — `.app-shell` (a horizontal-scroll guard for the
+ *    skewed wordmark), `.intake-form` and `.settings-card` (both rounded-corner
+ *    clips). `.inventory-form` and `.spec-lookup-form` have none, so
+ *    "simplifying" the portal away breaks two pages out of four, only near the
+ *    bottom of a scrolled form. ARIA wiring is by id reference, so the portal
+ *    costs nothing in accessibility terms.
  *
  * Free text is the point of these fields — an unlisted make or model is typed
  * straight in — so nothing here ever coerces the value to a catalog entry.
