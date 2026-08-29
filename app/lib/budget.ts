@@ -8,12 +8,13 @@
  * `ChatOutcome.usage` they already hold, so `providers.ts`'s telemetry emit
  * stays the observability subsystem's only feed and the one-way rule holds.
  *
- * ⚠ The calendar-month scheme decided 2026-08-06 — hard block when exhausted,
- * admins exempt, 0 means unlimited — was SUPERSEDED by the access-code grant.
- * `checkBudget` and `budgetExhaustedMessage` below have no callers; entitlement
- * is decided by `decideAccess` in `access-policy.ts` against a code's lifetime
- * allowance, not against a month. What is live here is `monthlyTokensUsed`, a
- * display read behind `/api/usage`, and `monthStartUtc`.
+ * ⚠ The calendar-month budget decided 2026-08-06 — hard block when exhausted,
+ * admins exempt, 0 means unlimited — was SUPERSEDED by the access-code grant,
+ * and its checker was deleted 2026-08-28 rather than left reading as live.
+ * Entitlement is `decideAccess` in `access-policy.ts`, against a code's
+ * lifetime allowance rather than against a month. What remains here is the
+ * ledger write (`recordUsage`), the display read behind `/api/usage`
+ * (`monthlyTokensUsed`), and the `monthStartUtc` / `tokensOf` helpers.
  */
 import usageLedgerSchema from "../../migrations/0009_usage_ledger.sql?raw";
 import type { Database } from "./db.ts";
@@ -80,28 +81,4 @@ export async function recordUsage(
   } catch (ledgerError) {
     console.error(`[budget] failed to record usage: ${(ledgerError as Error).message}`);
   }
-}
-
-export type BudgetCheck =
-  | { allowed: true }
-  | { allowed: false; used: number; budget: number };
-
-/** Admins are exempt; a budget of 0 means unlimited. */
-export async function checkBudget(
-  db: Database,
-  user: { id: string; role: string },
-  budget: number,
-): Promise<BudgetCheck> {
-  if (budget <= 0 || user.role === "admin") return { allowed: true };
-  const used = await monthlyTokensUsed(db, user.id);
-  if (used < budget) return { allowed: true };
-  return { allowed: false, used, budget };
-}
-
-/** The operator-facing refusal, worded once so every billable route matches. */
-export function budgetExhaustedMessage(budget: number): string {
-  return (
-    `You've used this month's allowance of ${budget.toLocaleString("en-US")} tokens. ` +
-    "It resets on the 1st; an administrator can raise it in Settings."
-  );
 }

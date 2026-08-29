@@ -92,8 +92,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /**
  * The model production runs (app_setting.activeModel, checked 2026-08-06).
- * Override per run with --model (e.g. --model claude-opus-5 to eval the
- * report-depth picker's "Deep" tier).
+ * Override per run with --model (e.g. --model claude-opus-5 to eval a
+ * deeper report model than the configured default).
  */
 const modelArg = process.argv.includes("--model")
   ? process.argv[process.argv.indexOf("--model") + 1]

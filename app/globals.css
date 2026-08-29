@@ -178,29 +178,6 @@ button {
   color: var(--gold);
 }
 
-.wordmark-mark {
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  display: inline-flex;
-  font-size: 11px;
-  height: 34px;
-  justify-content: center;
-  letter-spacing: -0.02em;
-  position: relative;
-  transform: skew(-6deg);
-  width: 38px;
-}
-
-.wordmark-mark::after {
-  background: var(--gold);
-  bottom: -4px;
-  content: "";
-  height: 3px;
-  left: 7px;
-  position: absolute;
-  width: 18px;
-}
-
 .header-context {
   color: #c8d4e2;
   font-size: 12px;
@@ -1986,10 +1963,6 @@ p.ask-question:focus-visible,
     width: 100%;
   }
 
-  .report-depth select {
-    width: 100%;
-  }
-
   .report-page {
     padding: var(--space-6) 14px var(--space-7);
   }
@@ -2362,19 +2335,6 @@ p.ask-question:focus-visible,
   display: grid;
   gap: 18px;
   padding-top: 16px;
-}
-
-.settings-toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 0.94rem;
-}
-
-.settings-toggle input {
-  margin-top: 3px;
-  width: 16px;
-  height: 16px;
 }
 
 .settings-actions {
@@ -2854,10 +2814,6 @@ summary:focus-visible {
   display: inline-flex;
   flex: 0 0 auto;
 }
-
-/* The pre-brand `RC` box is gone; these rules are kept inert so any stray
-   markup that still carries the class does not render a ghost badge. */
-.wordmark-mark { display: none; }
 
 /* --- Workflow strip. Brand-board icons, used as drawn.
    The art is black line work with an amber accent, so it is legible on the

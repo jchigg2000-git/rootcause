@@ -67,43 +67,9 @@ export const ensureAuthSchema = createSchemaRunner(authSchema);
 
 // ---------------------------------------------------------------- users
 
-export async function countUsers(db: Database): Promise<number> {
-  const row = await db.prepare("SELECT COUNT(*) AS count FROM users").first<{ count: number }>();
-  return row?.count ?? 0;
-}
-
-export async function countAdmins(db: Database): Promise<number> {
-  const row = await db
-    .prepare("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'")
-    .first<{ count: number }>();
-  return row?.count ?? 0;
-}
-
-export async function listUsers(db: Database): Promise<User[]> {
-  const result = await db
-    .prepare("SELECT * FROM users ORDER BY created_at ASC")
-    .all<UserRow>();
-  return (result.results ?? []).map(toUser);
-}
-
 export async function findUserById(db: Database, id: string): Promise<User | null> {
   const row = await db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<UserRow>();
   return row ? toUser(row) : null;
-}
-
-export async function setUserRole(db: Database, id: string, role: Role): Promise<void> {
-  await db
-    .prepare("UPDATE users SET role = ?, updated_at = ? WHERE id = ?")
-    .bind(role, now(), id)
-    .run();
-}
-
-/** Changing a password invalidates every session that user holds. */
-export async function deleteUser(db: Database, id: string): Promise<void> {
-  await db.batch([
-    db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(id),
-    db.prepare("DELETE FROM users WHERE id = ?").bind(id),
-  ]);
 }
 
 /**
