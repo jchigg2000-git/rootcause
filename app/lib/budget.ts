@@ -1,5 +1,5 @@
 /**
- * Per-user token accounting and the monthly budget it enforces.
+ * Per-user token accounting. This module RECORDS; it does not enforce.
  *
  * The ledger lives in APP_DB, deliberately NOT observability.db: the
  * observability store is prunable exhaust with a one-way data flow and must
@@ -8,10 +8,12 @@
  * `ChatOutcome.usage` they already hold, so `providers.ts`'s telemetry emit
  * stays the observability subsystem's only feed and the one-way rule holds.
  *
- * Semantics, decided 2026-08-06: calendar-month window, hard block when
- * exhausted, admins exempt (but still recorded — the data stays useful), and
- * a budget of 0 means unlimited. The default lives in settings as
- * `userTokenBudget`.
+ * ⚠ The calendar-month scheme decided 2026-08-06 — hard block when exhausted,
+ * admins exempt, 0 means unlimited — was SUPERSEDED by the access-code grant.
+ * `checkBudget` and `budgetExhaustedMessage` below have no callers; entitlement
+ * is decided by `decideAccess` in `access-policy.ts` against a code's lifetime
+ * allowance, not against a month. What is live here is `monthlyTokensUsed`, a
+ * display read behind `/api/usage`, and `monthStartUtc`.
  */
 import usageLedgerSchema from "../../migrations/0009_usage_ledger.sql?raw";
 import type { Database } from "./db.ts";

@@ -273,7 +273,7 @@ test("raisesCodes: a scan ask counts, a warning-lamp ask does not", () => {
   }
 
   for (const text of [
-    // THE case that matters. c6 in runs/2026-08-15-codes-1 asked only this,
+    // THE case that matters. One banked eval case asked only this,
     // got an honest "No" because that machine's code came off a dealer's
     // reader rather than a lamp, and never learned the code existed. Scoring a
     // lamp question as a code ask would hide the exact defect this measures.

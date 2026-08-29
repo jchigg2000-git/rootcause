@@ -211,7 +211,9 @@ suit over the software. It is provided as-is, with no warranty.
 
 ### Trademarks and brand assets
 
-The license above covers copyright and patents in the software only — Apache-2.0 §6 expressly grants no trademark rights. It grants **no rights** to the *RootCause* and *RootCause HME* names, the wordmark, or the brand assets in [`public/icons/`](public/icons/) and [`docs/brand-board.png`](docs/brand-board.png). Those are reserved. A modified or redistributed copy must not use them to identify itself.
+Apache-2.0 §6 expressly grants no trademark rights, and the *RootCause* and *RootCause HME* names and the wordmark are **reserved**. A modified or redistributed copy must not use them, or the brand assets in [`public/icons/`](public/icons/) and [`docs/brand-board.png`](docs/brand-board.png), to identify itself or to suggest endorsement.
+
+To be exact about what that does and does not mean: those asset *files* sit inside the licensed Work and are covered by the same Apache-2.0 grant as the rest of the tree. What is reserved is their use — and the names' use — **as a mark**.
 
 ### Contributions
 

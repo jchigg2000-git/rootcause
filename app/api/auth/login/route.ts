@@ -35,7 +35,7 @@ import {
 const INVALID = "That key or access code is not recognized.";
 
 /**
- * The whole body is `{ credential, remember }` — a skeleton key or a 24-char
+ * The whole body is `{ credential, remember }` — a skeleton key or a 26-char
  * `RC-` code, plus a boolean. 4KB is orders of magnitude more than that needs
  * and still small enough to be free to buffer.
  *

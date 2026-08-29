@@ -1,5 +1,5 @@
--- Dated maintenance history, one row per service entry. Lives in the APP_DB
--- binding, alongside machine. Replaces growth of the legacy machine.maintenance
+-- Dated maintenance history, one row per service entry. Lives in the app
+-- database (APP_DB), alongside machine. Replaces growth of the legacy machine.maintenance
 -- blob, which is kept and rendered as "Notes" — never silently migrated.
 
 CREATE TABLE IF NOT EXISTS machine_service (

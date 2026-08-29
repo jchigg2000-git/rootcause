@@ -22,9 +22,9 @@
  *
  * 2. The popup is portalled to `document.body` and positioned `fixed`. Three
  *    ancestors in `globals.css` clip an in-flow absolute popup, each on its
- *    own `overflow: hidden` — `.app-shell` (a horizontal-scroll guard for the
- *    skewed wordmark), `.intake-form` and `.settings-card` (both rounded-corner
- *    clips). `.inventory-form` and `.spec-lookup-form` have none, so
+ *    own `overflow: hidden` — `.app-shell` (a horizontal-scroll guard),
+ *    `.intake-form` and `.settings-card` (both rounded-corner clips).
+ *    `.inventory-form` and `.spec-lookup-form` have none, so
  *    "simplifying" the portal away breaks two pages out of four, only near the
  *    bottom of a scrolled form. ARIA wiring is by id reference, so the portal
  *    costs nothing in accessibility terms.

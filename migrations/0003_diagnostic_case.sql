@@ -1,4 +1,4 @@
--- Diagnostic case corpus. Lives in the APP_DB binding, alongside app_setting.
+-- Diagnostic case corpus. Lives in the app database (APP_DB), alongside app_setting.
 --
 -- Captures each intake + interview so prompts.ts can be improved against real
 -- cases — where operators get stuck, what turns things ready, what never

@@ -54,14 +54,10 @@ import type { MachineRecord } from "./api/inventory/contract.ts";
 
 const MAX_IMAGE_MEGABYTES = Math.round(MAX_IMAGE_BYTES / (1024 * 1024));
 
-// Report-depth picker shown next to "Generate field report". Mechanic-facing
-// labels stand in for the model names (app/api/diagnose/contract.ts
-// REPORT_MODEL_OPTIONS) — an operator picks how thorough the write-up should
-// be, not which model runs it. Standard's 100s matches the measured
-// medium-effort Sonnet case; Deep is an estimate pending a measured
-// medium-effort Opus run (the 5m29s in git history predates the effort being
-// dropped to medium, so it overstates the current worst case).
-// The countdown estimates against the low end and switches to an
+// How long the "Generate field report" countdown estimates against. 100s is
+// the measured medium-effort Sonnet case; a deeper model runs considerably
+// longer, which is why this estimates against the low end rather than the
+// worst case. The countdown switches to an
 // indeterminate message past zero rather than sit at 0:00 for however much
 // longer the request actually takes.
 const REPORT_ESTIMATE_SECONDS = 100;
@@ -788,7 +784,7 @@ export function DiagnosticApp({
    *  typing was allowed, so nobody typed.
    *
    *  It deliberately dispatches NOTHING. `QUESTION_ANSWERED` rejects an option
-   *  the question never offered (interview-machine.ts:334) so a sentinel is not
+   *  the question never offered (see `QUESTION_ANSWERED`) so a sentinel is not
    *  available, and `QUESTION_SKIPPED` both wipes the typed answer and advances
    *  the cursor — the opposite of what "let me type instead" means. Moving focus
    *  is the whole behaviour.
@@ -1212,7 +1208,7 @@ export function DiagnosticApp({
                   {/* Asked here rather than mid-interview: 69% of measured runs
                       never raised codes at all, and round 1 is always already
                       full at three questions, so there was no slot to take. An
-                      input, not a textarea -- a code is short, and the two
+                      input, not a textarea — a code is short, and the two
                       fields below it are the prose ones. */}
                   <Field
                     label="Fault codes"
@@ -1431,9 +1427,9 @@ export function DiagnosticApp({
                   /* The frozen sent view. The live arrays cleared at
                      TURN_SENT, so this renders from the sentSummaries
                      snapshot: what was just sent, held still for the whole
-                     round trip — never a rewound, blanked Question 1
-                    . On failure it is also the resting state, and
-                     it says the answers are intact. */
+                     round trip — never a rewound, blanked Question 1. On
+                     failure it is also the resting state, and it says the
+                     answers are intact. */
                   <div className="ask-review is-sent">
                     <p className="ask-step" ref={askFocusRef} tabIndex={-1}>
                       {machine.phase === "turn-failed"

@@ -1,4 +1,4 @@
--- Machine inventory. Lives in the APP_DB binding, alongside diagnostic_case.
+-- Machine inventory. Lives in the app database (APP_DB), alongside diagnostic_case.
 --
 -- A user's own record of the machines they look after. Distinct from
 -- diagnostic_case: a case is one diagnosis of one problem at one moment, a

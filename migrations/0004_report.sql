@@ -1,4 +1,4 @@
--- Generated reports. Lives in the APP_DB binding, alongside diagnostic_case.
+-- Generated reports. Lives in the app database (APP_DB), alongside diagnostic_case.
 --
 -- Stores the report JSON, not the rendered HTML — the HTML is a pure function
 -- of the JSON via renderReport() in report-template.ts, so this stays small

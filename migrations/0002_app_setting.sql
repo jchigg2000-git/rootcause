@@ -1,4 +1,4 @@
--- Application settings. Lives in the APP_DB binding.
+-- Application settings. Lives in the app database (APP_DB).
 --
 -- One row per logical setting, value held as JSON text, so adding a setting is
 -- never a migration. The typed AppSettings object is assembled in code with

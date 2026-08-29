@@ -269,9 +269,9 @@ const rollup = {
   "codeStatusGaps (code ask, status not asked)": sum(cases.map((c) => c.codeStatusGaps.length)),
   "codeMentions (not a status gap)": sum(cases.map((c) => c.codeStatusDrawn.length)),
   // UI-7 (c): runs where the interview never asked for codes at all.
-  // The ONLY code metric here that can actually move -- the two above are pinned
-  // to 0 by the parser and are regression pins. Read `codeAsks` via --json to
-  // audit the predicate; read this line for the endpoint.
+  // The endpoint metric. The two above are diagnostics, not targets: neither is
+  // pinned to 0, and post-fix `codeStatusGaps` reads low but nonzero. Read
+  // `codeAsks` via --json to audit the predicate; read this line for the endpoint.
   "codesNeverRaised (UI-7 c endpoint)": `${cases.filter((c) => !c.codesRaised).length}/${cases.length}`,
   totalTokens: cases.reduce(
     (acc, c) => ({

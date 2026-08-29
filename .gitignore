@@ -21,8 +21,9 @@
 # misc
 .DS_Store
 
-# credential shapes — precautionary, nothing here matches today. `.env*` above
-# already covers the secrets this app actually uses; these catch the accident.
+# credential shapes — precautionary, nothing here matches today. The `.env*`
+# rule below already covers the secrets this app actually uses; these catch
+# the accident.
 *.pem
 *.key
 *.p12
@@ -67,3 +68,8 @@ next-env.d.ts
 /.claude/
 /evals/runs/
 /railway.json
+
+# Pulled out of the published tree 2026-08-28: the 350G emissions/EGR tampering
+# inspection guide. It is a different document kind from the field reports and
+# is kept outside the repo.
+/docs/*tampering*

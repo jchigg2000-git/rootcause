@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions(expires_at);
 
--- Login throttling. Worker isolates do not share memory, so attempts cannot
--- live in a process-local map the way they do in the Node references.
+-- Login throttling. Attempts are persisted rather than held in a
+-- process-local map, so a restart cannot clear an attacker's budget.
 CREATE TABLE IF NOT EXISTS login_attempts (
   client_ip   TEXT NOT NULL,
   attempted_at TEXT NOT NULL

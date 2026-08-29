@@ -4,6 +4,8 @@
 //
 //   node evals/judge-rank1.mjs <run-dir>... [--scenarios <path>] [--json]
 //   node evals/judge-rank1.mjs --validate            # agreement vs banked hand scores
+//     ⚠ --validate needs eight named directories under evals/runs/, which is
+//     gitignored and does not ship. Scoring your own run dirs works normally.
 //
 // WHY THIS EXISTS. Scoring this eval is prose matching and has always been
 // judgment done by reading (evals/README.md). That is affordable at 10 runs and

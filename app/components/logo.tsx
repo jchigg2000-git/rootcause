@@ -57,7 +57,7 @@ export function LogoMark({
 }
 
 /** Mark + wordmark, as it appears in the masthead. Sized for the slim
-    56px header — the mark reads fine at 28 because the pulse, not the ring
+    44px header — the mark reads fine at 28 because the pulse, not the ring
     detail, is what carries at masthead scale. */
 export function Wordmark({ className }: { className?: string }) {
   return (

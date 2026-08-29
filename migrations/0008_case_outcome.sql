@@ -1,4 +1,4 @@
--- Which ranked fix actually resolved a case. Lives in the APP_DB binding.
+-- Which ranked fix actually resolved a case. Lives in the app database (APP_DB).
 --
 -- One row per case, upserted — marking a different fix replaces the mark.
 -- problem/action are captured from the stored report at mark time (the server

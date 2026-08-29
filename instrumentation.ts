@@ -1,11 +1,11 @@
 /**
- * vinext's `register()` hook — the Node-process equivalent of what used to
- * happen implicitly inside a Workers isolate.
+ * vinext's `register()` hook — process-wide setup, before any request.
  *
- * Opens the two SQLite files (`db/auth.db`, `db/app.db`), wires them onto
+ * Opens three SQLite files: `db/auth.db` and `db/app.db`, wired onto
  * `server-env.ts`'s `env` object as `AUTH_DB`/`APP_DB` so every existing call
- * site keeps working unchanged, runs both schemas up front, and seeds the
- * admin account. This runs once per process, before any request is served —
+ * site keeps working unchanged, plus the disposable `db/observability.db`. It
+ * runs the schemas up front and ensures the owner account and the skeleton
+ * key. This runs once per process, before any request is served —
  * see `node_modules/vinext/dist/server/instrumentation.js` for App Router
  * baking this in as a top-level await in the generated RSC entry, and its
  * `INSTRUMENTATION_LOCATIONS = ["", "src/"]` for why the project root is a

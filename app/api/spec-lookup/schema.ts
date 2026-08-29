@@ -5,8 +5,8 @@
  * content only, section identity/order/numbering lives here and in
  * `spec-lookup-view.tsx`, and every field is coerced defensively so a model
  * that omits or mistypes something degrades to a readable page rather than a
- * 502. Kept independent of the diagnose route's schema on purpose — the two
- * features don't share a runtime dependency, only a family resemblance.
+ * 502. The shapes are kept independent of the diagnose route's on purpose —
+ * only `repairJson` is shared, so the two contracts can move separately.
  */
 import { repairJson } from "../diagnose/report-schema.ts";
 

@@ -18,9 +18,10 @@ const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url),
  * Nothing else catches this. It builds, it lints, it typechecks, and it deploys
  * to a passing `/api/health`, because startup is entirely unaffected — only
  * teardown breaks. It also passes local testing, because macOS `/bin/sh` DOES
- * exec and collapses the wrapper on its own. A prior `/harden-config` pass read
- * this exact line and blessed the un-`exec`'d form as correct, so an automated
- * rewrite dropping it is a demonstrated failure mode, not a hypothetical one.
+ * exec and collapses the wrapper on its own. An automated config-hardening
+ * pass has already read this exact line and blessed the un-`exec`'d form as
+ * correct, so a rewrite dropping it is a demonstrated failure mode, not a
+ * hypothetical one.
  *
  * Both directions measured on the target image and on macOS, 2026-08-08.
  */

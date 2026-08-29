@@ -77,8 +77,9 @@ export function SettingsView({
   const [settings, setSettings] = useState<Settings | null>(null);
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [providers, setProviders] = useState<Partial<Record<ProviderId, boolean>>>({});
-  // Defaults false so a failed or in-flight load never paints an Upgrade button
-  // the server cannot honour. See the note on BillingCard.
+  // Defaults null, not a zeroed Usage: a failed or in-flight load must render
+  // as "not known yet" rather than as an allowance of nothing, which the
+  // allowance card would otherwise show as spent.
   const [usage, setUsage] = useState<Usage | null>(null);
   const [usageError, setUsageError] = useState("");
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
@@ -241,8 +242,7 @@ export function SettingsView({
               busy={busy}
               patch={patch}
               hint="The backstop behind the report count: total spend one code can ever reach,
-                    whatever it produced. Lifetime, not monthly. 0 means unlimited. 500,000 is an
-                    estimate — no Opus-depth report has been token-measured yet."
+                    whatever it produced. Lifetime, not monthly. 0 means unlimited."
             />
 
             <NumberSetting

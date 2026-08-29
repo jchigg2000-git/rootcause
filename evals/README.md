@@ -60,9 +60,10 @@ reads a banked directory expects one you generated yourself.
   `equipment.{serialPin,market,operatingConditions,recentWork,faultCodes}`) and rides into
   `machineContext()` the same way. **`faultCodes` was added 2026-08-19** with the intake field
   that closed UI-7 (c). Every banked run predates it and reads "not provided", so the whole
-  existing corpus stays comparable; the only file that sets the key is
-  `scenarios-codes-intake.json`, built to measure it and **not yet run**. Per rule 3 that arm
-  needs a same-day matched control on `scenarios-codes.json` v2, where the key is absent.
+  existing corpus stays comparable. Three shipped sets carry the key —
+  `scenarios-codes-intake.json`, `scenarios-codes-v3-intake.json` and
+  `scenarios-codes-v4-intake.json`. Per rule 3 an arm on any of them needs a same-day matched
+  control on `scenarios-codes.json` v2, where the key is absent.
 
   **Every key is optional, and so is the block itself.** A scenario with no `intake` — every scenario as of this writing —
   builds the same "not provided" lines it always has; only a scenario that adds
@@ -134,7 +135,8 @@ reads a banked directory expects one you generated yourself.
   pump connector all stay ask-only. Its `knownEffects` field names, per case, what got easier by
   construction; read it before scoring, and note **c3's red-herring shape is only half-tested**
   here (the intake string carries the stale code's provenance, which is nearly the discriminator
-  itself). The instrument for the owed intake-field arm; **no run against it exists yet.**
+  itself). The instrument for the intake-field arm; runs against it are banked under
+  `evals/runs/`, which is local and does not ship.
 > # ⛔ FREEZE BREAK — 2026-08-20. THE OPERATOR NOW GOES AND LOOKS.
 >
 > **No run from 2026-08-20 onward is comparable to any banked run** unless it passes
@@ -395,7 +397,7 @@ part number / metered reading. Decided 2026-08-15.
   regression pin proving the parser fired, **not** a result.
 - ⚠ **An arm measuring (b) needs a `--sim-free-text` matched control.** Stripping chips inside the
   app is exactly the "improves by construction" case the ablation flag exists to partition — see
-  the comment at `run-eval.mjs:333-341`. Codes-obtained will rise on the simulator whether or not a
+  the `--sim-free-text` comment in `run-eval.mjs`. Codes-obtained will rise on the simulator whether or not a
   real operator would benefit; the unknown that converts it is how often a real operator taps a chip
   that does not fit, which only the stored `diagnostic_case` transcripts can answer.
 - The predicate's precision was checked over **all 1536 questions in the 24 banked run dirs**: 80

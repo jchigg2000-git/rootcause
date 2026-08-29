@@ -17,8 +17,10 @@
  * - **Generated once, never regenerated silently.** If the file exists it is
  *   used as-is. A boot that quietly minted a new key would lock the owner out
  *   of their own deployment with no error.
- * - **Written 0600, and the process refuses a world-readable file** — a key
- *   readable by every account on the host is not a key.
+ * - **Written 0600, and a loose mode is tightened on sight** — the process
+ *   warns and chmods back to 0600 rather than refusing to start. A key
+ *   readable by every account on the host is not a key, but locking the owner
+ *   out of their own deployment over it is worse.
  * - **Compared in constant time.** It is a bearer secret presented over the
  *   network; a byte-by-byte early exit is a timing oracle.
  */

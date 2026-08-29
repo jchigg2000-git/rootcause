@@ -178,7 +178,7 @@ export function TokenManager() {
           <input
             value={label}
             onChange={(event) => setLabel(event.target.value)}
-            placeholder="Miller Equipment"
+            placeholder="Who this code is for"
             maxLength={120}
           />
         </label>

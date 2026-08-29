@@ -878,9 +878,9 @@ button {
 /* Latched imperatively by the scroll effect the moment content actually
    fills the cap — at that instant the reserve applies with zero visual
    delta, and from then on a send SCROLLS the region instead of growing it,
-   so the ask block below stops sliding down the page at every turn boundary
-  . The first paint stays compact — that early void is why the
-   140px floor above exists. */
+   so the ask block below stops sliding down the page at every turn boundary.
+   The first paint stays compact — that early void is why the 140px floor
+   above exists. */
 .messages.is-grown {
   min-height: 46vh;
 }
@@ -1155,9 +1155,9 @@ button {
 
 /* The walk's three programmatic focus targets — the open question, the
    review/sent heading, and the readiness line — get a real indicator: a
-   keyboard user otherwise watches the focus ring vanish on every single step
-  . Higher specificity than the [tabindex="-1"] suppression below,
-   which stays correct for the stage headings it was written for. */
+   keyboard user otherwise watches the focus ring vanish on every single step.
+   Higher specificity than the [tabindex="-1"] suppression below, which stays
+   correct for the stage headings it was written for. */
 p.ask-question:focus-visible,
 .ask-review .ask-step:focus-visible,
 .report-action p:focus-visible {
@@ -1830,7 +1830,7 @@ p.ask-question:focus-visible,
 
 @media (max-width: 720px) {
   /* One override recolours every page margin; the header height needs none —
-     56px is already phone-sized chrome. */
+     44px is already phone-sized chrome. */
   :root {
     --gutter: 18px;
   }
@@ -2178,9 +2178,10 @@ p.ask-question:focus-visible,
     min-height: 60px;
   }
 
-  /* Stays below the chips' 60px — it is the secondary control — but takes the
-     app's 44px gloved-hand floor, which it already has. Named here so a later
-     edit to the chip height does not silently leave this one behind. */
+  /* Stays below the chips' 60px — it is the secondary control — but sits a
+     touch above the app's 44px gloved-hand floor, because at this width it is
+     a full-row target. Named here so a later edit to the chip height does not
+     silently leave this one behind. */
   .ask-escape {
     min-height: 48px;
   }
@@ -3344,13 +3345,13 @@ summary:focus-visible {
    lookup, which moved up here from the Describe workflow step to sit beside
    the report library and machine inventory. NOT header links — the header is
    account chrome. Compact
-   icon-beside-text rows, one step lighter than `.workflow` below (no accent
+   icon-beside-text rows, one step lighter than `.workflow` above (no accent
    top rule) so the procedure strip stays the louder of the two. --- */
 .workspace {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  /* Same measure and gutter as `.intake-section` below, so the three bands of
+  /* Same measure and gutter as `.intake-section` above, so the three bands of
      the intake stage share one left edge. */
   margin: var(--space-5) auto 0;
   max-width: 1240px;
@@ -3360,7 +3361,7 @@ summary:focus-visible {
 /* Drawn in the app's CONTROL vocabulary, not its panel vocabulary — 8px radius,
    resting shadow, hover lift — matching `.primary-button`/`.ghost-button`, so the
    cards read as pressable at rest (incl. touch, where hover never fires). The
-   non-clickable `.workflow` strip below deliberately keeps the flat 2px-radius
+   non-clickable `.workflow` strip above deliberately keeps the flat 2px-radius
    panel look; that contrast is the affordance. */
 .workspace a {
   align-items: start;

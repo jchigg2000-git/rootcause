@@ -1,5 +1,6 @@
 /**
- * Month-to-date token spend per user — the admin Accounts view's column.
+ * Month-to-date token spend per user. No client calls it today; it exists so
+ * spend can be inspected per account without opening the database.
  * Admin-only via ADMIN_API_PREFIXES; `/api/usage` (a viewer's own number)
  * stays separately session-gated.
  */

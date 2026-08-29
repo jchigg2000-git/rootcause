@@ -1,6 +1,11 @@
 /**
  * UXT-6 — break the three-question quota. Stacks ON TOP of UXT-5.
  *
+ * ▶ THIS VARIANT NOW THROWS when run. It composes `uxt-5.mjs`, whose own
+ * `replaceOnce` guard can no longer find the ready/turn-budget rule it patches
+ * — that text left `prompts.ts` when the split shipped. Re-derive both against
+ * the current prompt before using this arm.
+ *
  * `prompts.ts`'s "no more than three" reads as a floor, not a ceiling:
  * 94 of 97 question-bearing turns across all six eval runs asked exactly three,
  * with visible padding — one run asked about oil sheen in the coolant on three

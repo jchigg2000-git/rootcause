@@ -10,7 +10,8 @@
 // content words in both. The point of this file is to stop a human re-typing
 // twenty rank-1 strings, not to decide anything.
 //
-// That is not a hypothetical: run it over evals/runs/2026-08-19-intake-codes and
+// That is not a hypothetical: over the banked 2026-08-19 intake-codes run (local
+// to evals/runs/, which does not ship)
 // it marks c3 "likely ✓ (hit 0.80)" for "Right-side track tension is LOW", which
 // is the exact inversion of the ground truth and was hand-scored ✗. It agreed
 // with the hand score on 5 of those 6. Treat every "likely ✓" on a case whose

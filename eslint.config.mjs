@@ -12,9 +12,8 @@ const eslintConfig = defineConfig([
     "dist/**",
     "out/**",
     "next-env.d.ts",
-    // Agent worktrees live under `.claude/worktrees/` (base CLAUDE.md keeps them
-    // inside the repo so `~/Projects` auto-scanners don't register them as apps).
-    // Each carries a full checkout plus its own `dist/`, which the root-relative
+    // Tooling scratch space, including agent worktrees, lives under `.claude/`.
+    // Each worktree carries a full checkout plus its own `dist/`, which the root-relative
     // `dist/**` above does not reach — left unignored they contribute thousands
     // of findings from built bundles and make `npm run lint` useless as a gate.
     ".claude/**",

@@ -68,9 +68,10 @@ export async function POST(request: Request) {
     return jsonError(`Attach no more than ${settings.maxPhotos} photos.`, 400);
   }
 
-  // The report-depth picker on the intake UI overrides the admin's server
-  // default for this one request only — validateRequest already restricted
-  // it to REPORT_MODEL_OPTIONS, so nothing arbitrary reaches the provider.
+  // `reportModel`, when a caller sends one, overrides the admin's server
+  // default for this one request only — validateRequest already restricted it
+  // to REPORT_MODEL_OPTIONS, so nothing arbitrary reaches the provider. No
+  // client sends it today; the intake picker that did has been removed.
   const model =
     (body.action === "report" && body.reportModel) ||
     settings.activeModel ||

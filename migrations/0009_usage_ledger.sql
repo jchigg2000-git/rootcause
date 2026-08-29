@@ -1,5 +1,5 @@
 -- Per-user token spend, written by the API routes after each model call
--- outcome. Lives in the APP_DB binding, deliberately NOT observability.db:
+-- outcome. Lives in the app database (APP_DB), deliberately NOT observability.db:
 -- the observability store is prunable exhaust with a one-way data flow and
 -- must never be read for enforcement — its 14-day retention would silently
 -- erase the very numbers a monthly budget adds up. This ledger is

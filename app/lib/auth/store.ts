@@ -1,10 +1,9 @@
 /**
- * Auth storage over D1.
+ * Auth storage.
  *
- * The pattern's default is a dedicated SQLite file at db/auth.db. Workers have
- * no filesystem, so the dedicated store becomes a dedicated D1 binding
- * (AUTH_DB) — separate from the application database (APP_DB) so auth data
- * stays decoupled from app data.
+ * A dedicated SQLite file at `db/auth.db`, opened separately from the
+ * application database (`app.db`) so auth data stays decoupled from app data —
+ * the two never share a transaction or a migration.
  */
 import authSchema from "../../../migrations/0001_auth.sql?raw";
 import type { Database } from "../db.ts";
@@ -107,13 +106,6 @@ export async function deleteUser(db: Database, id: string): Promise<void> {
   ]);
 }
 
-/**
- * Verify credentials with uniform timing.
- *
- * An unknown email still runs a full scrypt verification against a throwaway
- * hash, and the caller returns the identical 401 for both cases, so the
- * endpoint cannot be used to enumerate accounts.
- */
 /**
  * The single owner account, backed by the skeleton key rather than a password.
  *
@@ -248,11 +240,6 @@ export async function deleteSession(db: Database, token: string): Promise<void> 
   await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256Hex(token)).run();
 }
 
-// ----------------------------------------------------------- seed admin
-
-/**
- * Seed the first admin, on an empty users table only.
- */
 // -------------------------------------------------------- rate limiting
 
 /**

@@ -214,8 +214,8 @@ State lives in `app/lib/interview-machine.ts`; the panel is the `.ask-block` in
 - **The walk stops at 11 transcript messages, and 11 is not a typo for 12.** A round appends the
   operator's message out and the model's back, so the count is only ever odd. `validateRequest`
   rejects anything over `MAX_TRANSCRIPT_MESSAGES` for **both** actions, so a transcript that
-  reached 13 could produce no document at all. `atTranscriptCap` therefore refuses the send at
-  `MAX - 2`, which keeps every report request inside the limit.
+  reached 13 could produce no document at all. `atTranscriptCap` therefore refuses the send once
+  the transcript reaches `MAX - 1`, which keeps every report request inside the limit.
 - **Retraction is free until the turn sends and impossible after.** Nothing has left the browser
   mid-turn, so reopening a settled question is just a cursor move.
 - **`QUESTION_ANSWERED` commits *and* advances** — that is the tap-to-submit gesture. An omitted

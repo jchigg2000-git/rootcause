@@ -11,6 +11,12 @@
 //   node evals/measure-report.mjs --label baseline
 //   node evals/measure-report.mjs --label uxt-1 --run 2026-08-07-03-50
 //
+// ⚠ NOT RUNNABLE FROM A FRESH CLONE, three ways: --run defaults to a directory
+// under evals/runs/, which is gitignored and does not ship; puppeteer-core is
+// resolved out of a globally-installed package through a hardcoded nvm path;
+// and findChrome() only knows macOS arm64. Pass your own --run and expect to
+// fix the browser lookup for your machine.
+//
 // Writes evals/measurements/<label>.json and prints a summary table. Compare
 // two labels with --against <label>.
 //

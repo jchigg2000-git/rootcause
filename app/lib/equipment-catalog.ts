@@ -397,7 +397,8 @@ export const MODELS_BY_MAKE: Record<string, string[]> = Object.fromEntries(
  *
  * Matching is case- and punctuation-insensitive because the field is free
  * text: "john deere", "John Deere" and "JOHN  DEERE" all resolve. An unknown
- * make returns nothing, which renders as no datalist rather than a wrong one.
+ * make returns nothing, so the combobox offers no suggestions rather than
+ * wrong ones — free text is still accepted either way.
  *
  * `year`, when given, keeps only models whose `[from, to]` range covers it —
  * a name that appears in more than one family (John Deere's "670G") is kept

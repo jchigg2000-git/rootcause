@@ -109,9 +109,9 @@ export type InterviewResult = {
    * The model's own differential reasoning, carried in the transcript but
    * never rendered to the operator.
    *
-   * Optional and INERT in production: `INTERVIEW_SYSTEM_PROMPT` does not ask
-   * for it, so the model does not emit it and every code path below sees
-   * `undefined`. It exists because the operator-facing `message` is forbidden
+   * Wire-only, and live: `INTERVIEW_SYSTEM_PROMPT` asks for it on every turn
+   * and the model emits it, but no display path renders it. It exists because
+   * the operator-facing `message` is forbidden
    * verdict-shaped claims ("this rules out X"), and that message is also the
    * last thing the model said to itself before the report call reads the
    * transcript — measured 2026-08-19, banning the claim there cost 4 pooled
@@ -516,8 +516,8 @@ export const INTERVIEW_JSON_SCHEMA = {
   type: "object",
   additionalProperties: false,
   // `reasoning` is declared but NOT required: `additionalProperties: false`
-  // means a variant prompt that asks for it would otherwise be rejected by the
-  // provider, while production never emits it.
+  // would otherwise reject the field outright, and leaving it unrequired means
+  // a prompt variant that drops it still validates.
   required: ["status", "message", "questions"],
   properties: {
     status: { type: "string", enum: ["needs_more_information", "ready"] },

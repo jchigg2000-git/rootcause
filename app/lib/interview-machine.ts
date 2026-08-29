@@ -115,7 +115,7 @@ export type InterviewAction =
       status: "needs_more_information" | "ready";
       message: string;
       questions: InterviewQuestion[];
-      /** Wire-only; never rendered. Absent in production — see `contract.ts`. */
+      /** Wire-only; asked for every turn, never rendered — see `contract.ts`. */
       reasoning?: string;
       caseId?: string;
     }

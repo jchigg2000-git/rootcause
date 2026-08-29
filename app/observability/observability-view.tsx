@@ -11,8 +11,8 @@ import type { ObservabilityPayload } from "../api/observability/stats";
  * from `GET /api/observability`.
  *
  * Data delivery is fetch-on-mount plus a manual Refresh — not interval
- * polling. Model calls here arrive at household rate (a diagnosis is minutes
- * long), so a poller would mostly re-render an unchanged panel.
+ * polling. Model calls arrive rarely — a diagnosis is minutes long — so a
+ * poller would mostly re-render an unchanged panel.
  */
 export function ObservabilityView({
   userEmail,

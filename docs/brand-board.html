@@ -6,9 +6,11 @@
 <meta name="color-scheme" content="light">
 <title>RootCause HME — Brand system</title>
 <style>
-@font-face{font-family:"Rajdhani";font-style:normal;font-weight:400;font-display:swap;src:url("../public/fonts/rajdhani-400.woff2") format("woff2")}
-@font-face{font-family:"Rajdhani";font-style:normal;font-weight:600;font-display:swap;src:url("../public/fonts/rajdhani-600.woff2") format("woff2")}
-@font-face{font-family:"Rajdhani";font-style:normal;font-weight:700;font-display:swap;src:url("../public/fonts/rajdhani-700.woff2") format("woff2")}
+/* Historical artefact: this board was drawn in Rajdhani, which the app no
+   longer uses and which is not bundled — no webfont ships anywhere in this
+   repo. The @font-face rules that pointed at public/fonts/ were removed; the
+   Rajdhani references below fall back to the system stack, as they already
+   did, since those files never existed here. */
 :root{
   --ink:#1a1a1a;--amber:#ffc107;--grey:#6b7280;--paper:#f7f7f7;
   --panel:#fff;--panel-2:#f1f1f1;--line:#d6d6d6;--line-heavy:#9a9a9a;

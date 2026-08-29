@@ -89,10 +89,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // This route ran billable calls with no actor known until the budget landed
-  // Identity resolution fails open like diagnose's —
-  // behind the default-deny gate a null actor is an AUTH_DB hiccup, not an
-  // anonymous caller — but when the actor IS known, the monthly budget holds.
+  // Identity resolution fails open the way diagnose's does — behind the
+  // default-deny gate a null actor is an AUTH_DB hiccup, not an anonymous
+  // caller. When the actor IS known, the access-code grant is checked below.
   const db = env.APP_DB;
   let actor: User | null = null;
   try {
