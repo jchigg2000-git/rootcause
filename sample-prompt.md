@@ -1,3 +1,33 @@
+> **What this document is.** This is the originating prompt the report contract was derived
+> from — the thing that produced the reference renderings in [`docs/`](docs/). It is kept
+> because the 12-section structure, the evidence-label vocabulary and the disclosure rules are
+> still authoritative and still what the code implements.
+>
+> **It is not a description of the running system,** and it is written in the second person to
+> a model that no longer does most of what it asks. Before relying on any line below, know
+> where the app deliberately diverges:
+>
+> - **Sources are model-recalled, not fetched.** The prompt says to open and inspect each cited
+>   source and to remove broken links. The report call passes a JSON schema and no search tool
+>   — `providers.ts` makes the two mutually exclusive — so nothing is retrieved at generation
+>   time. `prompts.ts` compensates by forbidding invented URLs, but the verification step
+>   described below does not happen. This is the divergence that matters most.
+> - **The model returns JSON; the server renders the HTML.** Phase 2's instruction to build the
+>   file with embedded HTML, CSS and vanilla JavaScript is not what ships. `report-schema.ts`
+>   defines the contract and `report-template.ts` owns the document, stylesheet and numbering.
+> - **Phase 1 never runs.** Year/make/model and the optional fields are collected by the app's
+>   own intake form before the model is called at all.
+> - **There is no clickable link or five-bullet summary.** The client downloads the rendered
+>   document as a blob.
+> - **No architecture diagram block exists.** The content blocks are paragraph, list, table,
+>   callout and cards.
+> - **Two rules here are overridden on purpose:** tables carry no `min-width` (they reflow to
+>   labelled cards rather than scroll sideways), and the ranked section renders as cards at
+>   every width rather than as a grid. Both are pinned by `tests/diagnose-contract.test.mjs`.
+>
+> Section 4's title is "How the relevant systems work" in the shipped contract, and only the
+> ranked section is sortable.
+
 You are an expert heavy-equipment technician and technical researcher. Your job is to identify the most likely problems affecting a specific machine and produce a polished, branded, standalone HTML field report.
 
 ## Phase 1 — collect the machine details
