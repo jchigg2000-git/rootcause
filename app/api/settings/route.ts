@@ -1,33 +1,32 @@
+import type { Database } from "../../lib/db.ts";
 import { env } from "../../lib/server-env.ts";
-import { clientIp } from "../../lib/auth/cookies.ts";
-import { currentUser, jsonError, jsonResponse } from "../../lib/auth/current-user.ts";
-import { recordAuthEvent } from "../../lib/auth/store.ts";
+import { jsonError, jsonResponse } from "../../lib/http.ts";
 import { MODEL_CATALOG, PROVIDERS, applySettingsPatch, getSettings } from "../../lib/settings.ts";
 import { providerConfigured } from "../diagnose/providers.ts";
 
 /**
  * Which providers have credentials, as booleans.
  *
- * Deliberately not a masked prefix or a key length: an admin needs to know
+ * Deliberately not a masked prefix or a key length: the operator needs to know
  * *whether* a provider will work, and nothing about the secret itself should
  * cross the wire. `HF_TOKEN` and `ANTHROPIC_API_KEY` are billable.
- *
  */
 const providerStatus = () =>
   Object.fromEntries(PROVIDERS.map((provider) => [provider, providerConfigured(provider)]));
 
-/** Readable by any signed-in user; the gate rejects anonymous callers. */
+/** GET and PUT answer with the same shape, so the client has one type to hold. */
+const payload = async (db: Database) => ({
+  settings: await getSettings(db),
+  catalog: MODEL_CATALOG,
+  providers: providerStatus(),
+});
+
 export async function GET() {
   const db = env.APP_DB;
   if (!db) return jsonError("Settings storage is not configured on the server.", 500);
-  return jsonResponse({
-    settings: await getSettings(db),
-    catalog: MODEL_CATALOG,
-    providers: providerStatus(),
-  });
+  return jsonResponse(await payload(db));
 }
 
-/** Admin-only — enforced in the gate (`isAdminWrite`), not here. */
 export async function PUT(request: Request) {
   const db = env.APP_DB;
   if (!db) return jsonError("Settings storage is not configured on the server.", 500);
@@ -46,20 +45,5 @@ export async function PUT(request: Request) {
   const result = await applySettingsPatch(db, patch);
   if (!result.ok) return jsonError(result.error, 400);
 
-  if (result.changed.length && env.AUTH_DB) {
-    const actor = await currentUser(request);
-    await recordAuthEvent(
-      env.AUTH_DB,
-      "settings.updated",
-      actor?.email ?? null,
-      clientIp(request),
-      result.changed.join(", "),
-    );
-  }
-
-  return jsonResponse({
-    settings: await getSettings(db),
-    catalog: MODEL_CATALOG,
-    providers: providerStatus(),
-  });
+  return jsonResponse(await payload(db));
 }

@@ -55,7 +55,7 @@ function slugify(value: string) {
   );
 }
 
-export function LibraryView({ userEmail, isAdmin }: { userEmail: string; isAdmin: boolean }) {
+export function LibraryView() {
   const [cases, setCases] = useState<LibraryEntry[]>([]);
   // Starts true: the page mounts straight into its first load.
   const [loading, setLoading] = useState(true);
@@ -220,9 +220,7 @@ export function LibraryView({ userEmail, isAdmin }: { userEmail: string; isAdmin
         </Link>
         <div>
           <h1>Report library</h1>
-          <p>
-            Signed in as {userEmail} · {isAdmin ? "Administrator" : "Viewer"}
-          </p>
+          <p>Every diagnosis this install has run</p>
         </div>
         <Link className="settings-back" href="/">Back to diagnostics</Link>
       </header>

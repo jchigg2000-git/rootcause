@@ -9,7 +9,6 @@
 
 CREATE TABLE IF NOT EXISTS case_outcome (
   case_id  TEXT PRIMARY KEY REFERENCES diagnostic_case(id) ON DELETE CASCADE,
-  user_id  TEXT NOT NULL,
   rank     INTEGER NOT NULL,
   problem  TEXT NOT NULL,
   action   TEXT NOT NULL,

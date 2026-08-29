@@ -7,13 +7,8 @@ import {
 } from "./prompts";
 import { clean, validateRequest, type PartsLookupRequest } from "./contract";
 import { parsePartsJson, PARTS_JSON_SCHEMA } from "./schema";
-import { currentUser, jsonError, jsonResponse } from "../../lib/auth/current-user.ts";
-import {
-  ACCESS_UNVERIFIABLE_MESSAGE,
-  accessDeniedMessage,
-  checkAccess,
-  recordGrantUsage,
-} from "../../lib/access.ts";
+import { jsonError, jsonResponse } from "../../lib/http.ts";
+import { recordUsage } from "../../lib/budget.ts";
 import { getMachine } from "../../lib/inventory.ts";
 import type { MachineRecord } from "../inventory/contract.ts";
 import { providerConfigured, runChat, type ChatRequest } from "../diagnose/providers.ts";
@@ -22,8 +17,12 @@ const MAX_REQUEST_BYTES = 16 * 1024;
 
 /**
  * Pinned, not `settings.activeModel` — parts lookup always runs on Sonnet.
- * Grounded search is Anthropic-only anyway, and this keeps a $-per-click
- * surface from silently following the admin's report model up to Opus pricing.
+ * Grounded search is Anthropic-only anyway, and this keeps a per-click billable
+ * surface from silently following the report model up to Opus pricing.
+ *
+ * A lookup is genuinely expensive: one measured run spent 115,628 tokens on
+ * research plus 5,339 formatting, to return three priced listings. Budget for
+ * that before widening this surface.
  */
 const PARTS_MODEL = "claude-sonnet-5";
 
@@ -61,13 +60,7 @@ export async function POST(request: Request) {
   const db = env.APP_DB;
   if (!db) return jsonError("Inventory storage is not configured on the server.", 500);
 
-  // Identity is required here, unlike diagnose: the lookup is scoped to one of
-  // the caller's own machines, and machine ownership cannot be proven for an
-  // unknown caller.
-  const user = await currentUser(request);
-  if (!user) return jsonError("Sign in to look up parts.", 401);
-
-  const machine = await getMachine(db, user.id, clean(body.machineId));
+  const machine = await getMachine(db, clean(body.machineId));
   if (!machine) return jsonError("That machine is no longer in your inventory.", 404);
 
   if (!providerConfigured("anthropic")) {
@@ -77,24 +70,11 @@ export async function POST(request: Request) {
     );
   }
 
-  try {
-    const access = await checkAccess(db, user);
-    if (!access.allowed) {
-      return jsonError(accessDeniedMessage(access), 429);
-    }
-  } catch (budgetError) {
-    // Refuse rather than fall through. A parts lookup is the most expensive
-    // single click in the app, so gifting one on a storage error is the worst
-    // place to fail open.
-    console.error(`[parts-lookup] entitlement unreadable: ${(budgetError as Error).message}`);
-    return jsonError(ACCESS_UNVERIFIABLE_MESSAGE, 503);
-  }
-
   const partQuery = clean(body.partQuery);
 
   // Phase 1 — grounded research.
   const research = await runChat(buildResearchRequest(machine, partQuery));
-  if (research.ok) void recordGrantUsage(db, user, "parts-research", research.usage);
+  if (research.ok) void recordUsage(db, "parts-research", research.usage);
   if (!research.ok) {
     if (research.detail) console.error(`[parts-lookup] research upstream: ${research.detail}`);
     return jsonError(research.message, research.status);
@@ -102,7 +82,7 @@ export async function POST(request: Request) {
 
   // Phase 2 — schema-constrained transcription.
   const outcome = await runChat(buildFormatRequest(machine, partQuery, research.content));
-  if (outcome.ok) void recordGrantUsage(db, user, "parts-format", outcome.usage);
+  if (outcome.ok) void recordUsage(db, "parts-format", outcome.usage);
   if (!outcome.ok) {
     if (outcome.detail) console.error(`[parts-lookup] format upstream: ${outcome.detail}`);
     return jsonError(outcome.message, outcome.status);

@@ -1,9 +1,9 @@
 /**
  * Shared request contract for `/api/diagnose`.
  *
- * Pure functions and constants only — no Cloudflare or DOM imports — so both
- * the Worker route and the client component can hold the same limits, and so
- * the whole contract is testable under plain `node --test`.
+ * Pure functions and constants only — no server or DOM imports — so the route
+ * and the client component hold the same limits, and the whole contract is
+ * testable under plain `node --test`.
  */
 
 export const MAX_IMAGES = 4;
@@ -27,9 +27,9 @@ export type Action = "interview" | "report";
 
 /**
  * The only two models a report request may pick directly. A narrow literal
- * union rather than the full admin catalog (`app/lib/settings.ts`) — this is
+ * union rather than the full model catalog (`app/lib/settings.ts`) — this is
  * an operator-facing thoroughness choice on one request, not the server-wide
- * default an admin sets in Settings.
+ * default chosen in Settings.
  */
 export const REPORT_MODEL_OPTIONS = ["claude-sonnet-5", "claude-opus-5"] as const;
 export type ReportModel = (typeof REPORT_MODEL_OPTIONS)[number];

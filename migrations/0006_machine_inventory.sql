@@ -1,16 +1,11 @@
 -- Machine inventory. Lives in the app database (APP_DB), alongside diagnostic_case.
 --
--- A user's own record of the machines they look after. Distinct from
+-- The operator's own record of the machines they look after. Distinct from
 -- diagnostic_case: a case is one diagnosis of one problem at one moment, a
 -- machine is a durable thing that outlives every case run against it.
---
--- user_id is NOT NULL here, unlike diagnostic_case's attribution-only column:
--- an inventory row with no owner is unreachable by design, since every read
--- filters on the caller. A machine nobody can list is a leak, not a record.
 
 CREATE TABLE IF NOT EXISTS machine (
   id               TEXT PRIMARY KEY,
-  user_id          TEXT NOT NULL,
   created_at       TEXT NOT NULL,
   updated_at       TEXT NOT NULL,
   -- Identity, mirroring the intake fieldset so a row can prefill a diagnosis
@@ -33,5 +28,9 @@ CREATE TABLE IF NOT EXISTS machine (
   label            TEXT
 );
 
-CREATE INDEX IF NOT EXISTS machine_user_id_idx ON machine(user_id);
 CREATE INDEX IF NOT EXISTS machine_updated_at_idx ON machine(updated_at);
+
+-- Dropped with the accounts this app used to have. It has to go before the
+-- column can: SQLite refuses DROP COLUMN while an index still covers it, and
+-- that drop is the guard in inventory.ts, which runs after this file.
+DROP INDEX IF EXISTS machine_user_id_idx;

@@ -2177,59 +2177,6 @@ p.ask-question:focus-visible,
   }
 }
 
-/* ---------------------------------------------------------------- auth */
-
-.auth-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 32px 20px;
-  background: linear-gradient(160deg, var(--green-950), var(--green-800));
-}
-
-.auth-card {
-  width: min(440px, 100%);
-  background: var(--paper-strong);
-  border-radius: var(--radius-lg);
-  padding: clamp(24px, 5vw, 38px);
-  box-shadow: var(--shadow);
-}
-
-.auth-head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.auth-head h1 {
-  margin: 2px 0 0;
-  font-size: 1.7rem;
-  color: var(--green-950);
-}
-
-.auth-lede {
-  color: var(--muted);
-  margin: 14px 0 22px;
-}
-
-.auth-form {
-  display: grid;
-  gap: 16px;
-}
-
-.auth-remember {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 0.92rem;
-  color: var(--muted);
-}
-
-.auth-remember input {
-  width: 16px;
-  height: 16px;
-}
-
 /* ------------------------------------------------------------ settings */
 
 .settings-shell {
@@ -2359,112 +2306,7 @@ p.ask-question:focus-visible,
   margin: 0;
 }
 
-/* -------------------------------------------------------- access codes */
-
-/* Replaced the accounts table on 2026-08-18: there are no accounts to manage
-   any more, only codes to issue and revoke. */
-
-.token-manager {
-  padding-top: 16px;
-  display: grid;
-  gap: 22px;
-}
-
-/* The issued code is shown exactly once — only its hash is stored — so this
-   panel is deliberately loud and does not auto-dismiss. */
-.token-issued {
-  border: 2px solid var(--accent);
-  border-radius: 10px;
-  padding: 16px;
-  background: var(--paper-strong);
-  display: grid;
-  gap: 10px;
-}
-
-.token-issued-title {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.token-issued-code {
-  font-family: var(--mono);
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  word-break: break-all;
-  user-select: all;
-}
-
-.token-issued-note {
-  margin: 0;
-  font-size: 0.84rem;
-  color: var(--muted);
-}
-
-.token-issued-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.token-form {
-  display: grid;
-  gap: 14px;
-  align-items: end;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-}
-
-.token-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.token-row {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 12px 14px;
-  display: grid;
-  gap: 6px;
-}
-
-.token-row-main {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.token-row-meta {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.token-status {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  padding: 2px 8px;
-}
-
-.token-status.ok { color: var(--ok); }
-.token-status.info { color: var(--info); }
-.token-status.warn { color: var(--warn); }
-.token-status.danger { color: var(--danger); }
-
-/* The shared button shape the token console uses; matches the settings
-   actions it sits beside. */
-.button,
+/* The secondary button shape, beside the primary one in a settings form. */
 .settings-actions button:not(.primary-button) {
   border: 1px solid var(--line);
   background: var(--paper-strong);
@@ -2475,24 +2317,8 @@ p.ask-question:focus-visible,
   cursor: pointer;
 }
 
-.button:hover,
 .settings-actions button:not(.primary-button):hover {
   background: var(--paper-soft);
-}
-
-.button.primary {
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.button.ghost {
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
-.button.ghost:hover {
-  background: var(--danger-soft);
 }
 
 .muted {
@@ -2500,9 +2326,9 @@ p.ask-question:focus-visible,
   font-size: 0.88rem;
 }
 
-/* ------------------------------------------------- header account nav */
+/* ---------------------------------------------------- header nav */
 
-.header-account {
+.header-nav {
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -2510,46 +2336,21 @@ p.ask-question:focus-visible,
   font-size: 0.85rem;
 }
 
-/* These three sit on the dark masthead, not on a light card. They used to use
-   --muted / --green-700 / --paper-strong, which are light-surface tokens: the
-   email and the Settings link fell to ~1.6:1 on the chrome, and Sign out
-   rendered as a white pill floating in the dark bar. */
-.header-user {
-  color: #b9c8d8;
-  max-width: 26ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.header-account a {
+/* These sit on the dark masthead, not on a light card, so they cannot use the
+   light-surface tokens: --green-700 on the chrome measured ~1.6:1. */
+.header-nav a {
   color: #fff;
   text-decoration-color: rgba(255, 255, 255, 0.45);
   text-underline-offset: 3px;
 }
 
-.header-account a:hover {
+.header-nav a:hover {
   text-decoration-color: var(--accent);
 }
 
-/* Radius, height and padding are owned here, and agree with each other. The
-   Controls layer further down supplies the mono/uppercase treatment. */
-.header-account button {
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: var(--chrome-2);
-  color: #fff;
-  padding: 0 14px;
-  cursor: pointer;
-}
-
-.header-account button:hover {
-  background: var(--chrome-3);
-  border-color: var(--accent);
-}
-
-/* At phone widths the account nav overflowed the fixed 44px bar and pushed
-   Sign out off-screen. Compression alone cannot fit wordmark + admin links +
-   button into 390px, so the bar is allowed to wrap to a second row instead of
+/* At phone widths the nav overflowed the fixed 44px bar and pushed its last
+   link off-screen. Compression alone cannot fit the wordmark, the context line
+   and the links into 390px, so the bar wraps to a second row instead of
    clipping (2026-08-06). */
 @media (max-width: 720px) {
   .site-header {
@@ -2560,12 +2361,10 @@ p.ask-question:focus-visible,
     padding-bottom: calc(var(--stripe-h) + 8px);
     row-gap: 2px;
   }
-  .header-account {
+  .header-nav {
     font-size: 0.75rem;
     gap: 10px;
   }
-  .header-account button { padding: 2px 8px; }
-  .header-user { display: none; }
   .wordmark { font-size: 16px; }
   .settings-head { flex-wrap: wrap; }
   .settings-back { margin-left: 0; }
@@ -2672,9 +2471,7 @@ h3 { font-weight: 700; line-height: 1.2; }
 
 /* --- Controls. Mono, uppercase, 44px minimum — a gloved-hand target. --- */
 .primary-button,
-.settings-back,
-.button,
-.header-account button {
+.settings-back {
   border-radius: var(--radius);
   font-family: var(--mono);
   font-weight: 700;
@@ -2743,7 +2540,6 @@ summary:focus-visible {
 .report-frame-shell,
 .report-frame,
 .intake-form,
-.auth-card,
 .conversation-panel,
 .settings-card,
 .photo-picker,
@@ -2800,9 +2596,8 @@ summary:focus-visible {
   padding-bottom: 2px;
 }
 
-/* Auth and settings heads centre the mark, so it needs its own colour there —
-   the ring is currentColor and those surfaces are light. */
-.auth-head .logo-mark,
+/* Sub-page heads centre the mark, so it needs its own colour there — the ring
+   is currentColor and those surfaces are light. */
 .settings-head .logo-mark {
   color: var(--brand-ink);
 }
@@ -3146,22 +2941,6 @@ summary:focus-visible {
 }
 
 .obs-toolbar p {
-  margin: 0;
-}
-
-.obs-denied {
-  background: var(--paper-strong);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-}
-
-.obs-denied h2 {
-  margin: 0 0 8px;
-}
-
-.obs-denied p {
-  color: var(--muted);
   margin: 0;
 }
 

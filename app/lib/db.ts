@@ -1,12 +1,10 @@
 /**
- * SQLite storage, replacing the D1 bindings the app used under Workers.
+ * SQLite storage.
  *
  * `openDatabase()` opens a real file with better-sqlite3 and wraps it in an
- * async-shaped adapter that presents the exact D1 subset the codebase already
- * calls (`prepare().bind().first/all/run()`, `batch()`) so the ~35 existing
- * call sites across `sql.ts`, `settings.ts`, and `auth/store.ts` did not have
- * to change. Only `server-env.ts` and the D1-typed call sites needed their
- * type annotation swapped from `D1Database` to `Database`.
+ * async-shaped adapter presenting the small statement subset the codebase
+ * calls — `prepare().bind().first/all/run()` and `batch()` — so every storage
+ * call site reads the same and none of them touches better-sqlite3 directly.
  *
  * Pragmas: WAL journal mode, a 5s busy timeout so concurrent writers retry
  * instead of throwing, and foreign keys on.
@@ -15,7 +13,7 @@ import BetterSqlite3 from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 
-/** Shape returned by `.run()` — mirrors D1's `{ meta: { changes } }`. */
+/** Shape returned by `.run()`. */
 export interface RunResult {
   meta: {
     changes: number;
@@ -23,7 +21,7 @@ export interface RunResult {
   };
 }
 
-/** The D1 prepared-statement subset this codebase calls. */
+/** The prepared-statement surface this codebase calls. */
 export interface PreparedStatement {
   bind(...args: unknown[]): PreparedStatement;
   first<T = unknown>(): Promise<T | null>;
@@ -31,7 +29,7 @@ export interface PreparedStatement {
   run(): Promise<RunResult>;
 }
 
-/** The D1 database subset this codebase calls. Replaces the `D1Database` global type. */
+/** The database surface this codebase calls. */
 export interface Database {
   prepare(sql: string): PreparedStatement;
   batch(statements: PreparedStatement[]): Promise<RunResult[]>;
@@ -45,9 +43,9 @@ export interface Database {
  * called by `createSchemaRunner` (`app/lib/sql.ts`) for every statement in a
  * migration file up front, before any of them execute, so a later statement
  * that references an object an earlier statement creates in the same batch —
- * e.g. `CREATE INDEX ... ON sessions(...)` after `CREATE TABLE sessions` —
- * would fail to prepare against the not-yet-existing table if preparation ran
- * eagerly. D1's own `.prepare()` is lazy for the same reason; this mirrors it.
+ * e.g. `CREATE INDEX … ON machine(…)` after `CREATE TABLE machine` — would
+ * fail to prepare against the not-yet-existing table if preparation ran
+ * eagerly.
  *
  * `runSync()` is the synchronous core every other method funnels through —
  * `run()` just wraps it in a resolved promise, and `Database.batch()` calls it
@@ -100,9 +98,9 @@ class SqliteDatabase implements Database {
    * `better-sqlite3`'s `.transaction()` wraps the callback in BEGIN/COMMIT
    * (and ROLLBACK on throw) using the same synchronous connection, so a
    * failure partway through — e.g. the schema runner hitting a bad statement,
-   * or a password change whose session wipe fails — leaves no partial write.
-   * `Promise.all` of separate `.run()`s would look identical on the happy
-   * path and only diverge under partial failure.
+   * or a service entry whose machine timestamp bump fails — leaves no partial
+   * write. `Promise.all` of separate `.run()`s would look identical on the
+   * happy path and only diverge under partial failure.
    */
   async batch(statements: PreparedStatement[]): Promise<RunResult[]> {
     const asStatements = statements as Statement[];
@@ -130,8 +128,8 @@ const openHandles = new Set<BetterSqlite3.Database>();
 /**
  * Open a SQLite file, creating its parent directory if needed.
  *
- * `db/` is gitignored — each machine grows its own `auth.db` / `app.db` on
- * first run via `instrumentation.ts`.
+ * `db/` is gitignored — each machine grows its own `app.db` and
+ * `observability.db` on first run via `instrumentation.ts`.
  */
 export function openDatabase(filePath: string): Database {
   const dir = path.dirname(filePath);
@@ -170,8 +168,8 @@ export type ShutdownReport = {
  * - **It lowers `busy_timeout` first.** The open-time 5s is tuned for request
  *   handlers. On this path it is a liability: the host overlaps containers, so
  *   the incoming one is already opening and writing these same files while the
- *   outgoing one is being signalled, and three handles waiting out 5s each
- *   would spend 15s inside a signal handler documented as non-blocking — long
+ *   outgoing one is being signalled, and every handle waiting out its own 5s
+ *   in turn would sit inside a signal handler documented as non-blocking long
  *   enough for the host to escalate to SIGKILL mid-checkpoint. One second is
  *   enough to win an uncontended checkpoint and cheap to lose a contended one.
  * - **It reports busy, not just throws.** `wal_checkpoint(TRUNCATE)` answers

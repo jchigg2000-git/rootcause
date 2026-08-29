@@ -2,7 +2,7 @@
  * Machine-inventory request contract.
  *
  * Deliberately free of the database and of the `?raw` migration import that
- * `app/lib/inventory.ts` carries — same reason `app/lib/auth/paths.ts` is kept
+ * `app/lib/inventory.ts` carries — the same reason every testable predicate is kept
  * clean. This is the piece where a coercion mistake writes junk into a user's
  * record, so it has to be checkable without a running server, and the tests
  * import `.ts` directly under Node's type stripping (`npm test`), which cannot

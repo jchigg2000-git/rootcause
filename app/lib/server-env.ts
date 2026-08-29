@@ -1,18 +1,14 @@
 /**
  * Server environment, read from the Node process.
  *
- * Replaces `import { env } from "cloudflare:workers"`, which only resolves
- * inside workerd. Same shape, so call sites did not have to change.
- *
  * The database handles are filled in by `instrumentation.ts` at process start.
- * Until then they are undefined, and `gate()` already answers a missing
- * AUTH_DB with a 500 rather than an unguarded crash.
+ * Until then they are undefined, and every route that needs one answers a
+ * missing handle with a 500 rather than an unguarded crash.
  */
 
 import type { Database } from "./db.ts";
 
 export type ServerEnv = {
-  AUTH_DB?: Database;
   APP_DB?: Database;
   /** LLM telemetry store (db/observability.db) — metrics only, prunable. */
   OBS_DB?: Database;
@@ -20,10 +16,9 @@ export type ServerEnv = {
   HF_MODEL?: string;
   HF_BASE_URL?: string;
   ANTHROPIC_API_KEY?: string;
-  COOKIE_SECURE?: string;
   ENVIRONMENT?: string;
-  /** Directory holding auth.db, app.db and skeleton.key. Must be a mounted
-   *  volume in any deployment, or the owner's key is regenerated every deploy. */
+  /** Directory holding the SQLite files. Must be a persistent path in any
+   *  deployment, or every restart starts with an empty database. */
   DB_DIR?: string;
 };
 
@@ -39,9 +34,6 @@ export const env: ServerEnv = {
   },
   get ANTHROPIC_API_KEY() {
     return process.env.ANTHROPIC_API_KEY;
-  },
-  get COOKIE_SECURE() {
-    return process.env.COOKIE_SECURE;
   },
   get ENVIRONMENT() {
     return process.env.ENVIRONMENT;

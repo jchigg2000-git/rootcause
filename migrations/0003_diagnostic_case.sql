@@ -8,9 +8,6 @@
 
 CREATE TABLE IF NOT EXISTS diagnostic_case (
   id                 TEXT PRIMARY KEY,
-  -- Who ran it. Attribution only — nullable so a storage/auth hiccup never
-  -- blocks the write the diagnosis itself depends on.
-  user_id            TEXT,
   created_at         TEXT NOT NULL,
   updated_at         TEXT NOT NULL,
   equipment_year     TEXT NOT NULL,
@@ -29,8 +26,8 @@ CREATE TABLE IF NOT EXISTS diagnostic_case (
   turn_count         INTEGER NOT NULL DEFAULT 0,
   status             TEXT NOT NULL DEFAULT 'interviewing',
   -- The inventory machine this case ran against, set by intake auto-save.
-  -- Attribution only, like user_id: nullable, and a deleted machine leaves it
-  -- dangling harmlessly (joins simply return nothing). Fresh databases get the
+  -- Attribution only: nullable, and a deleted machine leaves it dangling
+  -- harmlessly (joins simply return nothing). Fresh databases get the
   -- column here; grown ones get it from the createColumnGuard in cases.ts —
   -- this file re-runs on every boot and SQLite has no ADD COLUMN IF NOT EXISTS,
   -- so a bare ALTER here would fail every boot after its first.

@@ -1,28 +1,18 @@
 import { env } from "../../lib/server-env.ts";
-import {
-  countAuthEvents24h,
-  pruneAuthEvents,
-  pruneTelemetry,
-  readRecentAuthEvents,
-  readTelemetryWindow,
-} from "../../lib/observability.ts";
+import { pruneTelemetry, readTelemetryWindow } from "../../lib/observability.ts";
 import { emptyPayload, rollupByOperation, summarizeTelemetry } from "./stats";
 
-/** Both tables are read newest-first; this caps what the panel renders. */
+/** Telemetry is read newest-first; this caps what the panel renders. */
 const RECENT_LIMIT = 40;
 
 /**
- * The one observability read: summary KPIs + per-operation rollup + recent
- * calls + recent audit events, in a single payload.
+ * The one observability read: summary KPIs, per-operation rollup, and recent
+ * calls, in a single payload.
  *
- * Admin-only via the global gate — this path is in `ADMIN_API_PREFIXES`
- * (`app/lib/auth/paths.ts`), so `middleware.ts` has already answered 401/403
- * before this handler runs; there is nothing to re-check here.
- *
- * The two halves degrade independently and neither may ever 500 the panel:
- * a broken telemetry store still shows the audit log, a broken auth store
- * still shows telemetry, and both broken returns the zeroed payload with a
- * 200. The panel must never go down on its own telemetry.
+ * A broken or absent telemetry store returns the zeroed payload with a 200,
+ * never a 500. The panel must never go down on its own telemetry — the store
+ * is disposable by design, and a page that 500s over deleted exhaust would be
+ * reporting a fault the app does not have.
  */
 export async function GET() {
   const payload = emptyPayload();
@@ -38,18 +28,6 @@ export async function GET() {
       payload.recentCalls = window.slice(0, RECENT_LIMIT);
     } catch (error) {
       console.error(`[observability] telemetry read failed: ${String(error).slice(0, 200)}`);
-    }
-  }
-
-  if (env.AUTH_DB) {
-    try {
-      await pruneAuthEvents(env.AUTH_DB);
-      const { logins, failures } = await countAuthEvents24h(env.AUTH_DB);
-      payload.summary.logins24h = logins;
-      payload.summary.failedLogins24h = failures;
-      payload.recentEvents = await readRecentAuthEvents(env.AUTH_DB, RECENT_LIMIT);
-    } catch (error) {
-      console.error(`[observability] audit read failed: ${String(error).slice(0, 200)}`);
     }
   }
 

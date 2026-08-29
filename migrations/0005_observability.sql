@@ -1,14 +1,14 @@
 -- LLM call telemetry. Lives in its own file (db/observability.db, opened by
 -- instrumentation.ts) — metrics are prunable exhaust with a 14-day retention,
--- kept apart from the auth and application corpora so the prune-on-read
--- deletes can only ever touch metrics.
+-- kept apart from the application corpus so the prune-on-read deletes can only
+-- ever touch metrics.
 --
 -- One row per model call, emitted by `runChat` (app/api/diagnose/providers.ts)
 -- through `recordLlmTelemetry` (app/lib/observability.ts). Numbers only:
 -- no prompt or transcript content is ever written here.
 CREATE TABLE IF NOT EXISTS llm_telemetry (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  -- ISO-8601 UTC, same convention as auth.db's auth_events.occurred_at.
+  -- ISO-8601 UTC, the same convention every timestamp in this app uses.
   ts            TEXT NOT NULL,
   -- interview | report | spec-research | spec-format (ChatRequest.operation).
   operation     TEXT NOT NULL,

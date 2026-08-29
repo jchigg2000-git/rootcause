@@ -11,7 +11,6 @@ import {
   useDefaultMachine,
   type DefaultMachine,
 } from "../lib/prefs.ts";
-import { TokenManager } from "./token-manager";
 import { requestJson } from "../lib/request.ts";
 import {
   DEFAULT_MARKET,
@@ -27,8 +26,6 @@ type CatalogEntry = { id: string; label: string; vision: boolean; provider: Prov
 type Settings = {
   activeModel: string;
   maxPhotos: number;
-  userRunBudget: number;
-  userTokenBudget: number;
   perCaseTokenCeiling: number;
 };
 /** What GET and PUT on `/api/settings` both answer with. */
@@ -37,15 +34,7 @@ type SettingsPayload = {
   catalog?: CatalogEntry[];
   providers?: Partial<Record<ProviderId, boolean>>;
 };
-type Usage = {
-  monthTokens: number;
-  runsUsed: number;
-  runCap: number;
-  tokensUsed: number;
-  tokenCap: number;
-  hasGrant: boolean;
-  exempt: boolean;
-};
+type Usage = { monthTokens: number };
 
 const PROVIDER_LABELS: Record<ProviderId, string> = {
   anthropic: "Anthropic",
@@ -67,19 +56,12 @@ const PROVIDER_ENV: Record<ProviderId, string> = {
  */
 const LOAD_FAILED = "Could not load settings.";
 
-export function SettingsView({
-  userEmail,
-  isAdmin,
-}: {
-  userEmail: string;
-  isAdmin: boolean;
-}) {
+export function SettingsView() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [providers, setProviders] = useState<Partial<Record<ProviderId, boolean>>>({});
-  // Defaults null, not a zeroed Usage: a failed or in-flight load must render
-  // as "not known yet" rather than as an allowance of nothing, which the
-  // allowance card would otherwise show as spent.
+  // Defaults null, not a zeroed Usage: a failed or in-flight load has to read
+  // as "not known yet" rather than as a month with no spend in it.
   const [usage, setUsage] = useState<Usage | null>(null);
   const [usageError, setUsageError] = useState("");
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
@@ -101,14 +83,13 @@ export function SettingsView({
       setSettings(loaded.data.settings ?? null);
       setCatalog(loaded.data.catalog ?? []);
       setProviders(loaded.data.providers ?? {});
-      // The caller's own spend. A failure here is reported inside the allowance
-      // card rather than at the top of the page: it is a secondary figure, and
-      // an admin — for whom it is only the trailing usage line — has nothing to
-      // do about it. Either way the card must stop claiming to be loading.
+      // Month-to-date spend. A failure here is reported next to the figure
+      // rather than at the top of the page: it is informational, nothing is
+      // blocked by it, and the settings above still saved fine.
       const spend = await requestJson<Usage>(
         "/api/usage",
         undefined,
-        "Your allowance could not be loaded.",
+        "This month's token spend could not be loaded.",
       );
       if (spend.ok) setUsage(spend.data);
       else setUsageError(spend.message);
@@ -147,9 +128,7 @@ export function SettingsView({
         </Link>
         <div>
           <h1>Settings</h1>
-          <p>
-            Signed in as {userEmail} · {isAdmin ? "Administrator" : "Viewer"}
-          </p>
+          <p>How this install runs, and what it has cost</p>
         </div>
         <Link className="settings-back" href="/">Back to diagnostics</Link>
       </header>
@@ -160,7 +139,7 @@ export function SettingsView({
       <CollapsibleCard
         collapseKey="diagnostics"
         title="Diagnostic engine"
-        subtitle={isAdmin ? "Applies to everyone" : "Read-only — administrator access required"}
+        subtitle="Stored on the server; applies to every browser"
         badge="Server"
       >
         {!settings ? (
@@ -171,7 +150,7 @@ export function SettingsView({
               <span>Active model</span>
               <select
                 value={settings.activeModel}
-                disabled={!isAdmin || busy}
+                disabled={busy}
                 onChange={(event) => void patch({ activeModel: event.target.value })}
               >
                 <option value="">Server default (HF_MODEL)</option>
@@ -185,9 +164,9 @@ export function SettingsView({
                     }
                   >
                     {entries.map((entry) => (
-                      // Left selectable when unconfigured: an admin may be
-                      // setting the key and the model in either order, and the
-                      // status line below says plainly what is missing.
+                      // Left selectable when unconfigured: the key and the
+                      // model can be set in either order, and the status line
+                      // below says plainly what is missing.
                       <option key={entry.id} value={entry.id}>
                         {entry.label}
                       </option>
@@ -206,7 +185,7 @@ export function SettingsView({
               <span>Maximum photos per case</span>
               <select
                 value={String(settings.maxPhotos)}
-                disabled={!isAdmin || busy}
+                disabled={busy}
                 onChange={(event) => void patch({ maxPhotos: Number(event.target.value) })}
               >
                 {[1, 2, 3, 4].map((count) => (
@@ -219,74 +198,28 @@ export function SettingsView({
             </label>
 
             <NumberSetting
-              label="Reports per access code"
-              settingKey="userRunBudget"
-              settings={settings}
-              drafts={drafts}
-              setDrafts={setDrafts}
-              isAdmin={isAdmin}
-              busy={busy}
-              patch={patch}
-              hint="Prefilled when you issue a code. A report is counted only when it reaches
-                    the operator, so a failed generation costs nobody a run. Changing this never
-                    alters a code already issued. 0 means unlimited."
-            />
-
-            <NumberSetting
-              label="Token limit per access code"
-              settingKey="userTokenBudget"
-              settings={settings}
-              drafts={drafts}
-              setDrafts={setDrafts}
-              isAdmin={isAdmin}
-              busy={busy}
-              patch={patch}
-              hint="The backstop behind the report count: total spend one code can ever reach,
-                    whatever it produced. Lifetime, not monthly. 0 means unlimited."
-            />
-
-            <NumberSetting
               label="Token ceiling per diagnosis"
               settingKey="perCaseTokenCeiling"
               settings={settings}
               drafts={drafts}
               setDrafts={setDrafts}
-              isAdmin={isAdmin}
               busy={busy}
               patch={patch}
-              hint="Ends one runaway interview. Since a run is only charged on delivery, a
-                    diagnosis that never converges would otherwise spend without limit and never
-                    be counted. 0 disables it."
+              hint="The only spend limit in the app. An interview that never converges keeps
+                    calling the model for as long as the tab is open; this ends it. 0 disables
+                    the guard entirely."
             />
 
-            {usage && (
-              <small role="status">
-                {usage.exempt
-                  ? `You've used ${usage.monthTokens.toLocaleString()} tokens this month — the skeleton key has no limit.`
-                  : usage.runCap > 0
-                    ? `You've used ${usage.runsUsed.toLocaleString()} of ${usage.runCap.toLocaleString()} reports on your access code.`
-                    : `You've generated ${usage.runsUsed.toLocaleString()} reports — no limit is set on your access code.`}
-              </small>
-            )}
+            <small role="status">
+              {usage
+                ? `${usage.monthTokens.toLocaleString()} tokens spent this month.`
+                : usageError || "Loading this month's spend…"}
+            </small>
           </div>
         )}
       </CollapsibleCard>
 
-      {!isAdmin && <AllowanceCard usage={usage} error={usageError} />}
-
       <DefaultMachineCard />
-
-      {isAdmin && (
-        <CollapsibleCard
-          collapseKey="accounts"
-          title="Access codes"
-          subtitle="Issue and revoke the codes that let people in"
-          badge="Admin"
-          defaultCollapsed
-        >
-          <TokenManager />
-        </CollapsibleCard>
-      )}
     </main>
   );
 }
@@ -340,7 +273,7 @@ function ProviderStatus({
 }
 
 /** Settings whose value is a free number and needs an explicit commit. */
-type NumericKey = "userRunBudget" | "userTokenBudget" | "perCaseTokenCeiling";
+type NumericKey = "perCaseTokenCeiling";
 
 /**
  * A number field that saves on a button, not on a keystroke.
@@ -355,7 +288,6 @@ function NumberSetting({
   settings,
   drafts,
   setDrafts,
-  isAdmin,
   busy,
   patch,
   hint,
@@ -365,7 +297,6 @@ function NumberSetting({
   settings: Settings;
   drafts: Partial<Record<NumericKey, string>>;
   setDrafts: React.Dispatch<React.SetStateAction<Partial<Record<NumericKey, string>>>>;
-  isAdmin: boolean;
   busy: boolean;
   patch: (change: Partial<Settings>) => Promise<boolean>;
   hint: string;
@@ -380,7 +311,7 @@ function NumberSetting({
         <input
           inputMode="numeric"
           value={draft ?? stored}
-          disabled={!isAdmin || busy}
+          disabled={busy}
           onChange={(event) =>
             setDrafts((current) => ({
               ...current,
@@ -388,7 +319,7 @@ function NumberSetting({
             }))
           }
         />
-        {isAdmin && dirty && (
+        {dirty && (
           <button
             className="ghost-button"
             type="button"
@@ -409,64 +340,6 @@ function NumberSetting({
       </div>
       <small>{hint}</small>
     </label>
-  );
-}
-
-/**
- * What a code holder has left.
- *
- * There is nothing to buy in the app: an allowance arrives with an access code
- * and runs out. The card states the number and how to get more, and deliberately
- * offers no purchase control — there is no self-serve path to one.
- *
- * Reports are the headline because that is what the code was sold as. The token
- * figure is shown underneath only when a limit is actually set, so a holder who
- * will never hit the backstop is not made to think about it.
- *
- * `error` replaces the loading line rather than joining it: a holder who cannot
- * see their remaining reports needs to know the number is unavailable, not
- * watch a spinner that has already given up.
- */
-function AllowanceCard({ usage, error }: { usage: Usage | null; error: string }) {
-  return (
-    <CollapsibleCard
-      collapseKey="billing"
-      title="Your allowance"
-      subtitle="Reports remaining on this access code"
-    >
-      {!usage ? (
-        <p className="muted">{error || "Loading…"}</p>
-      ) : !usage.hasGrant ? (
-        <p className="muted">This account has no allowance. Ask for an access code to continue.</p>
-      ) : (
-        <>
-          {usage.runCap > 0 ? (
-            <>
-              <p>
-                <strong>{(usage.runCap - usage.runsUsed).toLocaleString()}</strong> of{" "}
-                {usage.runCap.toLocaleString()} reports left.
-              </p>
-              <p className="muted">
-                A report is counted only when it reaches you — a generation that fails costs
-                nothing. This is a lifetime figure, not a monthly one. When it runs out, ask for
-                a new code.
-              </p>
-            </>
-          ) : (
-            <p>
-              {usage.runsUsed.toLocaleString()} reports generated — this access code has no
-              report limit.
-            </p>
-          )}
-          {usage.tokenCap > 0 && (
-            <p className="muted">
-              Spending backstop: {usage.tokensUsed.toLocaleString()} of{" "}
-              {usage.tokenCap.toLocaleString()} tokens used.
-            </p>
-          )}
-        </>
-      )}
-    </CollapsibleCard>
   );
 }
 

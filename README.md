@@ -41,11 +41,13 @@ npm run dev
 Then open `http://localhost:5211`. The port is pinned with `strictPort`, so it is
 either 5211 or a startup failure — never a silent reassignment.
 
-The app will send you to `/login`, and there is no signup. First boot writes a key to
-`db/skeleton.key` and prints it once — see [Signing in](#signing-in).
-
 You need **at least one** provider key in `.env` before a diagnosis will run. The app
 starts and renders without one; only the model call fails, and it says so plainly.
+
+> **There is no sign-in.** RootCause has no authentication at all, so anyone who can
+> reach the port can run diagnoses against your provider key and read everything the
+> install has stored. `npm run dev` binds to localhost; `npm start` binds `0.0.0.0`.
+> Read [Running it safely](#running-it-safely) before you expose it to anything.
 
 ## Configuration
 
@@ -62,60 +64,51 @@ for the provider you actually select is required.
 Every key is read **server-side only**, by `app/lib/server-env.ts`. None is ever
 exposed through a `NEXT_PUBLIC_*` or `VITE_*` variable — they are billable.
 
-Three more, all optional: `COOKIE_SECURE=false` for plain-HTTP local development;
-`DB_DIR` to move the SQLite files off the default `./db` (required in any deployment,
-or the database is lost on every restart); and `ENVIRONMENT=production`, which turns on
-HSTS and nothing else.
+Two more, both optional: `DB_DIR` moves the SQLite files off the default `./db` — set
+it to a persistent path in any deployment, or the database is lost on every restart —
+and `ENVIRONMENT=production` turns on HSTS and nothing else.
 
-## Signing in
+## Running it safely
 
-The app requires sign-in — `/api/diagnose` drives billable inference, so it sits behind
-the gate with everything else. **There are no passwords and no signup.** Two credentials
-exist, and both go in the same box on `/login`:
+RootCause has **no authentication**. There is no sign-in, no account, and no key of its
+own. Every page and every API route answers whoever asks — which means anyone who can
+reach the port can run diagnoses that spend your provider key, read every case and
+report stored on the install, edit the machine inventory, and change the model setting.
 
-**The skeleton key** — the owner's way in. Generated on first boot and written to
-`db/skeleton.key` (`$DB_DIR/skeleton.key` when that is set), mode `0600`. It is printed to
-the log exactly once, on the boot that creates it:
+That is a deliberate shape for a tool one person runs for themselves. It is also the
+whole of the threat model, so it decides how you may deploy it:
 
-```bash
-cat db/skeleton.key
-```
+- `npm run dev` listens on **localhost only**. Nothing else on your network reaches it.
+- `npm start` listens on **`0.0.0.0`** — every host on the network it is attached to can
+  reach it.
 
-Rotate it by deleting the file and restarting. The owner account and everything it owns
-survive, because the account is keyed on a fixed id rather than the key.
+For anything beyond your own machine, put something in front: a reverse proxy that does
+the authentication, an SSH tunnel, or a private network. Do not put it on the public
+internet.
 
-**An access code** — how everybody else gets in. The owner issues one from
-Settings → Access codes, worth **a set number of generated reports**. It looks like
-`RC-4K7QM-92XHT-BDPWR-3NFJ8`, and it is shown once, at issue: only a hash is stored, so a
-lost code has to be reissued. Codes are case-insensitive and the dashes are optional.
+[`SECURITY.md`](SECURITY.md) has the longer version, including what is still worth
+reporting as a vulnerability given all of the above.
 
-A report is counted only when it reaches the operator, so a generation that fails costs
-the holder nothing. Interview turns are free. Two ceilings sit behind the report count and
-normally never fire: a lifetime token limit per code, and a per-diagnosis token ceiling
-that ends one interview which never converges. Without the second, an operator could
-interview forever and never be charged a report.
-
-A code stays valid for repeat sign-ins until its reports are used up, its token limit is
-reached, it expires, or the owner revokes it — revoking signs the holder out immediately.
-
-Roles are `viewer` and `admin`. The skeleton key is the only admin. Session state, access
-codes and the settings store live in two local SQLite files, `db/auth.db` and `db/app.db`,
-created automatically on first run. `db/` is gitignored, so each machine grows its own.
+Application data lives in two local SQLite files, `db/app.db` (settings, the case and
+report corpus, the machine inventory, the usage ledger) and `db/observability.db`
+(disposable model-call telemetry). Both are created on first run, and `db/` is
+gitignored, so each machine grows its own.
 
 ## Settings
 
-`/settings` composes four sections:
+`/settings` composes two sections:
 
-- **Diagnostic engine** (server, admin-writable) — active model, photo cap, and the three
-  spend limits: reports per code, token limit per code, and the per-diagnosis token
-  ceiling. The model is validated against an approved catalog on write, so a settings
-  row can never point paid inference at an arbitrary model id.
+- **Diagnostic engine** (server) — the active model, the photo cap, and the
+  per-diagnosis token ceiling. The model is validated against an approved catalog on
+  write, so a settings row can never point paid inference at an arbitrary model id.
+  It also shows month-to-date token spend, read from the usage ledger.
 - **Default machine** (this browser only) — prefills the intake form. Stored in
   localStorage and synced across tabs; never sent to the server.
-- **Access codes** (admin only) — issue a code worth N reports with an optional expiry,
-  watch what each has used, and revoke. Revoking drops the holder's sessions in the same
-  request.
-- **Your allowance** (access-code holders) — reports remaining on the code.
+
+The token ceiling is worth understanding, because it is the only spend limit in the
+app. A diagnosis that stops converging keeps calling the model for as long as the tab
+is open; the ceiling ends it. The default is 400,000 tokens per case, comfortably above
+a normal one. Setting it to 0 turns the guard off, and nothing else is watching.
 
 ## Commands
 
@@ -142,8 +135,8 @@ Every diagnosis is recorded in `db/app.db` so the prompts in
 `app/api/diagnose/prompts.ts` can be improved against real sessions — which
 questions operators stall on, what turns a case ready, what never resolves.
 
-- `diagnostic_case` — one row per diagnosis: who ran it, the machine, the
-  reported problem, the model actually used, turn count, and whether it reached
+- `diagnostic_case` — one row per diagnosis: the machine, the reported problem,
+  the model actually used, turn count, tokens spent, and whether it reached
   `ready` and then `reported` or was abandoned mid-interview.
 - `case_message` — one row per turn, not a JSON blob, so questions like "what
   was the last thing an operator said before they gave up" are a query rather

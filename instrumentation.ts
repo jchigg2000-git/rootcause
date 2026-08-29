@@ -1,48 +1,39 @@
 /**
  * vinext's `register()` hook — process-wide setup, before any request.
  *
- * Opens three SQLite files: `db/auth.db` and `db/app.db`, wired onto
- * `server-env.ts`'s `env` object as `AUTH_DB`/`APP_DB` so every existing call
- * site keeps working unchanged, plus the disposable `db/observability.db`. It
- * runs the schemas up front and ensures the owner account and the skeleton
- * key. This runs once per process, before any request is served —
- * see `node_modules/vinext/dist/server/instrumentation.js` for App Router
- * baking this in as a top-level await in the generated RSC entry, and its
+ * Opens two SQLite files: `db/app.db`, wired onto `server-env.ts`'s `env`
+ * object as `APP_DB` so every call site reaches it the same way, plus the
+ * disposable `db/observability.db`. It runs the schemas up front, once per
+ * process, before any request is served — see
+ * `node_modules/vinext/dist/server/instrumentation.js` for App Router baking
+ * this in as a top-level await in the generated RSC entry, and its
  * `INSTRUMENTATION_LOCATIONS = ["", "src/"]` for why the project root is a
  * valid place for this file.
  */
 import path from "node:path";
 import { openDatabase, closeDatabases } from "./app/lib/db.ts";
 import { env } from "./app/lib/server-env.ts";
-import { ensureAuthSchema, ensureOwner } from "./app/lib/auth/store.ts";
 import { ensureSettingsSchema } from "./app/lib/settings.ts";
 import { ensureUsageLedgerSchema } from "./app/lib/budget.ts";
-import { ensureTokenGrantSchema } from "./app/lib/access.ts";
-import { ensureAccessTokenSchema } from "./app/lib/auth/access-tokens.ts";
-import { ensureSkeletonKey } from "./app/lib/auth/skeleton-key.ts";
 import { ensureCaseOutcomeSchema } from "./app/lib/library.ts";
 import { ensureDiagnosticCaseSchema, ensureReportSchema } from "./app/lib/cases.ts";
 import { ensureMachineSchema, ensureMachineServiceSchema } from "./app/lib/inventory.ts";
 import { ensureObservabilitySchema } from "./app/lib/observability.ts";
 
 export async function register(): Promise<void> {
-  // `DB_DIR` is what makes this deployable: on any container host the two
-  // files must land on a mounted volume, because the container filesystem is
+  // `DB_DIR` is what makes this deployable: on any container host the files
+  // must land on a mounted volume, because the container filesystem is
   // replaced on every deploy and a relative `./db` would silently start empty
-  // each time — losing the users, the case corpus and the reports without
-  // erroring.
+  // each time — losing the case corpus and the reports without erroring.
   const dbDir = env.DB_DIR?.trim() || path.join(process.cwd(), "db");
-  const authDb = openDatabase(path.join(dbDir, "auth.db"));
   const appDb = openDatabase(path.join(dbDir, "app.db"));
   // Metrics-only store, deliberately its own file: prunable exhaust, kept
-  // apart from the corpora so retention deletes can only ever touch metrics.
+  // apart from the corpus so retention deletes can only ever touch metrics.
   const obsDb = openDatabase(path.join(dbDir, "observability.db"));
 
-  env.AUTH_DB = authDb;
   env.APP_DB = appDb;
   env.OBS_DB = obsDb;
 
-  await ensureAuthSchema(authDb);
   await ensureSettingsSchema(appDb);
   await ensureDiagnosticCaseSchema(appDb);
   await ensureReportSchema(appDb);
@@ -51,11 +42,7 @@ export async function register(): Promise<void> {
   await ensureMachineServiceSchema(appDb);
   await ensureCaseOutcomeSchema(appDb);
   await ensureUsageLedgerSchema(appDb);
-  await ensureTokenGrantSchema(appDb);
-  await ensureAccessTokenSchema(authDb);
   await ensureObservabilitySchema(obsDb);
-  await ensureOwner(authDb);
-  announceSkeletonKey();
 
   installShutdownHook();
   warnOnUnsafeProductionConfig(dbDir);
@@ -120,53 +107,19 @@ function installShutdownHook(): void {
 }
 
 /**
- * Loud, non-fatal checks for the three ways a production deploy silently goes
- * wrong. Non-fatal on purpose: refusing to boot turns a misconfiguration into
- * an outage, and every one of these is visible in the deploy log instead.
+ * Loud, non-fatal check for the way a production deploy silently goes wrong.
+ * Non-fatal on purpose: refusing to boot turns a misconfiguration into an
+ * outage, and this is visible in the deploy log instead.
  */
 function warnOnUnsafeProductionConfig(dbDir: string): void {
   if (env.ENVIRONMENT !== "production") return;
-  const warn = (message: string) => console.error(`[startup] ${message}`);
 
-  if (env.COOKIE_SECURE?.trim().toLowerCase() === "false") {
-    warn("COOKIE_SECURE=false in production — the session cookie will omit Secure.");
-  }
   // A relative path means the container filesystem, which is replaced on every
-  // deploy: users, cases and reports would vanish without ever erroring.
+  // deploy: the case corpus and the reports would vanish without ever erroring.
   if (!env.DB_DIR?.trim()) {
-    warn(
-      `DB_DIR is unset, so SQLite lives at ${dbDir} — set it to a mounted ` +
-        "volume or every deploy starts with an empty database.",
+    console.error(
+      `[startup] DB_DIR is unset, so SQLite lives at ${dbDir} — set it to a ` +
+        "persistent path or every restart starts with an empty database.",
     );
-  }
-}
-
-/**
- * Ensure the owner's skeleton key exists, and print it exactly once — the boot
- * where it is created.
- *
- * There is no password and no account recovery in this app, so this log line is
- * the only time the key is ever displayed. It is also why an existing key is
- * never reprinted: repeating it on every restart would smear the one credential
- * that grants admin across the whole deploy history.
- *
- * Deployed, the file lands on the mounted volume ($DB_DIR), so it survives a
- * redeploy. Read it back any time by catting `$DB_DIR/skeleton.key` on the
- * host.
- */
-function announceSkeletonKey(): void {
-  try {
-    const { key, created, keyPath } = ensureSkeletonKey();
-    if (created) {
-      console.error(
-        `[auth] skeleton key created at ${keyPath}\n` +
-          `[auth] ---> ${key}\n` +
-          "[auth] This is the only time it is printed. Save it now; sign in with it as the key.",
-      );
-    } else {
-      console.error(`[auth] skeleton key loaded from ${keyPath}`);
-    }
-  } catch (keyError) {
-    console.error(`[auth] skeleton key unavailable: ${(keyError as Error).message}`);
   }
 }

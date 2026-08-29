@@ -1,32 +1,38 @@
 /**
- * Per-user token accounting. This module RECORDS; it does not enforce.
+ * Token accounting. This module RECORDS; it does not enforce.
  *
  * The ledger lives in APP_DB, deliberately NOT observability.db: the
- * observability store is prunable exhaust with a one-way data flow and must
- * never be read for enforcement — its 14-day retention would silently erase
- * the numbers a monthly budget adds up. Routes write here themselves from the
- * `ChatOutcome.usage` they already hold, so `providers.ts`'s telemetry emit
- * stays the observability subsystem's only feed and the one-way rule holds.
+ * observability store is prunable exhaust with a one-way data flow, and its
+ * 14-day retention would silently erase the numbers this is kept for. Routes
+ * write here themselves from the `ChatOutcome.usage` they already hold, so
+ * `providers.ts`'s telemetry emit stays the observability subsystem's only feed
+ * and the one-way rule holds.
  *
- * ⚠ The calendar-month budget decided 2026-08-06 — hard block when exhausted,
- * admins exempt, 0 means unlimited — was SUPERSEDED by the access-code grant,
- * and its checker was deleted 2026-08-28 rather than left reading as live.
- * Entitlement is `decideAccess` in `access-policy.ts`, against a code's
- * lifetime allowance rather than against a month. What remains here is the
- * ledger write (`recordUsage`), the display read behind `/api/usage`
- * (`monthlyTokensUsed`), and the `monthStartUtc` / `tokensOf` helpers.
+ * Nothing here refuses anything. The app has no allowances to enforce — this is
+ * the record of what running it has cost, for an operator spending their own
+ * provider key. The one live spend guard is `perCaseTokenCeiling`, checked in
+ * `app/api/diagnose/route.ts` against `diagnostic_case.tokens_spent`.
  */
 import usageLedgerSchema from "../../migrations/0009_usage_ledger.sql?raw";
 import type { Database } from "./db.ts";
-import { createSchemaRunner } from "./sql.ts";
+import { createColumnDropper, createSchemaRunner } from "./sql.ts";
 
-export const ensureUsageLedgerSchema = createSchemaRunner(usageLedgerSchema);
+const runUsageLedgerSchema = createSchemaRunner(usageLedgerSchema);
+// Databases that predate the removal of accounts carry a NOT NULL owner column,
+// which would reject every insert below. 0009 drops the index over it first,
+// because SQLite refuses DROP COLUMN while one stands.
+const userIdDropper = createColumnDropper("usage_ledger", "user_id");
 
-/** Keep well past any month a budget can ask about; prune the rest on write. */
+export async function ensureUsageLedgerSchema(db: Database): Promise<void> {
+  await runUsageLedgerSchema(db);
+  await userIdDropper(db);
+}
+
+/** Long enough that a year-over-year comparison is possible; pruned on write. */
 const LEDGER_RETAIN_MONTHS = 13;
 
 /** "2026-08-01T00:00:00.000Z" for any instant in Aug 2026. UTC on purpose —
- *  one boundary for every viewer, not one per timezone. */
+ *  one boundary rather than one per timezone. */
 export function monthStartUtc(now = new Date()): string {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 }
@@ -43,13 +49,11 @@ export function tokensOf(
 }
 
 /** ISO-8601 Z strings compare lexicographically, so string >= is the window. */
-export async function monthlyTokensUsed(db: Database, userId: string): Promise<number> {
+export async function monthlyTokensUsed(db: Database): Promise<number> {
   await ensureUsageLedgerSchema(db);
   const row = await db
-    .prepare(
-      "SELECT COALESCE(SUM(tokens), 0) AS total FROM usage_ledger WHERE user_id = ? AND ts >= ?",
-    )
-    .bind(userId, monthStartUtc())
+    .prepare("SELECT COALESCE(SUM(tokens), 0) AS total FROM usage_ledger WHERE ts >= ?")
+    .bind(monthStartUtc())
     .first<{ total: number }>();
   return row?.total ?? 0;
 }
@@ -60,7 +64,6 @@ export async function monthlyTokensUsed(db: Database, userId: string): Promise<n
  */
 export async function recordUsage(
   db: Database,
-  userId: string,
   operation: string,
   usage?: { inputTokens: number | null; outputTokens: number | null } | null,
 ): Promise<void> {
@@ -74,8 +77,8 @@ export async function recordUsage(
     ).toISOString();
     await db.batch([
       db
-        .prepare("INSERT INTO usage_ledger (user_id, ts, operation, tokens) VALUES (?, ?, ?, ?)")
-        .bind(userId, now.toISOString(), operation, tokens),
+        .prepare("INSERT INTO usage_ledger (ts, operation, tokens) VALUES (?, ?, ?)")
+        .bind(now.toISOString(), operation, tokens),
       db.prepare("DELETE FROM usage_ledger WHERE ts < ?").bind(horizon),
     ]);
   } catch (ledgerError) {

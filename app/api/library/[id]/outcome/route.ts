@@ -1,5 +1,5 @@
 import { env } from "../../../../lib/server-env.ts";
-import { currentUser, jsonError, jsonResponse } from "../../../../lib/auth/current-user.ts";
+import { jsonError, jsonResponse } from "../../../../lib/http.ts";
 import {
   clearCaseOutcome,
   readCaseOutcome,
@@ -22,9 +22,6 @@ export async function POST(request: Request, context: Context) {
   const db = env.APP_DB;
   if (!db) return jsonError("Report storage is not configured on the server.", 500);
 
-  const user = await currentUser(request);
-  if (!user) return jsonError("Sign in to record a fix.", 401);
-
   let body: unknown;
   try {
     body = await request.json();
@@ -37,32 +34,29 @@ export async function POST(request: Request, context: Context) {
   }
 
   const { id } = await context.params;
-  const stored = await readLatestReport(db, user.id, id);
+  const stored = await readLatestReport(db, id);
   if (!stored) return jsonError("That report is not in your library.", 404);
 
   const data = parseReportJson(stored.reportJson, stored.createdAt);
   const picked = data?.ranked.find((problem) => problem.rank === rank);
   if (!picked) return jsonError("That fix is not in this report's ranked list.", 400);
 
-  const saved = await saveCaseOutcome(db, user.id, id, {
+  const saved = await saveCaseOutcome(db, id, {
     rank: picked.rank,
     problem: picked.problem,
     action: picked.action,
   });
   if (!saved) return jsonError("That report is not in your library.", 404);
 
-  return jsonResponse({ outcome: await readCaseOutcome(db, user.id, id) });
+  return jsonResponse({ outcome: await readCaseOutcome(db, id) });
 }
 
-export async function DELETE(request: Request, context: Context) {
+export async function DELETE(_request: Request, context: Context) {
   const db = env.APP_DB;
   if (!db) return jsonError("Report storage is not configured on the server.", 500);
 
-  const user = await currentUser(request);
-  if (!user) return jsonError("Sign in to clear a fix.", 401);
-
   const { id } = await context.params;
-  if (!(await clearCaseOutcome(db, user.id, id))) {
+  if (!(await clearCaseOutcome(db, id))) {
     return jsonError("That report is not in your library.", 404);
   }
   return jsonResponse({ ok: true });

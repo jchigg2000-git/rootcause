@@ -80,5 +80,4 @@ test("the degraded-mode payload is fully zeroed, never undefined", () => {
   assert.equal(payload.summary.successRate24h, null);
   assert.deepEqual(payload.operations, []);
   assert.deepEqual(payload.recentCalls, []);
-  assert.deepEqual(payload.recentEvents, []);
 });

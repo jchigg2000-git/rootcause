@@ -1,25 +1,31 @@
 /**
- * The single global request gate.
+ * Runs ahead of both page and API dispatch.
  *
- * Replaces `worker/index.ts`. vinext compiles this into the RSC entry and runs
- * it ahead of both page and API dispatch, so a route added later is protected
- * by default. Opting a route out means editing PUBLIC_API in
- * `app/lib/auth/paths.ts` — never decorating the route itself.
+ * There is no authentication in this app, so this is not a gate: it adds
+ * security headers to every response and refuses a state-changing API call
+ * that arrived from another origin, which is a spend guard rather than a CSRF
+ * one. Both rules live in `app/lib/request-guard.ts` with the reasoning; this
+ * file is only the wiring.
  *
- * Note this file is named `middleware.ts` rather than `proxy.ts`. vinext looks
- * for `proxy.ts` first and warns that this name is the Next.js 15 spelling;
- * both work. Renaming is a one-line change whenever that warning becomes noise.
+ * Note the filename. vinext looks for `proxy.ts` first and warns that this is
+ * the Next.js 15 spelling; both work. Renaming is a one-line change whenever
+ * that warning becomes noise.
  *
- * Security headers ride on EVERY response, not just rejections. Returning
- * `undefined` continues to the route but drops them, which is what the Worker
- * removal regressed. The fix is vinext's continue-with-headers signal: a
- * response carrying `x-middleware-next: 1` means "keep
- * routing", and `mergeMiddlewareResponseHeaders` copies the rest of its headers
- * onto whatever the route eventually returns. Verified against
+ * Headers ride on EVERY response, not just refusals. Returning `undefined`
+ * continues to the route but drops them, which is what an earlier version
+ * regressed. The fix is vinext's continue-with-headers signal: a response
+ * carrying `x-middleware-next: 1` means "keep routing", and
+ * `mergeMiddlewareResponseHeaders` copies the rest of its headers onto
+ * whatever the route eventually returns. Verified against
  * `node_modules/vinext/dist/server/middleware-runtime.js` (the
  * `x-middleware-next` branch) and `middleware-response-headers.js`.
  */
-import { gate, withSecurityHeaders } from "./app/lib/auth/gate.ts";
+import {
+  isApiPath,
+  isCrossOriginWrite,
+  normalizePath,
+  withSecurityHeaders,
+} from "./app/lib/request-guard.ts";
 import { env } from "./app/lib/server-env.ts";
 
 /** vinext's "continue routing" marker; stripped before the client sees it. */
@@ -27,10 +33,22 @@ const CONTINUE = () => new Response(null, { headers: { "x-middleware-next": "1" 
 
 export async function middleware(request: Request): Promise<Response> {
   const isProduction = env.ENVIRONMENT === "production";
+  const url = new URL(request.url);
 
-  const decision = await gate(request, env);
-  if (decision.kind === "reject") {
-    return withSecurityHeaders(decision.response, isProduction);
+  if (
+    isApiPath(normalizePath(url.pathname)) &&
+    isCrossOriginWrite(
+      request.method,
+      request.headers.get("origin"),
+      request.headers.get("sec-fetch-site"),
+      url.origin,
+    )
+  ) {
+    const refusal = new Response(JSON.stringify({ error: "Cross-origin request rejected." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    });
+    return withSecurityHeaders(refusal, isProduction);
   }
 
   return withSecurityHeaders(CONTINUE(), isProduction);

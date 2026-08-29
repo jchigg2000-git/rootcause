@@ -1,19 +1,10 @@
 /**
- * Machine inventory — storage for the user's own record of the machines they
- * look after.
+ * Machine inventory — the operator's own record of the machines they look after.
  *
  * The substance is three fields: PIN, current hours, and maintenance done.
  * Year / make / model / type ride along as identity, because a machine record
  * the app cannot match to a machine is not usable by intake or spec lookup.
  * Nothing beyond those is stored.
- *
- * **Every statement filters on `user_id`.** Ownership is enforced in the query
- * and never in the UI — and never by a prior `SELECT` that a concurrent write
- * could invalidate, so the update and delete carry the owner in their own
- * `WHERE` and a mismatched caller changes zero rows rather than someone else's
- * machine. Route handlers do not re-check role — the app has one global gate
- * ahead of the router, decided 2026-08-04 — which makes this the only place it
- * can live.
  *
  * The request contract — coercion, bounds, and the operator-facing messages —
  * lives in `app/api/inventory/contract.ts`, kept apart from the `?raw` import
@@ -31,15 +22,21 @@ import {
 } from "../api/inventory/contract.ts";
 import type { Database } from "./db.ts";
 import { ensureDiagnosticCaseSchema } from "./cases.ts";
-import { createColumnGuard, createSchemaRunner } from "./sql.ts";
+import { createColumnDropper, createColumnGuard, createSchemaRunner } from "./sql.ts";
 
 const runMachineSchema = createSchemaRunner(machineSchema);
 // Grown databases predate label in 0006's CREATE; see that file's comment.
 const labelGuard = createColumnGuard("machine", "label", "TEXT");
+// Databases that predate the removal of accounts carry a NOT NULL owner column
+// on both tables, which would reject every insert below. 0006 and 0007 drop the
+// indexes over it first, because SQLite refuses DROP COLUMN while one stands.
+const machineUserIdDropper = createColumnDropper("machine", "user_id");
+const serviceUserIdDropper = createColumnDropper("machine_service", "user_id");
 
 export async function ensureMachineSchema(db: Database): Promise<void> {
   await runMachineSchema(db);
   await labelGuard(db);
+  await machineUserIdDropper(db);
 }
 
 const runMachineServiceSchema = createSchemaRunner(machineServiceSchema);
@@ -53,9 +50,10 @@ export async function ensureMachineServiceSchema(db: Database): Promise<void> {
   await ensureDiagnosticCaseSchema(db);
   await ensureMachineSchema(db);
   await runMachineServiceSchema(db);
+  await serviceUserIdDropper(db);
 }
 
-/** Bounds the list; a household fleet is nowhere near this. */
+/** Bounds the list; one operator's fleet is nowhere near this. */
 export const MAX_MACHINES_RETURNED = 200;
 /** Bounds a machine's history; decades of monthly services is still < 500. */
 export const MAX_SERVICE_ENTRIES_RETURNED = 500;
@@ -91,21 +89,17 @@ const toRecord = (row: MachineRow): MachineRecord => ({
 const SELECT_COLUMNS = `id, created_at, updated_at, equipment_year, equipment_make,
   equipment_model, machine_type, serial_pin, current_hours, maintenance, label`;
 
-export async function listMachines(db: Database, userId: string): Promise<MachineRecord[]> {
+export async function listMachines(db: Database): Promise<MachineRecord[]> {
   await ensureMachineSchema(db);
   const { results } = await db
-    .prepare(
-      `SELECT ${SELECT_COLUMNS} FROM machine WHERE user_id = ?
-       ORDER BY updated_at DESC LIMIT ?`,
-    )
-    .bind(userId, MAX_MACHINES_RETURNED)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM machine ORDER BY updated_at DESC LIMIT ?`)
+    .bind(MAX_MACHINES_RETURNED)
     .all<MachineRow>();
   return results.map(toRecord);
 }
 
 export async function createMachine(
   db: Database,
-  userId: string,
   input: MachineInput,
 ): Promise<MachineRecord> {
   await ensureMachineSchema(db);
@@ -114,13 +108,12 @@ export async function createMachine(
   await db
     .prepare(
       `INSERT INTO machine
-         (id, user_id, created_at, updated_at, equipment_year, equipment_make,
+         (id, created_at, updated_at, equipment_year, equipment_make,
           equipment_model, machine_type, serial_pin, current_hours, maintenance, label)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       id,
-      userId,
       now,
       now,
       input.year || null,
@@ -136,14 +129,9 @@ export async function createMachine(
   return { ...input, id, createdAt: now, updatedAt: now };
 }
 
-/**
- * Returns null when the row does not exist *or* is not the caller's — the two
- * are deliberately indistinguishable, so a probe cannot enumerate other users'
- * machine ids.
- */
+/** Returns null when the row does not exist. */
 export async function updateMachine(
   db: Database,
-  userId: string,
   id: string,
   input: MachineInput,
 ): Promise<MachineRecord | null> {
@@ -154,7 +142,7 @@ export async function updateMachine(
       `UPDATE machine SET updated_at = ?, equipment_year = ?, equipment_make = ?,
          equipment_model = ?, machine_type = ?, serial_pin = ?, current_hours = ?,
          maintenance = ?, label = ?
-       WHERE id = ? AND user_id = ?`,
+       WHERE id = ?`,
     )
     .bind(
       now,
@@ -167,36 +155,24 @@ export async function updateMachine(
       input.maintenance || null,
       input.label || null,
       id,
-      userId,
     )
     .run();
   if ((result.meta?.changes ?? 0) === 0) return null;
 
-  const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM machine WHERE id = ? AND user_id = ?`)
-    .bind(id, userId)
-    .first<MachineRow>();
-  return row ? toRecord(row) : null;
+  return getMachine(db, id);
 }
 
-export async function deleteMachine(db: Database, userId: string, id: string): Promise<boolean> {
+export async function deleteMachine(db: Database, id: string): Promise<boolean> {
   await ensureMachineSchema(db);
-  const result = await db
-    .prepare("DELETE FROM machine WHERE id = ? AND user_id = ?")
-    .bind(id, userId)
-    .run();
+  const result = await db.prepare("DELETE FROM machine WHERE id = ?").bind(id).run();
   return (result.meta?.changes ?? 0) > 0;
 }
 
-export async function getMachine(
-  db: Database,
-  userId: string,
-  id: string,
-): Promise<MachineRecord | null> {
+export async function getMachine(db: Database, id: string): Promise<MachineRecord | null> {
   await ensureMachineSchema(db);
   const row = await db
-    .prepare(`SELECT ${SELECT_COLUMNS} FROM machine WHERE id = ? AND user_id = ?`)
-    .bind(id, userId)
+    .prepare(`SELECT ${SELECT_COLUMNS} FROM machine WHERE id = ?`)
+    .bind(id)
     .first<MachineRow>();
   return row ? toRecord(row) : null;
 }
@@ -217,29 +193,27 @@ const toServiceEntry = (row: ServiceRow): ServiceEntry => ({
 
 export async function listServiceEntries(
   db: Database,
-  userId: string,
   machineId: string,
 ): Promise<ServiceEntry[]> {
   await ensureMachineServiceSchema(db);
   const { results } = await db
     .prepare(
       `SELECT id, performed_on, note, created_at FROM machine_service
-       WHERE machine_id = ? AND user_id = ?
+       WHERE machine_id = ?
        ORDER BY performed_on DESC, created_at DESC LIMIT ?`,
     )
-    .bind(machineId, userId, MAX_SERVICE_ENTRIES_RETURNED)
+    .bind(machineId, MAX_SERVICE_ENTRIES_RETURNED)
     .all<ServiceRow>();
   return results.map(toServiceEntry);
 }
 
 /**
- * INSERT … SELECT against the machine row proves ownership inside the write's
- * own statement — a machine that is not the caller's inserts zero rows, which
- * answers with the same null a nonexistent one does.
+ * INSERT … SELECT against the machine row proves it exists inside the write's
+ * own statement rather than in a preceding SELECT a concurrent delete could
+ * invalidate — a machine that is gone inserts zero rows and answers null.
  */
 export async function addServiceEntry(
   db: Database,
-  userId: string,
   machineId: string,
   input: ServiceEntryInput,
 ): Promise<ServiceEntry | null> {
@@ -249,13 +223,11 @@ export async function addServiceEntry(
   const [inserted] = await db.batch([
     db
       .prepare(
-        `INSERT INTO machine_service (id, machine_id, user_id, performed_on, note, created_at)
-         SELECT ?, m.id, m.user_id, ?, ?, ? FROM machine m WHERE m.id = ? AND m.user_id = ?`,
+        `INSERT INTO machine_service (id, machine_id, performed_on, note, created_at)
+         SELECT ?, m.id, ?, ?, ? FROM machine m WHERE m.id = ?`,
       )
-      .bind(id, input.performedOn, input.note, now, machineId, userId),
-    db
-      .prepare("UPDATE machine SET updated_at = ? WHERE id = ? AND user_id = ?")
-      .bind(now, machineId, userId),
+      .bind(id, input.performedOn, input.note, now, machineId),
+    db.prepare("UPDATE machine SET updated_at = ? WHERE id = ?").bind(now, machineId),
   ]);
   if ((inserted.meta?.changes ?? 0) === 0) return null;
   return { ...input, id, createdAt: now };
@@ -263,20 +235,18 @@ export async function addServiceEntry(
 
 /**
  * `machineId` is part of the key, not decoration: the route's path carries both
- * ids, and without it an entry could be deleted through any of the caller's
- * other machines. Same owner either way, so this is scope confusion rather than
- * a cross-user hole — but the URL should mean what it says.
+ * ids, and without it an entry could be deleted through any other machine's
+ * URL. The URL should mean what it says.
  */
 export async function deleteServiceEntry(
   db: Database,
-  userId: string,
   machineId: string,
   entryId: string,
 ): Promise<boolean> {
   await ensureMachineServiceSchema(db);
   const result = await db
-    .prepare("DELETE FROM machine_service WHERE id = ? AND machine_id = ? AND user_id = ?")
-    .bind(entryId, machineId, userId)
+    .prepare("DELETE FROM machine_service WHERE id = ? AND machine_id = ?")
+    .bind(entryId, machineId)
     .run();
   return (result.meta?.changes ?? 0) > 0;
 }
@@ -292,7 +262,7 @@ export type IntakeEquipment = {
 };
 
 /**
- * Refresh one machine from the intake fields, scoped to its owner.
+ * Refresh one machine from the intake fields.
  *
  * Conservative on purpose: hours take the new value when the intake supplies
  * one (the operator just read the meter, and it is the most perishable field
@@ -300,14 +270,12 @@ export type IntakeEquipment = {
  * never overwritten by an intake shortcut. Identity — year/make/model — is not
  * touched at all.
  *
- * Ownership is proven inside the statement rather than by a preceding SELECT a
- * concurrent write could invalidate, so the boolean doubles as the ownership
- * answer: a foreign, deleted, or nonexistent id all change zero rows and are
- * indistinguishable to the caller.
+ * The returned boolean is "did this id resolve to a row": a deleted or unknown
+ * `machineId` changes nothing and reports false, which is what lets the diagnose
+ * route fall through to a fuzzy match instead of failing.
  */
 export async function refreshMachineFromIntake(
   db: Database,
-  userId: string,
   machineId: string,
   equipment: IntakeEquipment,
 ): Promise<boolean> {
@@ -322,7 +290,7 @@ export async function refreshMachineFromIntake(
          current_hours = COALESCE(?, current_hours),
          serial_pin    = COALESCE(serial_pin, ?),
          machine_type  = COALESCE(machine_type, ?)
-       WHERE id = ? AND user_id = ?`,
+       WHERE id = ?`,
     )
     .bind(
       new Date().toISOString(),
@@ -330,15 +298,14 @@ export async function refreshMachineFromIntake(
       equipment.serialPin?.trim() || null,
       equipment.machineType?.trim() || null,
       machineId,
-      userId,
     )
     .run();
   return (result.meta?.changes ?? 0) > 0;
 }
 
 /**
- * Save the intake machine into the caller's inventory as a by-product of
- * running a diagnostic — the machine is saved to "my machines" automatically.
+ * Save the intake machine into the inventory as a by-product of running a
+ * diagnostic — the machine is saved to "my machines" automatically.
  *
  * Matching: serial/PIN when the intake has one (case-insensitive — PINs are
  * transcribed off a plate), else exact year+make+model. On a match the row is
@@ -351,7 +318,6 @@ export async function refreshMachineFromIntake(
  */
 export async function autosaveMachineFromIntake(
   db: Database,
-  userId: string,
   equipment: IntakeEquipment,
 ): Promise<string | null> {
   await ensureMachineSchema(db);
@@ -363,10 +329,10 @@ export async function autosaveMachineFromIntake(
     const row = await db
       .prepare(
         `SELECT id FROM machine
-         WHERE user_id = ? AND serial_pin IS NOT NULL AND LOWER(serial_pin) = LOWER(?)
+         WHERE serial_pin IS NOT NULL AND LOWER(serial_pin) = LOWER(?)
          ORDER BY updated_at DESC LIMIT 1`,
       )
-      .bind(userId, serial)
+      .bind(serial)
       .first<{ id: string }>();
     matchId = row?.id ?? null;
   }
@@ -374,19 +340,18 @@ export async function autosaveMachineFromIntake(
     const row = await db
       .prepare(
         `SELECT id FROM machine
-         WHERE user_id = ?
-           AND LOWER(equipment_make) = LOWER(?)
+         WHERE LOWER(equipment_make) = LOWER(?)
            AND LOWER(COALESCE(equipment_model, '')) = LOWER(?)
            AND COALESCE(equipment_year, '') = ?
          ORDER BY updated_at DESC LIMIT 1`,
       )
-      .bind(userId, equipment.make.trim(), equipment.model.trim(), equipment.year.trim())
+      .bind(equipment.make.trim(), equipment.model.trim(), equipment.year.trim())
       .first<{ id: string }>();
     matchId = row?.id ?? null;
   }
 
   if (matchId) {
-    await refreshMachineFromIntake(db, userId, matchId, equipment);
+    await refreshMachineFromIntake(db, matchId, equipment);
     return matchId;
   }
 
@@ -404,6 +369,6 @@ export async function autosaveMachineFromIntake(
     label: "",
   });
   if (!validated.ok) return null;
-  const created = await createMachine(db, userId, validated.value);
+  const created = await createMachine(db, validated.value);
   return created.id;
 }

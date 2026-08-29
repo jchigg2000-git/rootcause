@@ -1,14 +1,15 @@
 /**
- * A plausible operator complaint for the randomized demo machine.
+ * A plausible operator complaint for the randomized demo machine, behind the
+ * "Randomize machine" button on the intake form.
  *
- * Admin-only via ADMIN_API_PREFIXES — the "Randomize machine" button is a
- * demo/testing affordance for admins, not an operator feature. Pinned to
- * Haiku: this is a $-per-click surface that needs one short paragraph, not
- * report-grade depth.
+ * Pinned to Haiku, and deliberately not following `settings.activeModel`: this
+ * is a per-click billable surface that needs one short paragraph, not
+ * report-grade depth, and it must not silently ride the report model up to a
+ * more expensive tier.
  */
 import { env } from "../../lib/server-env.ts";
-import { currentUser, jsonError, jsonResponse } from "../../lib/auth/current-user.ts";
-import { recordGrantUsage } from "../../lib/access.ts";
+import { jsonError, jsonResponse } from "../../lib/http.ts";
+import { recordUsage } from "../../lib/budget.ts";
 import { providerFor } from "../../lib/settings.ts";
 import { providerConfigured, runChat } from "../diagnose/providers.ts";
 
@@ -28,9 +29,6 @@ const field = (value: unknown): string =>
   typeof value === "string" ? value.trim().slice(0, 80) : "";
 
 export async function POST(request: Request) {
-  const user = await currentUser(request);
-  if (!user) return jsonError("Sign in to continue.", 401);
-
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
@@ -60,7 +58,7 @@ export async function POST(request: Request) {
   });
 
   if (env.APP_DB) {
-    void recordGrantUsage(env.APP_DB, user, "random-scenario", outcome.ok ? outcome.usage : undefined);
+    void recordUsage(env.APP_DB, "random-scenario", outcome.ok ? outcome.usage : undefined);
   }
 
   if (!outcome.ok) {

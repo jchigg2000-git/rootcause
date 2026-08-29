@@ -119,13 +119,7 @@ const initialForm: EquipmentForm = {
   problem: "",
 };
 
-export function DiagnosticApp({
-  userEmail,
-  isAdmin,
-}: {
-  userEmail: string;
-  isAdmin: boolean;
-}) {
+export function DiagnosticApp() {
   // Everything the interview flow can be — phase, transcript, questions, chip
   // selections, error — lives in one reducer (app/lib/interview-machine.ts).
   // The handlers below only dispatch and run the network calls; every guard
@@ -548,8 +542,7 @@ export function DiagnosticApp({
 
   // Same pathway as the machine-type autopopulate effect above: recorded as
   // an auto-set value so a later manual make/model edit still overrides it.
-  // Admin-only (the button does not render for viewers, and the scenario API
-  // is admin-gated): the machine fills instantly, then a Haiku call writes a
+  // The machine fills instantly, then a Haiku call writes a
   // matching operator complaint into the problem field. A scenario failure
   // keeps the machine fill — the demo affordance degrades, never blocks.
   const [randomizing, setRandomizing] = useState(false);
@@ -1000,26 +993,9 @@ export function DiagnosticApp({
           <Wordmark />
         </Link>
         <span className="header-context">Heavy equipment diagnostics</span>
-        <nav className="header-account" aria-label="Account">
-          <span className="header-user" title={isAdmin ? "Administrator" : "Viewer"}>
-            {userEmail}
-          </span>
-          {isAdmin && <a href="/observability">Observability</a>}
+        <nav className="header-nav" aria-label="Application">
+          <a href="/observability">Observability</a>
           <a href="/settings">Settings</a>
-          <button
-            type="button"
-            onClick={() => {
-              // Full load for the same reason as the sign-in redirect: the
-              // session cookie is gone once logout resolves, and a client-side
-              // navigation would leave the signed-in tree mounted.
-              void fetch("/api/auth/logout", { method: "POST" }).finally(() =>
-                // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-                window.location.assign("/login"),
-              );
-            }}
-          >
-            Sign out
-          </button>
         </nav>
       </header>
 
@@ -1100,18 +1076,16 @@ export function DiagnosticApp({
             <form className="intake-form" onSubmit={beginDiagnosis}>
               <fieldset className="form-block identity-block">
                 <legend><span>01</span> Machine identity</legend>
-                {isAdmin && (
-                  <div className="identity-actions">
-                    <button
-                      type="button"
-                      className="randomize-button"
-                      disabled={randomizing}
-                      onClick={() => void fillRandomMachine()}
-                    >
-                      {randomizing ? "Writing a scenario…" : "Randomize machine"}
-                    </button>
-                  </div>
-                )}
+                <div className="identity-actions">
+                  <button
+                    type="button"
+                    className="randomize-button"
+                    disabled={randomizing}
+                    onClick={() => void fillRandomMachine()}
+                  >
+                    {randomizing ? "Writing a scenario…" : "Randomize machine"}
+                  </button>
+                </div>
                 {/* Renders only once machines are known to exist: a first-time
                     operator with an empty inventory sees no picker at all,
                     rather than a control that explains why it is useless. */}

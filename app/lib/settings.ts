@@ -61,8 +61,8 @@ export const MODEL_CATALOG: readonly CatalogEntry[] = [
  *
  * Falls back to `huggingface` for an id that is not in the catalog, which is
  * exactly the `HF_MODEL` env-default case: that value is deliberately *not*
- * catalog-checked, because it is set by whoever runs the server rather than by
- * an admin over HTTP.
+ * catalog-checked, because it is set by whoever runs the server rather than
+ * over HTTP.
  */
 export function providerFor(modelId: string): ProviderId {
   return MODEL_CATALOG.find((entry) => entry.id === modelId)?.provider ?? "huggingface";
@@ -73,35 +73,26 @@ export type AppSettings = {
   activeModel: string;
   /** Hard ceiling on photos per case, never above the transport limit. */
   maxPhotos: number;
-  /** Reports prefilled when issuing a new access code. 0 means unlimited. */
-  userRunBudget: number;
-  /** Lifetime token backstop prefilled when issuing a code. 0 = unlimited. */
-  userTokenBudget: number;
   /**
-   * Tokens one case may spend before the next call is refused. This is the
-   * runaway guard: a run is only charged when a report is delivered, so an
-   * interview that never converges is otherwise unbounded. 0 disables it.
+   * Tokens one case may spend before the next call is refused — the app's only
+   * spend guard. Nothing else stops an interview that never converges from
+   * running up the provider bill in a tab nobody is watching. 0 disables it.
    */
   perCaseTokenCeiling: number;
 };
 
 export const SETTINGS_DEFAULTS: AppSettings = {
   // Anthropic is the primary provider. Sonnet rather than Opus because a
-  // measured Opus 5 report ran 5m29s; an admin can switch in Settings. Empty
+  // measured Opus 5 report ran 5m29s; it can be switched in Settings. Empty
   // string still means "fall back to HF_MODEL".
   activeModel: "claude-sonnet-5",
   maxPhotos: 4,
-  // Three reports is enough for a prospect to judge the product on their own
-  // machines and cheap enough to hand out freely.
-  userRunBudget: 3,
-  // An ESTIMATE of ten-to-fifteen Opus-depth reports: no Opus report has been
-  // token-measured (telemetry shipped after the only Opus run), so this is
-  // sized from the report's 32k completion ceiling plus interview overhead,
-  // not from a bill. Re-derive from llm_telemetry once real Opus data exists.
-  userTokenBudget: 500_000,
   // Sized above a normal case and below a runaway one: the report alone has a
   // 32k completion ceiling, and a long interview adds turns on top. A case that
-  // passes 400k has stopped converging. Same estimate caveat as above.
+  // passes 400k has stopped converging. This is an ESTIMATE — no Opus report
+  // has been token-measured, so it is sized from the completion ceiling plus
+  // interview overhead rather than from a bill. Re-derive it from llm_telemetry
+  // once real data exists.
   perCaseTokenCeiling: 400_000,
 };
 
@@ -115,14 +106,6 @@ const COERCIONS: { [K in keyof AppSettings]: Coercion<K> } = {
   },
   maxPhotos: (value) =>
     typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 4
-      ? value
-      : undefined,
-  userRunBudget: (value) =>
-    typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 100_000
-      ? value
-      : undefined,
-  userTokenBudget: (value) =>
-    typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 1_000_000_000
       ? value
       : undefined,
   perCaseTokenCeiling: (value) =>

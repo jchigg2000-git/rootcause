@@ -3,8 +3,7 @@
  *
  * Persists interview transcripts and generated reports so `prompts.ts` can be
  * improved against real cases later — where operators get stuck, what turns
- * a case ready, what never resolves. Lives in the APP_DB binding, alongside
- * `app_setting`.
+ * a case ready, what never resolves. Lives in APP_DB, alongside `app_setting`.
  *
  * Every write here is a by-product of a diagnosis, never a precondition for
  * one. Callers (see `app/api/diagnose/route.ts`) wrap every call from this
@@ -14,7 +13,7 @@
 import diagnosticCaseSchema from "../../migrations/0003_diagnostic_case.sql?raw";
 import reportSchema from "../../migrations/0004_report.sql?raw";
 import type { Database } from "./db.ts";
-import { createColumnGuard, createSchemaRunner } from "./sql.ts";
+import { createColumnDropper, createColumnGuard, createSchemaRunner } from "./sql.ts";
 
 const runDiagnosticCaseSchema = createSchemaRunner(diagnosticCaseSchema);
 // Grown databases predate machine_id in 0003's CREATE; see that file's comment.
@@ -26,19 +25,27 @@ const tokensSpentGuard = createColumnGuard(
   "INTEGER NOT NULL DEFAULT 0",
 );
 
+// Databases that predate the removal of accounts still carry the attribution
+// column. It is nullable, so leaving it would not break a write — but a column
+// nothing reads is a question a later reader has to answer, and the two tables
+// where the same column is NOT NULL have to be dropped anyway. Drop it for the
+// same reason, in the same place.
+const userIdDropper = createColumnDropper("diagnostic_case", "user_id");
+
 export async function ensureDiagnosticCaseSchema(db: Database): Promise<void> {
   await runDiagnosticCaseSchema(db);
   await machineIdGuard(db);
   await tokensSpentGuard(db);
+  await userIdDropper(db);
 }
 
 /**
  * Tokens spent on one case, across every turn.
  *
- * The per-case ceiling reads this before each billable call, which is what ends
- * an interview that never converges. A run is only counted when a report is
- * delivered, so without this ceiling an operator could interview forever at the
- * owner's expense and never be charged a run for it.
+ * The per-case ceiling reads this before each billable call, and it is the only
+ * spend guard left in the app: nothing else stops an interview that never
+ * converges from running up the operator's provider bill in the background of
+ * a tab they forgot about.
  *
  * Returns 0 for an unknown case: a missing row must not block a diagnosis.
  */
@@ -70,9 +77,8 @@ export const ensureReportSchema = createSchemaRunner(reportSchema);
 export type CaseStatus = "interviewing" | "ready" | "reported";
 
 export type NewCaseInput = {
-  userId: string | null;
   /** The inventory machine intake auto-save matched or created. Attribution
-   *  only, like userId — null when auto-save failed or the caller is unknown. */
+   *  only — null when auto-save failed. */
   machineId: string | null;
   equipment: {
     year: string;
@@ -95,13 +101,12 @@ export async function createCase(db: Database, input: NewCaseInput): Promise<str
   await db
     .prepare(
       `INSERT INTO diagnostic_case
-         (id, user_id, machine_id, created_at, updated_at, equipment_year, equipment_make,
+         (id, machine_id, created_at, updated_at, equipment_year, equipment_make,
           equipment_model, equipment_serial, problem, model_id, photo_count, turn_count, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'interviewing')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'interviewing')`,
     )
     .bind(
       id,
-      input.userId,
       input.machineId,
       now,
       now,
@@ -128,30 +133,18 @@ export async function createCase(db: Database, input: NewCaseInput): Promise<str
  *
  * A no-op — not a throw — when the case id does not resolve to a row, so a
  * client-supplied `caseId` that raced a restart never surfaces as an error to
- * the operator. A case that is not the caller's takes that same silent path:
- * not-yours reads exactly like not-exists, so ids cannot be probed.
- *
- * `ownerId` is the caller's own id, and it is load-bearing. `caseId` arrives on
- * the request body and is validated for shape only, so without it a signed-in
- * user could append their messages to a stranger's case and roll its status
- * forward. The sibling `machineId` on that same body has always been proven
- * this way (`refreshMachineFromIntake`); this is the same posture.
- *
- * The comparison is `IS`, not `=`, because `user_id` is nullable: SQLite's
- * null-safe equality keeps an unattributed case reachable by an unattributed
- * caller, while `= ?` would silently no-op and quietly stop persisting.
+ * the operator.
  */
 export async function syncCaseTranscript(
   db: Database,
   caseId: string,
-  ownerId: string | null,
   fullTranscript: CaseMessageInput[],
   status: CaseStatus,
 ): Promise<void> {
   await ensureDiagnosticCaseSchema(db);
   const existing = await db
-    .prepare("SELECT turn_count FROM diagnostic_case WHERE id = ? AND user_id IS ?")
-    .bind(caseId, ownerId)
+    .prepare("SELECT turn_count FROM diagnostic_case WHERE id = ?")
+    .bind(caseId)
     .first<{ turn_count: number }>();
   if (!existing) return;
 
@@ -171,9 +164,9 @@ export async function syncCaseTranscript(
   const update = db
     .prepare(
       `UPDATE diagnostic_case SET turn_count = ?, updated_at = ?, status = ?
-       WHERE id = ? AND user_id IS ?`,
+       WHERE id = ?`,
     )
-    .bind(already + newMessages.length, now, status, caseId, ownerId);
+    .bind(already + newMessages.length, now, status, caseId);
 
   await db.batch([...inserts, update]);
 }
@@ -182,16 +175,14 @@ export async function syncCaseTranscript(
  * Stores the report JSON (never the rendered HTML — that is a pure function
  * of the JSON via `renderReport`) and marks the case reported.
  *
- * `ownerId` scopes both statements for the same reason it scopes
- * `syncCaseTranscript` above. The insert is an `INSERT ... SELECT` rather than
- * a check-then-write so ownership is proven inside the write itself and cannot
- * race — the same shape `library.ts` uses for `case_outcome`. A foreign case
- * inserts zero rows and updates zero rows, silently.
+ * The insert is an `INSERT ... SELECT` rather than a check-then-write, so the
+ * case is proven to exist inside the write itself and a `caseId` that raced a
+ * deletion inserts zero rows instead of orphaning a report — the same shape
+ * `library.ts` uses for `case_outcome`.
  */
 export async function saveReport(
   db: Database,
   caseId: string,
-  ownerId: string | null,
   modelId: string | null,
   reportJson: string,
 ): Promise<void> {
@@ -203,14 +194,14 @@ export async function saveReport(
       .prepare(
         `INSERT INTO report (id, case_id, created_at, model_id, report_json)
          SELECT ?, c.id, ?, ?, ? FROM diagnostic_case c
-         WHERE c.id = ? AND c.user_id IS ?`,
+         WHERE c.id = ?`,
       )
-      .bind(id, now, modelId, reportJson, caseId, ownerId),
+      .bind(id, now, modelId, reportJson, caseId),
     db
       .prepare(
         `UPDATE diagnostic_case SET status = 'reported', updated_at = ?
-         WHERE id = ? AND user_id IS ?`,
+         WHERE id = ?`,
       )
-      .bind(now, caseId, ownerId),
+      .bind(now, caseId),
   ]);
 }

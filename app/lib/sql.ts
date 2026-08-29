@@ -70,3 +70,44 @@ export function createColumnGuard(table: string, column: string, ddl: string) {
     return ready;
   };
 }
+
+/**
+ * Remove a column from an existing table, once, safely on every boot.
+ *
+ * The mirror of `createColumnGuard`, and needed for the same reason: the
+ * migration files re-run in full on every process start, so a bare
+ * `ALTER TABLE … DROP COLUMN` in a .sql file works exactly once and then fails
+ * every boot after it. A column dropped from a table's CREATE covers fresh
+ * databases; a database that already grew the column gets it removed here.
+ *
+ * This is not cosmetic tidying. The columns this exists for were `NOT NULL`,
+ * so a database still carrying one would reject every INSERT the new code
+ * writes — the failure is total, not gradual.
+ *
+ * Any index over the column has to be gone first, or SQLite refuses the drop.
+ * Those live as `DROP INDEX IF EXISTS` in the .sql file, which is idempotent
+ * and runs ahead of this guard.
+ *
+ * `table` / `column` are code literals from the calling module, never request
+ * input — they are interpolated, not bound, because SQLite cannot parameterize
+ * identifiers.
+ */
+export function createColumnDropper(table: string, column: string) {
+  let ready: Promise<void> | null = null;
+  return (db: Database): Promise<void> => {
+    if (!ready) {
+      ready = (async () => {
+        const { results } = await db
+          .prepare(`PRAGMA table_info(${table})`)
+          .all<{ name: string }>();
+        if (results.some((row) => row.name === column)) {
+          await db.prepare(`ALTER TABLE ${table} DROP COLUMN ${column}`).run();
+        }
+      })();
+      ready.catch(() => {
+        ready = null;
+      });
+    }
+    return ready;
+  };
+}

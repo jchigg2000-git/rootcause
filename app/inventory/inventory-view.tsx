@@ -96,7 +96,7 @@ const formatDate = (iso: string) => {
     : date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 };
 
-export function InventoryView({ userEmail, isAdmin }: { userEmail: string; isAdmin: boolean }) {
+export function InventoryView() {
   const [machines, setMachines] = useState<MachineRecord[]>([]);
   // Starts true: the page mounts straight into its first load.
   const [loading, setLoading] = useState(true);
@@ -319,9 +319,7 @@ export function InventoryView({ userEmail, isAdmin }: { userEmail: string; isAdm
         </Link>
         <div>
           <h1>Machine inventory</h1>
-          <p>
-            Signed in as {userEmail} · {isAdmin ? "Administrator" : "Viewer"}
-          </p>
+          <p>The machines you look after</p>
         </div>
         <Link className="settings-back" href="/">Back to diagnostics</Link>
       </header>

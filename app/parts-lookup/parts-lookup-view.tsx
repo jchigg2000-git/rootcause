@@ -12,7 +12,7 @@ import type { PartsData } from "../api/parts-lookup/schema";
  * in which case it offers the caller's machines to pick from.
  *
  * The lookup is grounded web search on a model pinned to `claude-sonnet-5`, so
- * a $-per-click surface cannot follow the admin's report model up to Opus. It
+ * a per-click billable surface cannot follow the report model up to Opus. It
  * takes a couple of minutes, and the wait borrows the report's generating
  * treatment, exactly as spec lookup does.
  */
@@ -29,7 +29,7 @@ function formatCountdown(totalSeconds: number) {
 const machineLabel = (machine: MachineRecord) =>
   [machine.year, machine.make, machine.model].filter(Boolean).join(" ") || machine.make;
 
-export function PartsLookupView({ userEmail, isAdmin }: { userEmail: string; isAdmin: boolean }) {
+export function PartsLookupView() {
   const [machines, setMachines] = useState<MachineRecord[]>([]);
   const [machineId, setMachineId] = useState("");
   const [partQuery, setPartQuery] = useState("");
@@ -123,9 +123,7 @@ export function PartsLookupView({ userEmail, isAdmin }: { userEmail: string; isA
         </Link>
         <div>
           <h1>Parts lookup</h1>
-          <p>
-            Signed in as {userEmail} · {isAdmin ? "Administrator" : "Viewer"}
-          </p>
+          <p>Find a part for a saved machine</p>
         </div>
         <Link className="settings-back" href="/">Back to diagnostics</Link>
       </header>

@@ -1,5 +1,5 @@
 import { env } from "../../../lib/server-env.ts";
-import { currentUser, jsonError, jsonResponse } from "../../../lib/auth/current-user.ts";
+import { jsonError, jsonResponse } from "../../../lib/http.ts";
 import { readCaseOutcome, readLatestReport } from "../../../lib/library.ts";
 import { parseReportJson } from "../../diagnose/report-schema.ts";
 import { renderReport } from "../../diagnose/report-template.ts";
@@ -21,15 +21,12 @@ type Context = { params: Promise<{ id: string }> };
  * JSON — report colour is document chrome, like section numbering, and is
  * never model-supplied.
  */
-export async function GET(request: Request, context: Context) {
+export async function GET(_request: Request, context: Context) {
   const db = env.APP_DB;
   if (!db) return jsonError("Report storage is not configured on the server.", 500);
 
-  const user = await currentUser(request);
-  if (!user) return jsonError("Sign in to open a report.", 401);
-
   const { id } = await context.params;
-  const stored = await readLatestReport(db, user.id, id);
+  const stored = await readLatestReport(db, id);
   if (!stored) return jsonError("That report is not in your library.", 404);
 
   const data = parseReportJson(stored.reportJson, stored.createdAt);
@@ -49,6 +46,6 @@ export async function GET(request: Request, context: Context) {
       problem: problem.problem,
       action: problem.action,
     })),
-    outcome: await readCaseOutcome(db, user.id, id),
+    outcome: await readCaseOutcome(db, id),
   });
 }

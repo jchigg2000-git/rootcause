@@ -1,7 +1,7 @@
 /**
  * Pure aggregation for `/api/observability` — no DB, no `?raw` imports, so it
- * is unit-testable under plain `node --test`, same discipline as `paths.ts`
- * and the diagnose/spec-lookup contracts.
+ * is unit-testable under plain `node --test`, the same discipline as the
+ * diagnose and spec-lookup contracts.
  *
  * Percentiles are computed here in JS over a bounded most-recent window
  * rather than in SQL: SQLite has no `percentile_cont`, and the JS window
@@ -21,14 +21,6 @@ export type TelemetryCall = {
   truncated: boolean;
 };
 
-export type AuditEvent = {
-  ts: string;
-  event: string;
-  actorEmail: string | null;
-  clientIp: string | null;
-  detail: string | null;
-};
-
 export type ObservabilitySummary = {
   /** Model-call KPIs, from the telemetry store. */
   calls24h: number;
@@ -39,9 +31,6 @@ export type ObservabilitySummary = {
   /** Latency percentiles over the whole bounded window, not just 24h. */
   p50Ms: number;
   p95Ms: number;
-  /** Sign-in KPIs, from auth.db's audit trail. */
-  logins24h: number;
-  failedLogins24h: number;
 };
 
 export type OperationRollup = {
@@ -59,7 +48,6 @@ export type ObservabilityPayload = {
   summary: ObservabilitySummary;
   operations: OperationRollup[];
   recentCalls: TelemetryCall[];
-  recentEvents: AuditEvent[];
 };
 
 /** Degraded-mode baseline: a broken or empty store renders as zeros, not a 500. */
@@ -72,12 +60,9 @@ export function emptyPayload(): ObservabilityPayload {
       tokens24h: 0,
       p50Ms: 0,
       p95Ms: 0,
-      logins24h: 0,
-      failedLogins24h: 0,
     },
     operations: [],
     recentCalls: [],
-    recentEvents: [],
   };
 }
 

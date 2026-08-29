@@ -1,36 +1,33 @@
 /**
  * Report library — a read surface over the corpus that is already at rest.
  *
- * A library over the user's past generated reports. Nothing new is persisted
- * here: `diagnostic_case`, `case_message` and `report` rows have been written
- * on every diagnosis from the start, with per-user attribution. This module is
- * the query nobody had written.
+ * Nothing new is persisted here: `diagnostic_case`, `case_message` and `report`
+ * rows have been written on every diagnosis from the start. This module is the
+ * query nobody had written.
  *
  * Reports store JSON, never HTML — the document is a pure function of it via
  * `renderReport` — so a saved report is re-rendered at the *current* template.
  * Template and manufacturer-livery changes therefore apply retroactively to
  * everything already stored.
- *
- * **Ownership is a `WHERE` clause, not a UI concern.** Every statement filters
- * on `diagnostic_case.user_id`, and the column is nullable, so cases written
- * without attribution match no caller and are unreachable rather than public.
- * Route handlers do not re-check role — the app has one global gate ahead of
- * the router, decided 2026-08-04 — which makes this the only place ownership
- * can be enforced.
  */
 import caseOutcomeSchema from "../../migrations/0008_case_outcome.sql?raw";
 import type { Database } from "./db.ts";
 import { ensureDiagnosticCaseSchema, ensureReportSchema } from "./cases.ts";
-import { createSchemaRunner } from "./sql.ts";
+import { createColumnDropper, createSchemaRunner } from "./sql.ts";
 
 const runCaseOutcomeSchema = createSchemaRunner(caseOutcomeSchema);
+// Databases that predate the removal of accounts carry a NOT NULL owner column
+// here, which would reject every write the code below now makes. See
+// `createColumnDropper`.
+const userIdDropper = createColumnDropper("case_outcome", "user_id");
 
 export async function ensureCaseOutcomeSchema(db: Database): Promise<void> {
   await ensureDiagnosticCaseSchema(db);
   await runCaseOutcomeSchema(db);
+  await userIdDropper(db);
 }
 
-/** Bounds the list; a household user is nowhere near this. */
+/** Bounds the list; one operator's history is nowhere near this. */
 export const MAX_CASES_RETURNED = 200;
 /** Bounds one machine's case list inside its inventory card. */
 export const MAX_CASES_PER_MACHINE = 50;
@@ -70,12 +67,12 @@ type CaseRow = {
 };
 
 /**
- * The caller's own cases, newest activity first.
+ * Every case, newest activity first.
  *
  * `report_json` is deliberately not selected — a report is tens of kilobytes
  * and the list needs only to know whether one exists.
  */
-export async function listCasesForUser(db: Database, userId: string): Promise<LibraryEntry[]> {
+export async function listCases(db: Database): Promise<LibraryEntry[]> {
   await ensureDiagnosticCaseSchema(db);
   await ensureReportSchema(db);
   await ensureCaseOutcomeSchema(db);
@@ -87,11 +84,10 @@ export async function listCasesForUser(db: Database, userId: string): Promise<Li
               o.rank AS outcome_rank, o.problem AS outcome_problem
        FROM diagnostic_case c
        LEFT JOIN case_outcome o ON o.case_id = c.id
-       WHERE c.user_id = ?
        ORDER BY c.updated_at DESC
        LIMIT ?`,
     )
-    .bind(userId, MAX_CASES_RETURNED)
+    .bind(MAX_CASES_RETURNED)
     .all<CaseRow>();
 
   return results.map((row) => ({
@@ -125,16 +121,13 @@ export type StoredReport = {
 };
 
 /**
- * The caller's latest report for one case, or null.
+ * The latest report for one case, or null.
  *
  * A case can hold more than one report row — regenerating writes another
- * rather than overwriting — so the newest wins. The `c.user_id = ?` join
- * condition is the ownership check; a case belonging to someone else is
- * indistinguishable from one that does not exist.
+ * rather than overwriting — so the newest wins.
  */
 export async function readLatestReport(
   db: Database,
-  userId: string,
   caseId: string,
 ): Promise<StoredReport | null> {
   await ensureDiagnosticCaseSchema(db);
@@ -145,11 +138,11 @@ export async function readLatestReport(
               c.equipment_year, c.equipment_make, c.equipment_model
        FROM report r
        JOIN diagnostic_case c ON c.id = r.case_id
-       WHERE r.case_id = ? AND c.user_id = ?
+       WHERE r.case_id = ?
        ORDER BY r.created_at DESC
        LIMIT 1`,
     )
-    .bind(caseId, userId)
+    .bind(caseId)
     .first<{
       case_id: string;
       report_json: string;
@@ -180,60 +173,53 @@ export type CaseOutcome = {
 };
 
 /**
- * Record which ranked fix resolved a case. Upsert-from-SELECT: the SELECT's
- * `c.user_id = ?` proves ownership inside the write itself, and the upsert
- * makes re-marking replace the previous mark. `problem`/`action` are the
- * server's captured report text, never client prose — see 0008's header.
+ * Record which ranked fix resolved a case.
+ *
+ * Upsert-from-SELECT: the SELECT proves the case exists inside the write itself
+ * rather than in a preceding statement a concurrent delete could invalidate,
+ * and the upsert makes re-marking replace the previous mark. `problem`/`action`
+ * are the server's captured report text, never client prose — see 0008's header.
  */
 export async function saveCaseOutcome(
   db: Database,
-  userId: string,
   caseId: string,
   pick: { rank: number; problem: string; action: string },
 ): Promise<boolean> {
   await ensureCaseOutcomeSchema(db);
   const result = await db
     .prepare(
-      `INSERT INTO case_outcome (case_id, user_id, rank, problem, action, noted_at)
-       SELECT c.id, c.user_id, ?, ?, ?, ? FROM diagnostic_case c
-       WHERE c.id = ? AND c.user_id = ?
+      `INSERT INTO case_outcome (case_id, rank, problem, action, noted_at)
+       SELECT c.id, ?, ?, ?, ? FROM diagnostic_case c
+       WHERE c.id = ?
        ON CONFLICT(case_id) DO UPDATE SET
          rank = excluded.rank, problem = excluded.problem,
          action = excluded.action, noted_at = excluded.noted_at`,
     )
-    .bind(pick.rank, pick.problem, pick.action, new Date().toISOString(), caseId, userId)
+    .bind(pick.rank, pick.problem, pick.action, new Date().toISOString(), caseId)
     .run();
   return (result.meta?.changes ?? 0) > 0;
 }
 
 export async function readCaseOutcome(
   db: Database,
-  userId: string,
   caseId: string,
 ): Promise<CaseOutcome | null> {
   await ensureCaseOutcomeSchema(db);
   const row = await db
     .prepare(
-      `SELECT o.rank, o.problem, o.action, o.noted_at
-       FROM case_outcome o
-       JOIN diagnostic_case c ON c.id = o.case_id
-       WHERE o.case_id = ? AND c.user_id = ?`,
+      "SELECT rank, problem, action, noted_at FROM case_outcome WHERE case_id = ?",
     )
-    .bind(caseId, userId)
+    .bind(caseId)
     .first<{ rank: number; problem: string; action: string; noted_at: string }>();
   if (!row) return null;
   return { rank: row.rank, problem: row.problem, action: row.action, notedAt: row.noted_at };
 }
 
-export async function clearCaseOutcome(
-  db: Database,
-  userId: string,
-  caseId: string,
-): Promise<boolean> {
+export async function clearCaseOutcome(db: Database, caseId: string): Promise<boolean> {
   await ensureCaseOutcomeSchema(db);
   const result = await db
-    .prepare("DELETE FROM case_outcome WHERE case_id = ? AND user_id = ?")
-    .bind(caseId, userId)
+    .prepare("DELETE FROM case_outcome WHERE case_id = ?")
+    .bind(caseId)
     .run();
   return (result.meta?.changes ?? 0) > 0;
 }
@@ -250,7 +236,6 @@ export type MachineCase = {
 /** One machine's diagnostics, newest first, for its inventory card. */
 export async function listCasesForMachine(
   db: Database,
-  userId: string,
   machineId: string,
 ): Promise<MachineCase[]> {
   await ensureDiagnosticCaseSchema(db);
@@ -263,11 +248,11 @@ export async function listCasesForMachine(
               o.rank AS outcome_rank, o.problem AS outcome_problem
        FROM diagnostic_case c
        LEFT JOIN case_outcome o ON o.case_id = c.id
-       WHERE c.user_id = ? AND c.machine_id = ?
+       WHERE c.machine_id = ?
        ORDER BY c.created_at DESC
        LIMIT ?`,
     )
-    .bind(userId, machineId, MAX_CASES_PER_MACHINE)
+    .bind(machineId, MAX_CASES_PER_MACHINE)
     .all<{
       id: string;
       created_at: string;

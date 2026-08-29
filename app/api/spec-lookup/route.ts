@@ -8,13 +8,7 @@ import {
 import { clean, validateRequest, type SpecLookupRequest } from "./contract";
 import { parseSpecJson, SPEC_JSON_SCHEMA } from "./schema";
 import { SETTINGS_DEFAULTS, getSettings, providerFor } from "../../lib/settings.ts";
-import { currentUser, type User } from "../../lib/auth/current-user.ts";
-import {
-  ACCESS_UNVERIFIABLE_MESSAGE,
-  accessDeniedMessage,
-  checkAccess,
-  recordGrantUsage,
-} from "../../lib/access.ts";
+import { recordUsage } from "../../lib/budget.ts";
 import {
   groundingSupported,
   providerConfigured,
@@ -89,29 +83,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Identity resolution fails open the way diagnose's does — behind the
-  // default-deny gate a null actor is an AUTH_DB hiccup, not an anonymous
-  // caller. When the actor IS known, the access-code grant is checked below.
   const db = env.APP_DB;
-  let actor: User | null = null;
-  try {
-    actor = await currentUser(request);
-  } catch (identityError) {
-    console.error(`[spec-lookup] failed to resolve actor: ${(identityError as Error).message}`);
-  }
-  if (db && actor) {
-    try {
-      const access = await checkAccess(db, actor);
-      if (!access.allowed) {
-        return jsonError(accessDeniedMessage(access), 429);
-      }
-    } catch (budgetError) {
-      // Refuse rather than fall through: an unreadable grant is the only thing
-      // standing between a viewer and a lookup billed to the owner's key.
-      console.error(`[spec-lookup] entitlement unreadable: ${(budgetError as Error).message}`);
-      return jsonError(ACCESS_UNVERIFIABLE_MESSAGE, 503);
-    }
-  }
 
   // Phase 1 — research. Grounded on Anthropic; on a provider without the search
   // tools there is nothing to ground with, so the notes are skipped entirely and
@@ -120,7 +92,7 @@ export async function POST(request: Request) {
   let notes = "";
   if (groundingSupported(provider)) {
     const research = await runChat(buildResearchRequest(body, model));
-    if (db && actor && research.ok) void recordGrantUsage(db, actor, "spec-research", research.usage);
+    if (db && research.ok) void recordUsage(db, "spec-research", research.usage);
     if (!research.ok) {
       if (research.detail) console.error(`[spec-lookup] research upstream: ${research.detail}`);
       return jsonError(research.message, research.status);
@@ -131,7 +103,7 @@ export async function POST(request: Request) {
   // Phase 2 — format. Schema on, tools off; see `prompts.ts` for why these
   // cannot be one call.
   const outcome = await runChat(buildFormatRequest(body, model, notes));
-  if (db && actor && outcome.ok) void recordGrantUsage(db, actor, "spec-format", outcome.usage);
+  if (db && outcome.ok) void recordUsage(db, "spec-format", outcome.usage);
 
   if (!outcome.ok) {
     if (outcome.detail) console.error(`[spec-lookup] format upstream: ${outcome.detail}`);

@@ -5,9 +5,6 @@
 CREATE TABLE IF NOT EXISTS machine_service (
   id           TEXT PRIMARY KEY,
   machine_id   TEXT NOT NULL REFERENCES machine(id) ON DELETE CASCADE,
-  -- Denormalized owner so every statement filters on user_id directly, the
-  -- same ownership-is-a-WHERE-clause rule the rest of the inventory follows.
-  user_id      TEXT NOT NULL,
   -- YYYY-MM-DD, operator-entered. The day the work was done, not the day the
   -- row was created — created_at keeps that separately.
   performed_on TEXT NOT NULL,

@@ -16,14 +16,7 @@ import { parseReportJson } from "./report-schema";
 import { composeAssistantContent } from "../../lib/interview-machine.ts";
 import { renderReport } from "./report-template";
 import { SETTINGS_DEFAULTS, getSettings, providerFor } from "../../lib/settings.ts";
-import { currentUser, type User } from "../../lib/auth/current-user.ts";
-import {
-  ACCESS_UNVERIFIABLE_MESSAGE,
-  accessDeniedMessage,
-  checkAccess,
-  recordGrantRun,
-  recordGrantUsage,
-} from "../../lib/access.ts";
+import { recordUsage } from "../../lib/budget.ts";
 import { autosaveMachineFromIntake, refreshMachineFromIntake } from "../../lib/inventory.ts";
 import {
   addCaseTokens,
@@ -60,15 +53,16 @@ export async function POST(request: Request) {
   const validationError = validateRequest(body);
   if (validationError) return jsonError(validationError, 400);
 
-  // Server settings win over the env default when an admin has chosen a model;
-  // the catalog check happened on write, so nothing arbitrary can arrive here.
+  // Server settings win over the env default when a model has been chosen in
+  // Settings; the catalog check happened on write, so nothing arbitrary can
+  // arrive here.
   const settings = env.APP_DB ? await getSettings(env.APP_DB) : SETTINGS_DEFAULTS;
 
   if ((body.attachments?.length ?? 0) > settings.maxPhotos) {
     return jsonError(`Attach no more than ${settings.maxPhotos} photos.`, 400);
   }
 
-  // `reportModel`, when a caller sends one, overrides the admin's server
+  // `reportModel`, when a caller sends one, overrides the stored server
   // default for this one request only — validateRequest already restricted it
   // to REPORT_MODEL_OPTIONS, so nothing arbitrary reaches the provider. No
   // client sends it today; the intake picker that did has been removed.
@@ -81,8 +75,8 @@ export async function POST(request: Request) {
   }
   const provider = providerFor(model);
   if (!providerConfigured(provider)) {
-    // The admin can select a model whose provider has no key; say so plainly
-    // rather than surfacing a bare upstream 401.
+    // Settings lets you select a model whose provider has no key; say so
+    // plainly rather than surfacing a bare upstream 401.
     return jsonError(
       `The selected model's provider is not configured on the server (${provider}).`,
       500,
@@ -91,40 +85,17 @@ export async function POST(request: Request) {
 
   // Persistence is a by-product of a diagnosis, never a precondition — every
   // call below is wrapped so a storage failure logs and the request continues
-  // unaffected. No HF token or upstream body ever reaches these calls or logs.
+  // unaffected. No provider token or upstream body ever reaches these calls or
+  // logs.
   const db = env.APP_DB;
-  let actor: User | null = null;
-  try {
-    actor = await currentUser(request);
-  } catch (identityError) {
-    console.error(`[diagnose] failed to resolve actor: ${(identityError as Error).message}`);
-  }
-  const actorId = actor?.id ?? null;
 
-  // Entitlement is the one persistence-adjacent step that CAN refuse the
-  // request — that is its whole job. Admins are exempt inside checkAccess, and
-  // a viewer whose grant is unreadable is refused rather than gifted a call:
-  // the grant is the only thing authorising spend against the owner's key.
-  if (db && actor) {
-    try {
-      const access = await checkAccess(db, actor);
-      if (!access.allowed) {
-        return jsonError(accessDeniedMessage(access), 429);
-      }
-    } catch (budgetError) {
-      // Refuse rather than fall through. The reason stays in the log; the
-      // operator gets a server fault, not a false "you are out of reports".
-      console.error(`[diagnose] entitlement unreadable: ${(budgetError as Error).message}`);
-      return jsonError(ACCESS_UNVERIFIABLE_MESSAGE, 503);
-    }
-  }
-
-  // The runaway guard. A run is only charged when a report is delivered, so an
-  // interview that never converges would otherwise spend without limit and
-  // without ever being counted. Admins are exempt for the same reason they are
-  // exempt from the grant. Unlike the grant check this DOES fail open — an
-  // unreadable case row is a storage problem, not evidence of a runaway.
-  if (db && body.caseId && actor && actor.role !== "admin") {
+  // The one spend guard in the app, and the only step here that can refuse the
+  // request. An interview that never converges spends against the operator's
+  // own provider key for as long as the tab stays open, and nothing else
+  // notices. It fails OPEN on purpose: an unreadable case row is a storage
+  // problem, not evidence of a runaway, and refusing over it would break
+  // diagnosis for a fault that has nothing to do with spend.
+  if (db && body.caseId) {
     try {
       const ceiling = settings.perCaseTokenCeiling;
       if (ceiling > 0) {
@@ -150,29 +121,26 @@ export async function POST(request: Request) {
     // case row so the machine's card can list its diagnostics. Separate
     // try/catch from createCase: one failing must not take the other down.
     let machineId: string | null = null;
-    if (actorId) {
-      try {
-        // An operator who picked a saved machine at intake sends its id, and
-        // that beats guessing: inventory requires only a make, while intake
-        // requires year+make+model, so completing a thin saved record here
-        // would miss the fuzzy year/make/model match and file the case under a
-        // freshly duplicated row. The refresh proves ownership inside its own
-        // statement — a foreign, deleted, or unknown id changes nothing and
-        // falls through to the match below, so a diagnosis never fails over it.
-        if (body.machineId) {
-          const owned = await refreshMachineFromIntake(db, actorId, body.machineId, body.equipment);
-          if (owned) machineId = body.machineId;
-        }
-        if (!machineId) {
-          machineId = await autosaveMachineFromIntake(db, actorId, body.equipment);
-        }
-      } catch (persistError) {
-        console.error(`[diagnose] failed to autosave machine: ${(persistError as Error).message}`);
+    try {
+      // An operator who picked a saved machine at intake sends its id, and
+      // that beats guessing: inventory requires only a make, while intake
+      // requires year+make+model, so completing a thin saved record here
+      // would miss the fuzzy year/make/model match and file the case under a
+      // freshly duplicated row. The refresh resolves the id inside its own
+      // statement — a deleted or unknown id changes nothing and falls through
+      // to the match below, so a diagnosis never fails over a stale id.
+      if (body.machineId) {
+        const known = await refreshMachineFromIntake(db, body.machineId, body.equipment);
+        if (known) machineId = body.machineId;
       }
+      if (!machineId) {
+        machineId = await autosaveMachineFromIntake(db, body.equipment);
+      }
+    } catch (persistError) {
+      console.error(`[diagnose] failed to autosave machine: ${(persistError as Error).message}`);
     }
     try {
       caseId = await createCase(db, {
-        userId: actorId,
         machineId,
         equipment: body.equipment,
         problem: clean(body.problem),
@@ -188,10 +156,9 @@ export async function POST(request: Request) {
 
   // Spend is recorded win or lose the parse — the tokens were billed either
   // way. Failed calls carry no usage and record nothing.
-  if (db && actor) {
-    void recordGrantUsage(
+  if (db) {
+    void recordUsage(
       db,
-      actor,
       body.action === "report" ? "report" : "interview",
       outcome.ok ? outcome.usage : undefined,
     );
@@ -234,7 +201,6 @@ export async function POST(request: Request) {
         await syncCaseTranscript(
           db,
           caseId,
-          actorId,
           fullTranscript,
           interview.status === "ready" ? "ready" : "interviewing",
         );
@@ -288,20 +254,14 @@ export async function POST(request: Request) {
       await syncCaseTranscript(
         db,
         caseId,
-        actorId,
         (body.transcript ?? []) as CaseMessageInput[],
         "ready",
       );
-      await saveReport(db, caseId, actorId, model, JSON.stringify(data));
+      await saveReport(db, caseId, model, JSON.stringify(data));
     } catch (persistError) {
       console.error(`[diagnose] failed to persist report: ${(persistError as Error).message}`);
     }
   }
-
-  // The run is charged HERE and nowhere else: the report parsed, rendered, and
-  // is about to reach the operator. Counting it beside recordGrantUsage above
-  // would charge for reports that failed to parse.
-  if (db && actor) void recordGrantRun(db, actor);
 
   return Response.json(
     { html: renderReport(data, body.equipment.make) },

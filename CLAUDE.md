@@ -14,7 +14,8 @@ HTML field report.
 
 - vinext (Next.js App Router on Vite) + React 19, TypeScript
 - Plain Node.js — one process, vinext's own server. No edge runtime, no worker entry.
-- **better-sqlite3** over two files, `db/auth.db` and `db/app.db` (both gitignored)
+- **better-sqlite3** over two files: `db/app.db` (everything that matters) and
+  `db/observability.db` (disposable telemetry). Both gitignored.
 - Model calls go out through `app/api/diagnose/providers.ts`; server config is read only in
   `app/lib/server-env.ts`, over `process.env`
 - Plain CSS (`app/globals.css`). No UI framework, no Tailwind.
@@ -73,92 +74,80 @@ add a `createColumnGuard` in that table's ensure function (for existing ones). S
 **Strip comments before splitting on `;`** — see `app/lib/sql.ts`. Doing it the other way
 silently drops commented-out statements.
 
-Migration numbering runs 0001–0009, 0011, 0012. **0010 is deliberately skipped** — it held a
-payments integration that was removed. Do not renumber to close the gap.
+Removing a column is the mirror image — `createColumnDropper` in the same file — and any
+index over the column has to go first, as a `DROP INDEX IF EXISTS` in the `.sql`, because
+SQLite refuses `DROP COLUMN` while one stands. This is not tidying: the `user_id` columns
+it exists for were `NOT NULL`, so a database that still carries one rejects every insert
+the current code makes.
 
-## Auth
+Migration numbering runs **0002–0009**, and the two gaps are deliberate. 0001 held the
+auth schema and 0010 held a payments integration; both features are gone. Do not renumber
+to close either gap — reusing a number makes an old reference ambiguous about which schema
+it meant.
 
-There are no passwords and no signup. Two credentials exist, both bearer secrets typed into a
-single field on `/login`:
+## There is no authentication
 
-- **The skeleton key** — `$DB_DIR/skeleton.key`, generated on first boot, mode `0600`, printed
-  to the log **only** on the boot that creates it. It signs in as the single `owner` account
-  (role admin, fixed id `"owner"`). Rotate by deleting the file and restarting; the account and
-  everything it owns survive, because the id is fixed rather than a UUID.
-- **An access code** (`RC-XXXXX-XXXXX-XXXXX-XXXXX`) issued from Settings → Access codes. First
-  use mints a viewer account and its allowance; later uses resume that same account.
+No sign-in, no accounts, no sessions, no API key of the app's own. Every page and every
+API route answers whoever asks. Whoever can reach the port is the operator.
 
-Rules that keep this safe:
+This replaced a real auth system — skeleton key, access codes, sessions, roles, per-code
+report allowances — which is why the shape of the code still shows where it used to be.
+Two things follow, and both matter more than they look:
 
-- **The login route answers every failure with one string and one status**, so it cannot be
-  used as an oracle for whether a code exists or which kind of secret was guessed.
-- **"One-time" refers to the allowance, not the number of sign-ins.** There is no email in this
-  app and so no reset to send; a code that died after one session would strand its holder. The
-  code stays valid until its allowance is spent, it expires, or it is revoked.
-- **Revocation must kill sessions too.** `DELETE /api/tokens/:id` marks the row *and* calls
-  `deleteSessionsForUser`. Marking alone leaves a signed-in holder working for up to 30 days.
-- **The code alphabet excludes I, L, O, U, 0 and 1** so a code survives being read down a phone
-  line. `generateCode` / `normalizeCode` live in `app/lib/auth/access-code.ts`.
-- **Only the SHA-256 of a code is stored**, as for session tokens. The plaintext is returned
-  once by `POST /api/tokens` and is unrecoverable; reissue is the only recovery.
-- `users.email` and `users.password_hash` still exist as columns and are dead weight — dropping
-  them means rebuilding the table on a live volume. Email is a synthetic display label and
-  `password_hash` is the sentinel `"!"`. Nothing reads either for auth.
-- scrypt keeps its explicit `maxmem`. It pins the parameters so existing hashes stay valid.
+- **The consequences belong in the docs, not just here.** `README.md` and `SECURITY.md`
+  state plainly that anyone reachable can spend the provider key and read the corpus, and
+  that `npm start` binds `0.0.0.0` while `npm run dev` binds localhost. Publishing an app
+  that spends money on inference without saying that would be the actual defect. If the
+  deployment story changes, those two files change with it.
+- **Do not reintroduce a caller identity halfway.** There is no `user_id` on any table and
+  no ownership predicate in any query — `tests/request-guard.test.mjs` pins that a
+  migration cannot quietly declare one again. Half-restored multi-tenancy that nothing
+  enforces reads as a security control and is not one.
 
-### The gate is `middleware.ts`
+### `middleware.ts` is not a gate any more
 
-It sits at the repo root, ahead of the app router, so **a new route is protected by default**.
-To make one public, edit `PUBLIC_API` in `app/lib/auth/paths.ts` — never decorate the route.
-`/api/tokens` is admin-gated by prefix, because a token holder who reached it could mint
-themselves an unlimited allowance against the owner's provider key.
+It does two things to every request, both in `app/lib/request-guard.ts`:
 
-Pages are **not** gated: `gate()` passes non-API paths through so `/login` can render, and each
-page calls `pageUser()` and redirects itself.
+- **Security headers on every response**, refused or not. `X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy`, plus HSTS when `ENVIRONMENT=production`. HSTS is
+  production-only on purpose: sending it from a plain-HTTP dev server pins `localhost` to
+  HTTPS in the browser for a year and breaks every other project on the machine.
+- **A same-origin check on state-changing API calls.** This is *not* CSRF defence — there
+  is no session cookie left to ride. It is a spend guard: `/api/diagnose`,
+  `/api/spec-lookup` and `/api/parts-lookup` all reach a billable key, and without it a
+  page the operator happens to be visiting can `fetch("http://localhost:5211/…")` in the
+  background and run up their bill.
 
-Path predicates live in `paths.ts` with no database and no `?raw` imports, precisely so the
-allowlist stays unit-testable. Keep them there.
+  Two signals, because either alone fails open. `Origin` is absent on some browser
+  requests and on every `curl`; `Sec-Fetch-Site` is always sent by browsers and cannot be
+  set from page script. A request carrying **neither** is not a browser — it is a script
+  the operator ran themselves — so it passes rather than being blocked.
 
-### Ownership is a `WHERE` clause, never a UI check
+`request-guard.ts` stays free of the database and of the `?raw` schema imports so it runs
+under a plain `node --test`. Keep it that way.
 
-Route handlers do not re-check role, so `app/lib/library.ts` and `app/lib/inventory.ts` are the
-only place ownership can live. Updates and deletes carry the owner in their own `WHERE` rather
-than doing a check-then-write, and a row that is not yours answers with the same 404 as one
-that does not exist, so ids cannot be enumerated.
+⚠ **The dev server's 403 is not this code.** Vite's own origin check intercepts a
+cross-origin write first and answers `text/plain` "Forbidden" with none of these headers.
+Verify this middleware against a production build (`npm run build && npm start`), where
+the refusal is `{"error":"Cross-origin request rejected."}` in JSON with the headers on it.
 
-### Entitlement does not fail open
+### Spend has exactly one limit
 
-An access code buys **N generated reports**, with two ceilings behind it. The decision table is
-`decideAccess` in `app/lib/access-policy.ts`, pinned by `tests/auth-contract.test.mjs`.
+`perCaseTokenCeiling` in Settings, checked in `app/api/diagnose/route.ts` against
+`diagnostic_case.tokens_spent`. Default 400,000 tokens; 0 disables it.
 
-| Limit | Column / setting | Role |
-|---|---|---|
-| Reports | `token_grant.run_cap` / `runs_used` | The headline — what a holder is sold and told |
-| Lifetime tokens | `token_grant.token_cap` / `tokens_used` | Silent backstop on total spend |
-| Per-diagnosis tokens | `perCaseTokenCeiling` vs `diagnostic_case.tokens_spent` | Ends one runaway interview |
+- **It is not decoration and it is not a leftover.** It is what ends an interview that
+  never converges. Nothing else in the app is watching the spend.
+- **It fails OPEN.** An unreadable case row is a storage problem, not evidence of a
+  runaway, and refusing a diagnosis over it would break the app for an unrelated fault.
+  There is no entitlement to protect any more, so there is nothing left that has to fail
+  closed.
+- The refusal is a **429** and names the case, not the account.
 
-- **`0` means unlimited on every axis**, independently.
-- **Runs are checked first**, so when both are spent the refusal names the number the holder
-  actually bought.
-- **The per-case ceiling is not decoration.** A run is charged only on delivery, so without it
-  an interview that never converges spends without bound and is never counted.
-- **The grant check fails CLOSED; the per-case ceiling fails OPEN.** An unreadable grant is the
-  only thing authorising spend against the owner's key, so it refuses. An unreadable case row
-  is a storage problem, not evidence of a runaway.
-- The refusal lives at the three billable call sites (`/api/diagnose`, `/api/spec-lookup`,
-  `/api/parts-lookup`), which return **503** for an unverifiable store — not the **429** a
-  genuine quota refusal uses. An operator whose store is broken has not run out of anything,
-  and telling them they have sends them asking for a code they do not need. Do not tidy these
-  two statuses together.
-- **`token_grant.tokens_used` is a counter, not a SUM over `usage_ledger`** — the ledger prunes
-  at 13 months and would hand a long-lived code its allowance back.
-- A grant predating these columns gets `run_cap = 0` (unlimited). That is the intended
-  migration semantic: an existing holder must not lose access on deploy.
-- Admins are exempt from all three.
-
-`access-policy.ts` must stay free of the `?raw` schema import, as `paths.ts`, `access-code.ts`
-and `request.ts` are — `access.ts` imports its schema with `?raw`, which only Vite resolves, so
-importing it from a plain `node --test` run fails the whole file.
+`app/lib/budget.ts` records; it never enforces. The `usage_ledger` it writes is the
+durable record of what the install has cost — 13-month retention, deliberately not the
+14-day observability store — and `/api/usage` reads it for the month-to-date figure on
+the Settings page. Nothing refuses a request over that number.
 
 ## Report contract
 
@@ -298,8 +287,8 @@ reason all arrive as one shape — `{ ok: true; data }` | `{ ok: false; message 
 - **A 200 whose body will not parse is a failure.** Handing back `undefined` as `T` is how a card
   renders `Loading…` forever.
 
-⚠ This describes the **Settings page only**. Seven other views still fetch inside their own
-`try` / `.catch(() => null)`. Converting them is a separate change.
+⚠ This describes the **Settings page only**. Six other views still fetch inside their own
+`try` / `.catch(() => null)`, 17 call sites between them. Converting them is a separate change.
 
 ## A deploy must not break the tab it deployed into
 
@@ -324,31 +313,34 @@ server as an error.
 Three rules keep it safe to ignore:
 
 - **One-way data flow, enforced by import direction.** `app/lib/observability.ts` imports nothing
-  from auth, providers, or the data layer. Emitters call it; it reads `auth_events` by raw SQL
-  against a handle, never through `auth/store.ts`. That is what makes the subsystem rippable.
+  from providers or the data layer. Emitters call it; it never calls them. That is what makes the
+  subsystem rippable — delete the file, the store and one `runChat` emit, and nothing else
+  notices.
 - **Emits are fire-and-forget and can never throw.** The single telemetry emit lives in `runChat`,
   keyed by the required `ChatRequest.operation` tag, so a new billable call site gets telemetry by
   existing — it just has to name its operation.
 - **The store is disposable.** Its own SQLite file, prune-on-read retention. No cost column; the
   model catalog has no pricing and inventing rates would be worse than nothing.
 
-`GET /api/observability` is admin-only and must always answer 200 with a zeroed payload over a
-broken or empty store, never 500.
+`GET /api/observability` must always answer 200 with a zeroed payload over a broken or empty
+store, never 500. The panel must not go down over exhaust that is designed to be deletable.
 
-`GET /api/health` is public by allowlist and probes **both** SQLite handles with `SELECT 1` — a
-static 200 would report healthy on a volume that never mounted, which is the failure it exists
-for. It answers `degraded` / 503 when either handle is unreachable, and the reason goes to the
-logs, never the body.
+`GET /api/health` probes `app.db` with `SELECT 1` — a static 200 would report healthy on a volume
+that never mounted, which is the failure it exists for. It deliberately does **not** probe
+`observability.db`: that file rides the same directory, so it proves nothing app.db has not
+already proved, and failing a healthcheck over a disposable store would take the service down for
+nothing. The reason for a `degraded` / 503 goes to the logs, never the body.
 
 ## Settings
 
 `activeModel` is validated against `MODEL_CATALOG` on write. It reaches a billable call, so an
 arbitrary id must never be persistable.
 
-`PARTS_MODEL` in `app/api/parts-lookup/route.ts` is pinned deliberately and does **not** follow
-`settings.activeModel` — a per-click paid surface must not silently follow an admin's report
-model up to a more expensive tier. Note that a parts lookup is genuinely expensive: one measured
-run was ~116k tokens for research plus ~5k to format.
+`PARTS_MODEL` in `app/api/parts-lookup/route.ts` and `SCENARIO_MODEL` in
+`app/api/random-scenario/route.ts` are pinned deliberately and do **not** follow
+`settings.activeModel` — a per-click billable surface must not silently follow the report model
+up to a more expensive tier. A parts lookup is genuinely expensive: one measured run was 115,628
+tokens for research plus 5,339 to format, returning three priced listings.
 
 ## Tests
 
@@ -356,11 +348,13 @@ run was ~116k tokens for research plus ~5k to format.
 `pretest`. `npm run lint` is ESLint only. `npm run typecheck` (`tsc --noEmit`) exists but is
 deliberately not wired into `test` or `build` — CI runs all three.
 
-All ten files are pure contract/logic tests: no HTTP handler, no database. They cover the auth
-schemas and access-code helpers, the path allowlist, request/report/spec/inventory validation
-and coercion, the interview reducer and transcript cap, the suggestion catalog and combobox
-helpers, the observability rollup math, the stale-build matcher, the `requestJson` failure
-shape, and the three `package.json` script invariants whose regression is silent.
+All ten files are pure contract/logic tests: no HTTP handler, no database. They cover the
+schema files and the request guard (`request-guard.test.mjs` — security headers, the
+cross-origin rule in both directions, statement idempotency, and that no migration declares an
+owner column again), request/report/spec/inventory validation and coercion, the interview reducer
+and transcript cap, the suggestion catalog and combobox helpers, the observability rollup math,
+the stale-build matcher, the `requestJson` failure shape, and the three `package.json` script
+invariants whose regression is silent.
 
 ⚠ **`evals/run-eval.mjs` is a script, not a module — importing it starts a billed run.** It has
 no `main()` guard, so `import("./evals/run-eval.mjs")` immediately begins calling the model API

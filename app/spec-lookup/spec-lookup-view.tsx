@@ -37,7 +37,7 @@ function formatCountdown(totalSeconds: number) {
   return minutes > 0 ? `${minutes}m ${seconds.toString().padStart(2, "0")}s` : `${seconds}s`;
 }
 
-export function SpecLookupView({ userEmail, isAdmin }: { userEmail: string; isAdmin: boolean }) {
+export function SpecLookupView() {
   const [form, setForm] = useState<LookupForm>(initialForm);
   const [data, setData] = useState<SpecData | null>(null);
   const [error, setError] = useState("");
@@ -113,9 +113,7 @@ export function SpecLookupView({ userEmail, isAdmin }: { userEmail: string; isAd
         </Link>
         <div>
           <h1>Spec lookup</h1>
-          <p>
-            Signed in as {userEmail} · {isAdmin ? "Administrator" : "Viewer"}
-          </p>
+          <p>Service figures for one machine</p>
         </div>
         <Link className="settings-back" href="/">Back to diagnostics</Link>
       </header>

@@ -61,18 +61,28 @@ rather than quietly moving — that is the intended behaviour. Changing it means
 `vite.config.ts`, both npm scripts, and the metadata fallback in `app/layout.tsx`
 together.
 
-**Two SQLite files, not one.** `db/auth.db` holds accounts and sessions; `db/app.db`
-holds application data — settings, the case and report corpus, the machine inventory.
-They are separate so that identity data and application data never share a transaction or
-a migration. `db/` is gitignored and both files are created on first run. A third,
-`db/observability.db`, is disposable telemetry: delete it any time.
+**There is no authentication, and that is a design decision rather than a gap.**
+Every route answers whoever asks. It changes what a change to this repo can assume:
+there is no caller identity to filter on, no role to check, and no session to attach
+anything to. If a feature seems to need one, that is a conversation before it is a pull
+request. [`SECURITY.md`](SECURITY.md) states the consequences for deployment.
+
+**Two SQLite files.** `db/app.db` holds everything that matters — settings, the case
+and report corpus, the machine inventory, the usage ledger. `db/observability.db` is
+disposable model-call telemetry, kept in its own file so a retention bug can only ever
+eat metrics; delete it any time. `db/` is gitignored and both are created on first run.
 
 **Migrations are the schema, and they re-run in full on every boot.** `migrations/*.sql`
 are imported with `?raw` and executed at startup, so there is no migration step in
 development. The consequence that catches people: a bare `ALTER TABLE` works on boot #1
 and fails on boot #2. Adding a column means putting it in that table's `CREATE` *and*
-adding a `createColumnGuard` in the table's ensure function. See `machine.label` for the
-pattern.
+adding a `createColumnGuard` in the table's ensure function — see `machine.label`.
+Removing one is the mirror image, `createColumnDropper`, and any index over the column
+has to be dropped in the `.sql` first.
+
+The files are numbered 0002–0009, and that is not a mistake to tidy. There is no 0001
+(it held the auth schema) and no 0010 (a payments integration). Reusing either number
+would make an old reference ambiguous about which schema it meant.
 
 **The model returns JSON; the server renders the HTML.** Three files move together —
 `app/api/diagnose/report-schema.ts` (the contract), `report-template.ts` (the document and

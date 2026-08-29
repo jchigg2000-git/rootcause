@@ -1,5 +1,29 @@
 # Security
 
+## RootCause has no authentication
+
+There is no sign-in, no account, and no API key of its own. Every page and every
+API route answers whoever asks. Anyone who can reach the port can:
+
+- run diagnoses, spec lookups and parts lookups, **which spend your provider key**;
+- read every case and report the install has stored;
+- add, edit and delete machines in the inventory;
+- change the server settings, including which model is used.
+
+This is deliberate — RootCause is a tool one operator runs for themselves — but it
+decides how you are allowed to deploy it.
+
+**`npm run dev` binds to localhost only. `npm start` binds `0.0.0.0`**, which means
+every host on the network it is attached to can reach it. If you run the production
+server, put it behind something:
+
+- keep it on `localhost` and reach it over an SSH tunnel;
+- or put a reverse proxy in front and make the proxy do the authentication;
+- or keep it on a private network — a VPN, a tailnet — and nothing else.
+
+Do not put it on the public internet. The first thing that finds it will spend your
+inference budget, and there is nothing in the application to stop it.
+
 ## Reporting a vulnerability
 
 Please report security issues privately, through GitHub's
@@ -9,47 +33,49 @@ on this repository, rather than opening a public issue.
 This is a small project maintained by one person. There is no bounty and no
 guaranteed response window, but reports are read and taken seriously.
 
-## Scope
+Given the section above, "there is no authentication" is a known property rather than
+a finding. What is worth reporting is anything that makes the damage worse than the
+model described here — for example a way to reach the provider key itself, to make
+the server fetch a URL of your choosing, or to get script into a generated report.
 
-RootCause is a self-hosted application: you run it, on your own machine or your
-own host, against your own provider key. There is no service operated by the
-maintainer, so there is nothing to attack but your own deployment.
+## What is worth scrutiny
 
-The parts most worth scrutiny:
-
-- `middleware.ts` — the single request gate. Every API route is protected by
-  default; a route becomes public only by being listed in `PUBLIC_API` in
-  `app/lib/auth/paths.ts`.
-- `app/lib/auth/` — session tokens and access codes, both stored only as
-  SHA-256 hashes, and the skeleton key.
-- `app/lib/access-policy.ts` — the spend limits that stand between an access
-  code and your provider bill.
-- `app/lib/library.ts` and `app/lib/inventory.ts` — per-user ownership, enforced
-  in the `WHERE` clause rather than in the UI.
+- `middleware.ts` and `app/lib/request-guard.ts` — the security headers, and the
+  same-origin check on state-changing API calls. That check is not CSRF defence;
+  there is no session to ride. It stops a page you happen to be visiting from
+  POSTing to your own `localhost` in the background and spending your key.
+- `app/api/diagnose/report-template.ts` — the server, not the model, writes the
+  report HTML. Every model-supplied string goes through `escapeHtml`, source URLs
+  are restricted to `http(s)`, and the document carries its own CSP `<meta>`,
+  which is the only layer that survives being downloaded and opened from `file://`.
+- `app/lib/settings.ts` — `activeModel` is validated against a fixed catalog on
+  write, so a settings row can never point paid inference at an arbitrary model id.
+- `app/api/diagnose/providers.ts` — where the provider key is used, and the one
+  place an upstream error body could leak account detail into a response. It goes
+  to the log instead.
 
 ## Operational notes
 
-- **The skeleton key is a bearer secret.** It is written to
-  `$DB_DIR/skeleton.key` at mode `0600` on first boot and printed to the log
-  exactly once, on that boot. Anyone who can read the file or that log line is
-  an admin. Rotate it by deleting the file and restarting.
-- **Set `DB_DIR` to a persistent path in any deployment.** On a container host
-  the default `./db` is replaced on every deploy, which silently discards your
-  data and regenerates the key.
 - **Provider keys are read server-side only**, in `app/lib/server-env.ts`. Never
   expose one through a `NEXT_PUBLIC_*` or `VITE_*` variable — they are billable.
-- **Serve it over HTTPS.** `COOKIE_SECURE=false` exists for plain-HTTP local
-  development and should not be used anywhere else.
+- **Set `DB_DIR` to a persistent path in any deployment.** On a container host the
+  default `./db` is replaced on every deploy, which silently discards your data.
+- **The per-diagnosis token ceiling is the only spend limit in the app.** It lives in
+  Settings, defaults to 400,000 tokens, and ends an interview that stops converging.
+  Setting it to 0 disables it, and nothing else is watching.
+- **Photos and field text go to your inference provider** as part of the request.
+  Whatever their retention policy is, is the retention policy for that data.
 
 ## A known advisory that is expected
 
-`npm audit` reports a production HIGH for `image-size`, reached through the
-`vinext` framework. Both advisories cover `<= 2.0.2`, and 2.0.2 is the newest
-published version, so there is no fixed release to move to. It was traced and is
-not reachable at runtime: its only importers are build-path modules, and the
-image endpoint never decodes image bytes.
+`npm audit` reports a production HIGH for `image-size`, reached through the `vinext`
+framework. Both advisories cover `<= 2.0.2`, and 2.0.2 is the newest published
+version, so there is no fixed release to move to. It was traced and is not reachable
+at runtime: its only importers are build-path modules, and the image endpoint never
+decodes image bytes.
 
-Note that `npm audit` offers a `vinext` upgrade as the remedy and it is not one
-— that release bundles `image-size` into its own `dist` rather than patching or
-dropping it, so the advisory leaves the dependency graph while the same parser
-code still ships. See `CLAUDE.md` for the full trace.
+Note that `npm audit` offers a `vinext` upgrade as the remedy and it is not one —
+that release bundles `image-size` into its own `dist` rather than patching or
+dropping it, so the advisory leaves the dependency graph while the same parser code
+still ships. Taking it would trade a truthful audit line for a silent one. See
+[`CLAUDE.md`](CLAUDE.md) for the full trace.
