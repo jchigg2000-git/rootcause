@@ -185,3 +185,43 @@ test("a report with no caseId at all still opens no case", async () => {
     restore();
   }
 });
+
+test("a refused response_format earns one unconstrained retry; a server error does not", async () => {
+  // Servers disagree on how they refuse a parameter they do not know — 422 is the
+  // validation-layer answer — and only 400 used to trigger the retry, so those
+  // servers failed every diagnosis outright. A 5xx is the server failing, not
+  // the parameter being refused, and must not be retried unconstrained.
+  await freshInstall();
+  const real = globalThis.fetch;
+  process.env.HF_TOKEN = "test-token";
+  const sent = [];
+  let firstStatus = 422;
+  globalThis.fetch = async (_url, init) => {
+    const body = JSON.parse(init.body);
+    sent.push(body);
+    if ("response_format" in body) {
+      return Response.json({ error: { message: "unknown field" } }, { status: firstStatus });
+    }
+    return Response.json({
+      choices: [{ message: { content: JSON.stringify(INTERVIEW_REPLY) }, finish_reason: "stop" }],
+      usage: { prompt_tokens: 100, completion_tokens: 20 },
+    });
+  };
+  try {
+    const refused = await POST(request({ action: "interview" }));
+    assert.equal(refused.status, 200);
+    assert.deepEqual(
+      sent.map((body) => "response_format" in body),
+      [true, false],
+    );
+
+    sent.length = 0;
+    firstStatus = 503;
+    const failing = await POST(request({ action: "interview" }));
+    assert.equal(failing.status, 503);
+    assert.equal(sent.length, 1, "a server error was retried");
+  } finally {
+    globalThis.fetch = real;
+    delete process.env.HF_TOKEN;
+  }
+});

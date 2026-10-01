@@ -281,6 +281,19 @@ type HfMessage = {
       >;
 };
 
+/**
+ * The statuses an OpenAI-compatible server uses to refuse a parameter it does
+ * not understand, which earn one retry without `response_format`.
+ *
+ * Servers disagree on the code: 400 is the common answer, but validation-layer
+ * servers answer 422 and some gateways 415. An explicit list rather than a
+ * range, because a 5xx is the server failing, not the parameter being refused —
+ * retrying it unconstrained would double the call and hand back a report that
+ * is likelier to break on an unescaped quote. 401/403/404/429 are about the
+ * account or the model id, and an unconstrained retry would only repeat them.
+ */
+const REJECTED_PARAMETER_STATUSES = new Set([400, 415, 422]);
+
 async function runHuggingFace(request: ChatRequest): Promise<ChatOutcome> {
   const token = env.HF_TOKEN?.trim();
   if (!token) {
@@ -333,7 +346,9 @@ async function runHuggingFace(request: ChatRequest): Promise<ChatOutcome> {
   try {
     upstream = await call(wantsJson);
     // Not every model behind an OpenAI-compatible base accepts response_format.
-    if (wantsJson && upstream.status === 400) upstream = await call(false);
+    if (wantsJson && REJECTED_PARAMETER_STATUSES.has(upstream.status)) {
+      upstream = await call(false);
+    }
   } catch (error) {
     const timedOut = error instanceof Error && error.name === "TimeoutError";
     return fail(

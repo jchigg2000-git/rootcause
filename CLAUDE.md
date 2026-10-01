@@ -195,9 +195,12 @@ the model emits content for an id the template never renders.
 Report requests are constrained, and how depends on the provider — `response_format` appears
 in the OpenAI-compatible client only. Anthropic, which is the default path, gets
 `output_config.format` with `REPORT_JSON_SCHEMA`: strictly stronger, because it constrains the
-shape rather than only the syntax, and it has no 400 fallback. The OpenAI-compatible/HF client
-gets `response_format: { type: "json_object" }` with a retry as an unconstrained call on HTTP
-400, because not every model behind a router accepts the parameter. **Do not remove either
+shape rather than only the syntax, and it has no fallback. The OpenAI-compatible/HF client
+gets `response_format: { type: "json_object" }` with one unconstrained retry when the server
+refuses it, because not every model behind a router accepts the parameter. "Refuses" is
+`REJECTED_PARAMETER_STATUSES` — 400, 415 and 422, the codes servers actually use for an unknown
+parameter — and deliberately not a range: a 5xx is the server failing, and retrying it
+unconstrained doubles the call for a likelier-broken report. **Do not remove either
 constraint** — unconstrained generation of a report-sized JSON object fails intermittently on
 unescaped quotes.
 
@@ -396,7 +399,8 @@ invariants whose regression is silent.
 The eleventh, `diagnose-route.test.mjs`, is the exception: it drives the real `/api/diagnose`
 handler against an in-memory SQLite database with `fetch` stubbed, so it pins what the handler
 does with a `caseId` (a stale one starts a fresh case and the new id is returned; a live one is
-kept; nothing is written to disk and nothing leaves the process). It can only run because
+kept) and which upstream refusals earn the unconstrained `response_format` retry. Nothing is
+written to disk and nothing leaves the process. It can only run because
 `tests/support/app-loader.mjs` teaches plain Node the two lookups only Vite performed — the
 `?raw` suffix and extensionless relative imports. **That is the whole reach of the loader**;
 do not grow it into a bundler. Two things follow from running the real modules:
