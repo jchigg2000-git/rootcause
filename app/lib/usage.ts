@@ -86,6 +86,6 @@ export async function recordUsage(
       db.prepare("DELETE FROM usage_ledger WHERE ts < ?").bind(horizon),
     ]);
   } catch (ledgerError) {
-    console.error(`[budget] failed to record usage: ${(ledgerError as Error).message}`);
+    console.error(`[usage] failed to record usage: ${(ledgerError as Error).message}`);
   }
 }

@@ -72,6 +72,8 @@ test("year is four digits or blank, never a partial", () => {
   assert.equal(validateMachineInput({ make: "Deere", year: "2014" }).value.year, "2014");
   assert.match(validateMachineInput({ make: "Deere", year: "14" }).error, /four digits/);
   assert.match(validateMachineInput({ make: "Deere", year: "20x4" }).error, /four digits/);
+  // Truncating to four characters before checking would have accepted this as 2024.
+  assert.match(validateMachineInput({ make: "Deere", year: "20244" }).error, /four digits/);
 });
 
 test("coerceHours stands alone for auto-save: blank is null, junk refuses", () => {
@@ -101,6 +103,10 @@ test("a service entry needs a real date and a note, both bounded", () => {
   assert.match(validateServiceEntry(null).error, /as an object/);
   assert.match(validateServiceEntry({ note: "Oil change" }).error, /YYYY-MM-DD/);
   assert.match(validateServiceEntry({ performedOn: "yesterday", note: "x" }).error, /YYYY-MM-DD/);
+  // The right shape is not enough: the day has to exist.
+  assert.match(validateServiceEntry({ performedOn: "2026-02-31", note: "x" }).error, /YYYY-MM-DD/);
+  assert.match(validateServiceEntry({ performedOn: "2026-13-01", note: "x" }).error, /YYYY-MM-DD/);
+  assert.equal(validateServiceEntry({ performedOn: "2028-02-29", note: "x" }).ok, true);
   assert.match(validateServiceEntry({ performedOn: "2026-08-06", note: "  " }).error, /Describe/);
 
   const ok = validateServiceEntry({

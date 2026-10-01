@@ -83,7 +83,9 @@ export function validateMachineInput(body: unknown): ValidationResult {
   const make = text(raw.make, MAX_IDENTITY_LENGTH);
   if (!make) return { ok: false, error: "Enter the machine's make." };
 
-  const year = text(raw.year, 4);
+  // Bounded loosely, then judged: slicing to four characters first would turn
+  // "20244" into a valid-looking "2024" and record a year nobody typed.
+  const year = text(raw.year, 10);
   if (year && !/^\d{4}$/.test(year)) {
     return { ok: false, error: "Enter the year as four digits, or leave it blank." };
   }
@@ -123,6 +125,12 @@ export type ServiceValidationResult =
   | { ok: true; value: ServiceEntryInput }
   | { ok: false; error: string };
 
+/** True only for a day that exists: "2026-02-31" matches the shape and is not one. */
+const isCalendarDate = (value: string): boolean => {
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
+
 /** A dated maintenance entry: the date is the point, so it is required. */
 export function validateServiceEntry(body: unknown): ServiceValidationResult {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -131,7 +139,7 @@ export function validateServiceEntry(body: unknown): ServiceValidationResult {
   const raw = body as Record<string, unknown>;
 
   const performedOn = text(raw.performedOn, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(performedOn)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(performedOn) || !isCalendarDate(performedOn)) {
     return { ok: false, error: "Enter the service date as YYYY-MM-DD." };
   }
 
