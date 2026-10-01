@@ -34,6 +34,17 @@ test("intake requires a machine and a described problem", () => {
   assert.match(validateRequest({ ...base, action: "deploy" }), /valid diagnostic action/);
 });
 
+test("a mistyped body is refused as a 400, never thrown as a 500", () => {
+  assert.match(validateRequest({ ...base, equipment: { ...equipment, year: 2014 } }), /Year, make, and model/);
+  assert.match(validateRequest({ ...base, problem: 42 }), /Describe the machine problem/);
+  assert.match(validateRequest({ ...base, attachments: {} }), /malformed/);
+  assert.match(validateRequest({ ...base, transcript: "hi" }), /malformed/);
+  assert.match(validateRequest({ ...base, attachments: [null] }), /JPEG, PNG, or WebP/);
+  assert.match(validateRequest({ ...base, transcript: [null] }), /invalid message/);
+  assert.match(validateRequest({ ...base, transcript: [{ role: "user", content: 7 }] }), /invalid message/);
+  assert.equal(validateRequest({ ...base, attachments: null, transcript: null }), null);
+});
+
 test("a picked machine reference is optional but bounded when present", () => {
   // Absent is the freehand path and must keep working; present means the
   // operator picked a saved machine, and the route trusts it only after an

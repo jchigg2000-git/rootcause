@@ -138,7 +138,8 @@ export function validateServiceEntry(body: unknown): ServiceValidationResult {
   }
   const raw = body as Record<string, unknown>;
 
-  const performedOn = text(raw.performedOn, 10);
+  // Bounded loosely, then judged — slicing to ten first would accept "2026-01-150" as the 15th.
+  const performedOn = text(raw.performedOn, 20);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(performedOn) || !isCalendarDate(performedOn)) {
     return { ok: false, error: "Enter the service date as YYYY-MM-DD." };
   }

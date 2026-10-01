@@ -106,6 +106,7 @@ test("a service entry needs a real date and a note, both bounded", () => {
   // The right shape is not enough: the day has to exist.
   assert.match(validateServiceEntry({ performedOn: "2026-02-31", note: "x" }).error, /YYYY-MM-DD/);
   assert.match(validateServiceEntry({ performedOn: "2026-13-01", note: "x" }).error, /YYYY-MM-DD/);
+  assert.match(validateServiceEntry({ performedOn: "2026-01-150", note: "x" }).error, /YYYY-MM-DD/);
   assert.equal(validateServiceEntry({ performedOn: "2028-02-29", note: "x" }).ok, true);
   assert.match(validateServiceEntry({ performedOn: "2026-08-06", note: "  " }).error, /Describe/);
 

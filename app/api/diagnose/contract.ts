@@ -401,8 +401,9 @@ function coerceQuestion(raw: unknown): InterviewQuestion | null {
   return { text: askText, options: cleanOptions.length >= 2 ? cleanOptions : [] };
 }
 
-export function clean(value?: string): string {
-  return value?.trim().replace(/\s+/g, " ") ?? "";
+/** Untrusted JSON can put a number or object anywhere a string belongs; that reads as empty. */
+export function clean(value?: unknown): string {
+  return typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "";
 }
 
 export function validateRequest(body: DiagnosisRequest): string | null {
@@ -416,10 +417,16 @@ export function validateRequest(body: DiagnosisRequest): string | null {
   }
   if (!clean(body.problem)) return "Describe the machine problem before continuing.";
 
+  // Shape before contents: a non-array here would throw below, turning a bad
+  // request into a 500 instead of a 400.
+  for (const list of [body.attachments, body.attachmentNames, body.transcript]) {
+    if (list != null && !Array.isArray(list)) return "The request is malformed.";
+  }
+
   const attachments = body.attachments ?? [];
   if (attachments.length > MAX_IMAGES) return `Attach no more than ${MAX_IMAGES} photos.`;
   for (const attachment of attachments) {
-    if (!SUPPORTED_IMAGE_TYPES.includes(attachment.type?.toLowerCase?.() ?? "")) {
+    if (!attachment || !SUPPORTED_IMAGE_TYPES.includes(attachment.type?.toLowerCase?.() ?? "")) {
       return "Photos must be JPEG, PNG, or WebP files.";
     }
     if (
@@ -444,6 +451,7 @@ export function validateRequest(body: DiagnosisRequest): string | null {
   if (
     transcript.some(
       (message) =>
+        !message ||
         (message.role !== "assistant" && message.role !== "user") ||
         !clean(message.content) ||
         message.content.length > MAX_MESSAGE_LENGTH,
