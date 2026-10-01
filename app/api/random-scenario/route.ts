@@ -28,10 +28,29 @@ const SYSTEM =
 const field = (value: unknown): string =>
   typeof value === "string" ? value.trim().slice(0, 80) : "";
 
+/** Four short fields. Every other billable route caps its body; this one did not. */
+const MAX_REQUEST_BYTES = 4 * 1024;
+
 export async function POST(request: Request) {
+  let raw: ArrayBuffer;
+  try {
+    raw = await request.arrayBuffer();
+  } catch {
+    return jsonError("The scenario request could not be read.", 400);
+  }
+  if (raw.byteLength > MAX_REQUEST_BYTES) {
+    return jsonError("The request is too large.", 413);
+  }
+
+  // Valid JSON is not necessarily an object: `null` parsed fine and then threw
+  // on the first field read, turning a malformed request into a 500.
   let body: Record<string, unknown>;
   try {
-    body = (await request.json()) as Record<string, unknown>;
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(raw));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return jsonError("The scenario request could not be read.", 400);
+    }
+    body = parsed as Record<string, unknown>;
   } catch {
     return jsonError("The scenario request could not be read.", 400);
   }

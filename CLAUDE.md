@@ -391,7 +391,7 @@ tokens for research plus 5,339 to format, returning three priced listings.
 `pretest`. `npm run lint` is ESLint only. `npm run typecheck` (`tsc --noEmit`) exists but is
 deliberately not wired into `test` or `build` — CI runs all three.
 
-Ten of the eleven files are pure contract/logic tests: no HTTP handler, no database. They
+Ten of the twelve files are pure contract/logic tests: no HTTP handler, no database. They
 cover the schema files and the request guard (`request-guard.test.mjs` — security headers, the
 cross-origin rule in both directions, statement idempotency, and that no migration declares an
 owner column again), request/report/spec/inventory validation and coercion, the interview reducer
@@ -399,11 +399,12 @@ and transcript cap, the suggestion catalog and combobox helpers, the observabili
 the stale-build matcher, the `requestJson` failure shape, and the three `package.json` script
 invariants whose regression is silent.
 
-The eleventh, `diagnose-route.test.mjs`, is the exception: it drives the real `/api/diagnose`
-handler against an in-memory SQLite database with `fetch` stubbed, so it pins what the handler
+The other two drive real route handlers. `diagnose-route.test.mjs` runs `/api/diagnose`
+against an in-memory SQLite database with `fetch` stubbed, so it pins what the handler
 does with a `caseId` (a stale one starts a fresh case and the new id is returned; a live one is
-kept) and which upstream refusals earn the unconstrained `response_format` retry. Nothing is
-written to disk and nothing leaves the process. It can only run because
+kept) and which upstream refusals earn the unconstrained `response_format` retry.
+`random-scenario-route.test.mjs` pins that a malformed or oversized body is refused before the
+model is called. Nothing is written to disk and nothing leaves the process. They can only run because
 `tests/support/app-loader.mjs` teaches plain Node the two lookups only Vite performed — the
 `?raw` suffix and extensionless relative imports. **That is the whole reach of the loader**;
 do not grow it into a bundler. Two things follow from running the real modules:
