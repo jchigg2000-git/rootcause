@@ -137,7 +137,7 @@ formatting, to return three priced listings.
 
 - `npm run dev` — run the local application
 - `npm run build` — create the production build
-- `npm test` — run the contract and logic tests (no network, no database, no build)
+- `npm test` — run the contract and logic tests (no network, no build, nothing written to disk)
 - `npm run lint` — run ESLint
 - `npm run typecheck` — run `tsc --noEmit`
 

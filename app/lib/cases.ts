@@ -58,6 +58,28 @@ export async function caseTokensSpent(db: Database, caseId: string): Promise<num
   return row?.tokens_spent ?? 0;
 }
 
+/**
+ * Whether `caseId` names a stored case.
+ *
+ * A client holds a case id for as long as its tab stays open, and nothing ties
+ * that to the database it came from: a replaced volume, a wiped `db/`, or an id
+ * minted by a different install all leave a well-formed id that names no row.
+ * The route asks this before using one.
+ *
+ * Unlike `caseTokensSpent` it THROWS on a storage failure rather than guessing,
+ * because the two callers' safe answers differ and only the caller knows which
+ * it is. Answering "no" over an unreadable table would start a second case for
+ * every turn of a healthy interview.
+ */
+export async function caseExists(db: Database, caseId: string): Promise<boolean> {
+  await ensureDiagnosticCaseSchema(db);
+  const row = await db
+    .prepare("SELECT 1 AS found FROM diagnostic_case WHERE id = ?")
+    .bind(caseId)
+    .first<{ found: number }>();
+  return row !== null;
+}
+
 /** Fire-and-forget, like every other by-product write on the diagnosis path. */
 export async function addCaseTokens(db: Database, caseId: string, tokens: number): Promise<void> {
   if (tokens <= 0) return;

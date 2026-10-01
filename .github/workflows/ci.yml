@@ -41,6 +41,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Contract/logic tests only — no server, no database.
+      # Contract/logic tests plus one route test over an in-memory database — no server,
+      # no network, nothing written to disk.
       - name: Test
         run: npm test

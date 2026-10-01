@@ -54,11 +54,16 @@ export interface Database {
  */
 class Statement implements PreparedStatement {
   private params: unknown[] = [];
+  private readonly raw: BetterSqlite3.Database;
+  private readonly sql: string;
 
-  constructor(
-    private readonly raw: BetterSqlite3.Database,
-    private readonly sql: string,
-  ) {}
+  // Fields declared out here rather than as constructor parameter properties:
+  // Node's built-in type stripping, which `npm test` relies on, rejects the
+  // latter, and this file is on the path of every storage test.
+  constructor(raw: BetterSqlite3.Database, sql: string) {
+    this.raw = raw;
+    this.sql = sql;
+  }
 
   bind(...args: unknown[]): PreparedStatement {
     this.params = args;
@@ -86,7 +91,11 @@ class Statement implements PreparedStatement {
 }
 
 class SqliteDatabase implements Database {
-  constructor(private readonly raw: BetterSqlite3.Database) {}
+  private readonly raw: BetterSqlite3.Database;
+
+  constructor(raw: BetterSqlite3.Database) {
+    this.raw = raw;
+  }
 
   prepare(sql: string): PreparedStatement {
     return new Statement(this.raw, sql);

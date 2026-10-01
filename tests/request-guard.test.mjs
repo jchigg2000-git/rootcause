@@ -49,7 +49,7 @@ test("a column an index still covers cannot be dropped, so the drop comes second
   // SQLite refuses `ALTER TABLE … DROP COLUMN` while an index references the
   // column. The two ownership indexes are dropped in the .sql files, which the
   // schema runner executes before the column-dropper guards in inventory.ts and
-  // budget.ts. Getting that order wrong fails only on a database that predates
+  // usage.ts. Getting that order wrong fails only on a database that predates
   // the removal of accounts — which is nobody's test database, so pin it here.
   const dir = new URL("../migrations/", import.meta.url);
   const drops = {

@@ -20,6 +20,7 @@ import { recordUsage } from "../../lib/usage.ts";
 import { autosaveMachineFromIntake, refreshMachineFromIntake } from "../../lib/inventory.ts";
 import {
   addCaseTokens,
+  caseExists,
   caseTokensSpent,
   createCase,
   saveReport,
@@ -118,7 +119,34 @@ export async function POST(request: Request) {
   }
 
   let caseId = body.caseId ?? null;
-  if (body.action === "interview" && !caseId && db) {
+
+  // A caseId that names no row is not a case. The client holds the id for as
+  // long as its tab lives, so a database replaced underneath it (a re-mounted
+  // volume, a wiped `db/`) leaves a well-formed id that every write below would
+  // silently skip — and the response would echo it straight back, so the whole
+  // session would be lost to the corpus with nothing anywhere saying so.
+  // Treating it as absent starts a fresh case, and `syncCaseTranscript` fills it
+  // from the full transcript the client is already sending. A lookup that
+  // itself fails fails open, like the ceiling check above: guessing "stale"
+  // over an unreadable table would open a second case on every turn of an
+  // interview that is working fine.
+  let staleCaseId = false;
+  if (db && caseId) {
+    try {
+      staleCaseId = !(await caseExists(db, caseId));
+    } catch (lookupError) {
+      console.error(`[diagnose] case lookup failed: ${(lookupError as Error).message}`);
+    }
+    if (staleCaseId) {
+      console.warn("[diagnose] caseId names no stored case; starting a fresh one");
+      caseId = null;
+    }
+  }
+
+  // A report is the end of an interview, not the start of a case, so it creates
+  // one only to replace an id that went stale — otherwise the report the
+  // operator waited minutes for would be the one thing that never got stored.
+  if ((body.action === "interview" || staleCaseId) && !caseId && db) {
     // The machine is saved to the caller's inventory as a by-product of
     // starting a diagnosis (auto-save, 2026-08-06), and its id rides into the
     // case row so the machine's card can list its diagnostics. Separate
@@ -148,7 +176,9 @@ export async function POST(request: Request) {
         equipment: body.equipment,
         problem: clean(body.problem),
         modelId: model,
-        photoCount: body.attachments?.length ?? 0,
+        // Later turns carry the names but not the photos themselves, and a
+        // case healed mid-interview is created on exactly such a turn.
+        photoCount: Math.max(body.attachments?.length ?? 0, body.attachmentNames?.length ?? 0),
       });
     } catch (persistError) {
       console.error(`[diagnose] failed to create case: ${(persistError as Error).message}`);

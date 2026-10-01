@@ -34,8 +34,8 @@ npm run typecheck
 npm test
 ```
 
-All three should be clean. `npm test` runs pure contract and logic tests — no network, no
-database, no build step.
+All three should be clean. `npm test` runs contract and logic tests — no network, no build
+step, and nothing written to disk.
 
 The Node floor is **22.18**, and it is set by the tests rather than by the app: they
 import the TypeScript sources directly, and Node only strips types without a flag from

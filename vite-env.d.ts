@@ -6,7 +6,9 @@
  *
  * It is also why a module importing a schema cannot be exercised under a plain
  * `node --test` run — only Vite resolves the suffix. Anything worth pinning is
- * kept in a sibling module free of it.
+ * kept in a sibling module free of it; the one test that needs the real storage
+ * and route modules (`tests/diagnose-route.test.mjs`) installs
+ * `tests/support/app-loader.mjs` to resolve the suffix itself.
  */
 declare module "*.sql?raw" {
   const content: string;

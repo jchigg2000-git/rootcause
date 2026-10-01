@@ -152,10 +152,31 @@ the refusal is `{"error":"Cross-origin request rejected."}` in JSON with the hea
   closed.
 - The refusal is a **429** and names the case, not the account.
 
-`app/lib/budget.ts` records; it never enforces. The `usage_ledger` it writes is the
+`app/lib/usage.ts` records; it never enforces. The `usage_ledger` it writes is the
 durable record of what the install has cost — 13-month retention, deliberately not the
 14-day observability store — and `/api/usage` reads it for the month-to-date figure on
 the Settings page. Nothing refuses a request over that number.
+
+## A `caseId` that names no case is replaced, never echoed
+
+The client holds its case id for as long as the tab lives, and nothing ties it to the
+database that issued it — a re-mounted volume or a wiped `db/` leaves a well-formed id that
+matches no row. `app/api/diagnose/route.ts` therefore checks `caseExists` before using one.
+
+- **A stale id starts a fresh case**, filled from the full transcript the client already
+  sends, and the interview reply carries the new id so the client adopts it. Before this the
+  id was echoed back, every write silently skipped it, and the whole session was lost to the
+  corpus with nothing logged.
+- **A report heals a stale id too, but never invents a case for a request that sent none.**
+  The report is what the operator waited minutes for; an interview turn is the only thing
+  that opens a case from nothing.
+- **The lookup fails open.** If the existence check itself throws, the id is assumed good —
+  guessing "stale" over an unreadable table would open a second case on every turn of a
+  healthy interview.
+- A healed case restarts its token count at zero, so the per-case ceiling cannot see spend
+  from before the id went stale. Nothing recorded it, so there is nothing to carry over.
+
+Pinned by `tests/diagnose-route.test.mjs`.
 
 ## Report contract
 
@@ -364,13 +385,28 @@ tokens for research plus 5,339 to format, returning three priced listings.
 `pretest`. `npm run lint` is ESLint only. `npm run typecheck` (`tsc --noEmit`) exists but is
 deliberately not wired into `test` or `build` — CI runs all three.
 
-All ten files are pure contract/logic tests: no HTTP handler, no database. They cover the
-schema files and the request guard (`request-guard.test.mjs` — security headers, the
+Ten of the eleven files are pure contract/logic tests: no HTTP handler, no database. They
+cover the schema files and the request guard (`request-guard.test.mjs` — security headers, the
 cross-origin rule in both directions, statement idempotency, and that no migration declares an
 owner column again), request/report/spec/inventory validation and coercion, the interview reducer
 and transcript cap, the suggestion catalog and combobox helpers, the observability rollup math,
 the stale-build matcher, the `requestJson` failure shape, and the three `package.json` script
 invariants whose regression is silent.
+
+The eleventh, `diagnose-route.test.mjs`, is the exception: it drives the real `/api/diagnose`
+handler against an in-memory SQLite database with `fetch` stubbed, so it pins what the handler
+does with a `caseId` (a stale one starts a fresh case and the new id is returned; a live one is
+kept; nothing is written to disk and nothing leaves the process). It can only run because
+`tests/support/app-loader.mjs` teaches plain Node the two lookups only Vite performed — the
+`?raw` suffix and extensionless relative imports. **That is the whole reach of the loader**;
+do not grow it into a bundler. Two things follow from running the real modules:
+
+- **The schema runners memoize per process, not per handle.** A second `:memory:` database in
+  the same test file never gets its tables, so a file opens one database and empties it between
+  tests.
+- **Node's type stripping rejects constructor parameter properties** (`constructor(private x)`),
+  which is why `app/lib/db.ts` declares its fields by hand. Anything reached from the route has
+  to stay erasable.
 
 ⚠ **`evals/run-eval.mjs` is a script, not a module — importing it starts a billed run.** It has
 no `main()` guard, so `import("./evals/run-eval.mjs")` immediately begins calling the model API
