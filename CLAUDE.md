@@ -326,8 +326,11 @@ reason all arrive as one shape — `{ ok: true; data }` | `{ ok: false; message 
 - **A 200 whose body will not parse is a failure.** Handing back `undefined` as `T` is how a card
   renders `Loading…` forever.
 
-⚠ This describes the **Settings page only**. Six other views still fetch inside their own
-`try` / `.catch(() => null)`, 17 call sites between them. Converting them is a separate change.
+⚠ This describes the **Settings page and the `/api/diagnose` call** in `diagnostic-app.tsx`
+only — the latter because a report runs for minutes, which is when a proxy answers with an HTML
+timeout page, and parsing that put a raw `Unexpected token '<'` in front of the operator. Six
+views still fetch inside their own `try` / `.catch(() => null)`, 16 call sites between them.
+Converting them is a separate change.
 
 ## A deploy must not break the tab it deployed into
 

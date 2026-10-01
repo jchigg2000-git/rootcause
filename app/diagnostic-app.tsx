@@ -47,6 +47,7 @@ import {
   randomMachine,
 } from "./lib/equipment-catalog.ts";
 import { ComboField } from "./components/combobox.tsx";
+import { requestJson } from "./lib/request.ts";
 import Link from "next/link";
 import { Wordmark } from "./components/logo.tsx";
 import type { MachineRecord } from "./api/inventory/contract.ts";
@@ -954,7 +955,12 @@ export function DiagnosticApp({ maxPhotos }: { maxPhotos: number }) {
     preparedAttachments: PreparedAttachment[],
     includeAttachments: boolean,
   ): Promise<T> {
-    const response = await fetch("/api/diagnose", {
+    // `requestJson`, not a bare `fetch` + `response.json()`: a report runs for
+    // minutes, which is exactly when a proxy answers with an HTML timeout page,
+    // and parsing that here put a raw "Unexpected token '<'" in front of the
+    // operator. Every failure now arrives as one sentence, preferring the
+    // route's own `{ error }`. The callers' catch blocks are unchanged.
+    const init: RequestInit = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -981,11 +987,14 @@ export function DiagnosticApp({ maxPhotos }: { maxPhotos: number }) {
         // machine the form no longer describes.
         machineId: pickedMachineId || undefined,
       }),
-    });
-
-    const payload = (await response.json()) as T & { error?: string };
-    if (!response.ok) throw new Error(payload.error || "The diagnostic request failed.");
-    return payload;
+    };
+    const result = await requestJson<T>(
+      "/api/diagnose",
+      init,
+      "The diagnostic request failed. Please try again.",
+    );
+    if (!result.ok) throw new Error(result.message);
+    return result.data;
   }
 
   function downloadReport() {
